@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@sci-notebook/core': path.resolve(__dirname, '../core/src'),
-      '@sci-notebook/renderer': path.resolve(__dirname, '../renderer/src'),
-      '@sci-notebook/react': path.resolve(__dirname, '../react/src'),
+      '@velo-sci/notebook-core': path.resolve(__dirname, '../core/src'),
+      '@velo-sci/notebook-renderer': path.resolve(__dirname, '../renderer/src'),
+      '@velo-sci/notebook-react': path.resolve(__dirname, '../react/src'),
     },
   },
 })
