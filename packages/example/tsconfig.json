@@ -9,9 +9,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@sci-notebook/core": ["../core/src"],
-      "@sci-notebook/renderer": ["../renderer/src"],
-      "@sci-notebook/react": ["../react/src"]
+      "@velo-sci/notebook-core": ["../core/src"],
+      "@velo-sci/notebook-renderer": ["../renderer/src"],
+      "@velo-sci/notebook-react": ["../react/src"]
     }
   },
   "include": ["src"]
