@@ -12,7 +12,8 @@
     "docs:api": "typedoc",
     "lint": "eslint packages/**/src/**/*.{ts,tsx}",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "dev": "pnpm -r dev"
+    "dev": "pnpm -r dev",
+    "release": "pnpm build && pnpm -r publish --access public"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
