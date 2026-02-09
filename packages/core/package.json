@@ -1,0 +1,24 @@
+{
+  "name": "@sci-notebook/core",
+  "version": "0.6.0",
+  "description": "Core document model and editor engine for sci-notebook",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --format esm --watch --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0"
+  }
+}
