@@ -1,7 +1,10 @@
 {
-  "name": "@sci-notebook/plugin-latex",
-  "version": "0.6.0",
+  "name": "@velo-sci/notebook-plugin-latex",
+  "version": "0.6.1",
   "description": "LaTeX plugin for sci-notebook",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -15,7 +18,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@sci-notebook/core": "workspace:*",
+    "@velo-sci/notebook-core": "workspace:*",
     "katex": "^0.16.0"
   },
   "devDependencies": {
