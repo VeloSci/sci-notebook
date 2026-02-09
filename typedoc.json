@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "packages/core/src/index.ts",
+    "packages/renderer/src/index.ts",
+    "packages/react/src/index.ts",
+    "packages/plugin-latex/src/index.ts",
+    "packages/plugin-ai/src/index.ts"
+  ],
+  "out": "docs/api",
+  "name": "sci-notebook API Reference",
+  "readme": "README.md",
+  "plugin": ["typedoc-plugin-markdown"],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "categorizeByGroup": true,
+  "sort": ["source-order"],
+  "navigationLinks": {
+    "GitHub": "https://github.com/VeloSci/sci-notebook",
+    "Guide": "./guide/cell-types.md"
+  }
+}
