@@ -18,5 +18,10 @@ export default defineConfig({
     globals: true,
     include: ["src/**/*.spec.ts", "src/**/*.spec.tsx", "packages/**/*.spec.ts", "packages/**/*.spec.tsx"],
     passWithNoTests: true,
+    server: {
+      deps: {
+        inline: [/jsdom/, /@exodus\/bytes/],
+      },
+    },
   },
 });
