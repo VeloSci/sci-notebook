@@ -29,15 +29,15 @@ Una librería TypeScript para crear editores de notebooks científicos con:
 
 ```bash
 # 1. Instalar
-pnpm add @sci-notebook/core @sci-notebook/react @sci-notebook/renderer
+pnpm add@velo-sci/notebook-core@velo-sci/notebook-react@velo-sci/notebook-renderer
 
 # 2. Opcional: LaTeX rendering
 pnpm add katex
 ```
 
 ```tsx
-import { SciNotebook } from '@sci-notebook/react';
-import '@sci-notebook/core/styles/index.css';
+import { SciNotebook } from '@velo-sci/notebook-react';
+import '@velo-sci/notebook-core/styles/index.css';
 
 const notebook = {
   id: 'my-notebook',
@@ -69,11 +69,11 @@ export default function App() {
 
 | Paquete | Tamaño | Descripción |
 |---------|--------|-------------|
-| `@sci-notebook/core` | ~25KB | Modelo de datos, EditorEngine, EventBus, KeybindingManager, HistoryManager |
-| `@sci-notebook/renderer` | ~5KB | Pipeline de rendering: Markdown → AST → HTML, LRU cache |
-| `@sci-notebook/react` | ~54KB | Componentes React: SciNotebook, Cell, MathEditor, ImageCell, EmbedCell, FloatingToolbar, InsertHandle |
-| `@sci-notebook/plugin-latex` | ~2KB | Rendering LaTeX inline/display vía KaTeX |
-| `@sci-notebook/plugin-ai` | ~9KB | Inline completions, ghost text, OpenAI provider |
+| `@velo-sci/notebook-core` | ~25KB | Modelo de datos, EditorEngine, EventBus, KeybindingManager, HistoryManager |
+| `@velo-sci/notebook-renderer` | ~5KB | Pipeline de rendering: Markdown → AST → HTML, LRU cache |
+| `@velo-sci/notebook-react` | ~54KB | Componentes React: SciNotebook, Cell, MathEditor, ImageCell, EmbedCell, FloatingToolbar, InsertHandle |
+| `@velo-sci/notebook-plugin-latex` | ~2KB | Rendering LaTeX inline/display vía KaTeX |
+| `@velo-sci/notebook-plugin-ai` | ~9KB | Inline completions, ghost text, OpenAI provider |
 
 ---
 
@@ -107,7 +107,7 @@ pnpm -r build
 pnpm test
 
 # Correr ejemplo (dev server en localhost:5180)
-pnpm --filter @sci-notebook/example dev
+pnpm --filter@velo-sci/notebook-example dev
 ```
 
 ---
