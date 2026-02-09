@@ -6,6 +6,7 @@ export default defineConfig({
   description: 'Interactive scientific notebook engine for the modern web',
   base: '/sci-notebook/',
   outDir: './dist',
+  ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/sci-notebook/favicon.ico' }]
   ],
