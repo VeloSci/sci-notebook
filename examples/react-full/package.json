@@ -10,11 +10,11 @@
   "dependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@sci-notebook/core": "workspace:*",
-    "@sci-notebook/renderer": "workspace:*",
-    "@sci-notebook/react": "workspace:*",
-    "@sci-notebook/plugin-latex": "workspace:*",
-    "@sci-notebook/plugin-ai": "workspace:*"
+    "@velo-sci/notebook-core": "workspace:*",
+    "@velo-sci/notebook-renderer": "workspace:*",
+    "@velo-sci/notebook-react": "workspace:*",
+    "@velo-sci/notebook-plugin-latex": "workspace:*",
+    "@velo-sci/notebook-plugin-ai": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
