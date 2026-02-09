@@ -12,9 +12,9 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: [
-        { find: '@sci-notebook/core', replacement: resolve(__dirname, '../../packages/core/src/index.ts') },
-        { find: '@sci-notebook/react', replacement: resolve(__dirname, '../../packages/react/src/index.ts') },
-        { find: '@sci-notebook/renderer', replacement: resolve(__dirname, '../../packages/renderer/src/index.ts') }
+        { find: '@velo-sci/notebook-core', replacement: resolve(__dirname, '../../packages/core/src/index.ts') },
+        { find: '@velo-sci/notebook-react', replacement: resolve(__dirname, '../../packages/react/src/index.ts') },
+        { find: '@velo-sci/notebook-renderer', replacement: resolve(__dirname, '../../packages/renderer/src/index.ts') }
       ]
     }
   },
