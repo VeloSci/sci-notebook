@@ -2,7 +2,7 @@
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { SciNotebook } from '@sci-notebook/react'
+import { SciNotebook } from '@velo-sci/notebook-react'
 
 const props = defineProps({
   initialTitle: {
