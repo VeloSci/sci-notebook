@@ -8,7 +8,7 @@ Experimenta sci-notebook directamente en tu browser. El ejemplo incluye los 6 ti
 # Desde la raíz del monorepo
 pnpm install
 pnpm -r build
-pnpm --filter @sci-notebook/example dev
+pnpm --filter@velo-sci/notebook-example dev
 ```
 
 Abre **http://localhost:5180** en tu browser.
@@ -61,9 +61,9 @@ El playground usa exactamente el mismo código que usarías en producción:
 
 | Capa | Paquete | Rol |
 |------|---------|-----|
-| **Engine** | `@sci-notebook/core` | Estado, undo/redo, eventos, keybindings |
-| **Rendering** | `@sci-notebook/renderer` | Markdown → AST → HTML, LRU cache |
-| **UI** | `@sci-notebook/react` | SciNotebook, Cell, MathEditor, ImageCell, EmbedCell |
+| **Engine** | `@velo-sci/notebook-core` | Estado, undo/redo, eventos, keybindings |
+| **Rendering** | `@velo-sci/notebook-renderer` | Markdown → AST → HTML, LRU cache |
+| **UI** | `@velo-sci/notebook-react` | SciNotebook, Cell, MathEditor, ImageCell, EmbedCell |
 | **LaTeX** | `katex` | Rendering de fórmulas en tiempo real |
 | **Build** | `vite` | Dev server con HMR |
 

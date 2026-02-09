@@ -27,7 +27,7 @@ KaTeX is chosen over MathJax for performance:
 ### Implementation
 
 ```typescript
-import type { SciNotebookPlugin, PluginContext, Cell } from "@sci-notebook/core";
+import type { SciNotebookPlugin, PluginContext, Cell } from "@velo-sci/notebook-core";
 import katex from "katex";
 
 export interface LatexPluginOptions {

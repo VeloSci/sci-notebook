@@ -1,6 +1,6 @@
 # React API Reference
 
-El paquete `@sci-notebook/react` provee componentes React y hooks para integrar el editor de notebooks.
+El paquete `@velo-sci/notebook-react` provee componentes React y hooks para integrar el editor de notebooks.
 
 ---
 
@@ -11,8 +11,8 @@ El paquete `@sci-notebook/react` provee componentes React y hooks para integrar 
 Componente principal que renderiza un notebook completo con toolbar, celdas, insert handles, y empty state.
 
 ```tsx
-import { SciNotebook } from '@sci-notebook/react';
-import '@sci-notebook/core/styles/index.css';
+import { SciNotebook } from '@velo-sci/notebook-react';
+import '@velo-sci/notebook-core/styles/index.css';
 
 <SciNotebook
   notebook={initialNotebook}

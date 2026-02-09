@@ -31,7 +31,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 ## Phase 1: Foundation ✅ COMPLETADA
 
 - [x] Monorepo setup (pnpm workspaces, tsconfig, tsup, vitest)
-- [x] `@sci-notebook/core` package
+- [x] `@velo-sci/notebook-core` package
 - [x] `Notebook`, `Cell`, `CellOutput` TypeScript types
 - [x] `generateCellId()`, `generateNotebookId()` utilities
 - [x] `validateNotebook()` function
@@ -52,7 +52,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 
 ## Phase 2: Rendering Pipeline ✅ COMPLETADA
 
-- [x] `@sci-notebook/renderer` package
+- [x] `@velo-sci/notebook-renderer` package
 - [x] `MarkdownParser` interface + markdown-it implementation
 - [x] `RenderPipeline` class:
   - Preprocessor chain (priority-sorted)
@@ -68,7 +68,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 
 ## Phase 3: Framework Adapters ✅ COMPLETADA (React)
 
-- [x] `@sci-notebook/react` package:
+- [x] `@velo-sci/notebook-react` package:
   - `<SciNotebook>` component (toolbar, cells, empty state, plugins, onChange, readOnly, showToolbar, engineRef)
   - `<Cell>` component con dispatch a editores especializados
   - `<FloatingToolbar>` — toolbar contextual en selección de texto
@@ -79,7 +79,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 - [x] Keyboard navigation (Shift+Enter, Escape, Ctrl+B/I, Tab/Shift+Tab)
 - [x] `packages/example/` — app de ejemplo completa con Vite
 - [x] 6 component tests passing
-- [ ] `@sci-notebook/vanilla` — pendiente (fuera de scope v1)
+- [ ] `@velo-sci/notebook-vanilla` — pendiente (fuera de scope v1)
 - [x] Accessibility: ARIA labels, roles, aria-selected, tabIndex en celdas
 
 ---
@@ -87,7 +87,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 ## Phase 4: Core Plugins ✅ COMPLETADA
 
 ### Completado:
-- [x] `@sci-notebook/plugin-latex`:
+- [x] `@velo-sci/notebook-plugin-latex`:
   - Inline `$...$` y display `$$...$$` rendering via KaTeX
   - `latex` cell type
   - Preprocessor + AST transformer
@@ -104,7 +104,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
   - Presets: YouTube, CodePen, Observable, Desmos, GeoGebra
   - URL + iframe sandboxed
   - `renderEmbedPreview()` para modo vista
-- [x] `@sci-notebook/plugin-ai`:
+- [x] `@velo-sci/notebook-plugin-ai`:
   - `InlineCompletionManager` (debounce, cancel, accept, ghost text)
   - `assembleContext()` para contexto de completions
   - `createOpenAIProvider()` con streaming SSE
@@ -135,7 +135,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 
 ## Phase 5: AI Integration ✅ COMPLETADA
 
-- [x] `@sci-notebook/plugin-ai` package scaffold
+- [x] `@velo-sci/notebook-plugin-ai` package scaffold
 - [x] `AICompletionProvider` interface
 - [x] `InlineCompletionManager`
 - [x] OpenAI-compatible provider with streaming

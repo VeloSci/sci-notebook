@@ -2,7 +2,7 @@
 
 ## Overview
 
-The core library (`@sci-notebook/core`) is framework-agnostic. Framework
+The core library (`@velo-sci/notebook-core`) is framework-agnostic. Framework
 adapters are thin wrappers that bridge the core engine to a specific UI
 framework's component model, lifecycle, and reactivity system.
 
@@ -10,10 +10,10 @@ Each adapter is a separate package:
 
 | Package                  | Framework    | Status     |
 |--------------------------|-------------|------------|
-| `@sci-notebook/react`    | React 18+   | Primary    |
-| `@sci-notebook/vue`      | Vue 3+      | Planned    |
-| `@sci-notebook/svelte`   | Svelte 5+   | Planned    |
-| `@sci-notebook/vanilla`  | Vanilla JS   | Primary    |
+| `@velo-sci/notebook-react`    | React 18+   | Primary    |
+| `@velo-sci/notebook-vue`      | Vue 3+      | Planned    |
+| `@velo-sci/notebook-svelte`   | Svelte 5+   | Planned    |
+| `@velo-sci/notebook-vanilla`  | Vanilla JS   | Primary    |
 
 ---
 
@@ -28,7 +28,7 @@ Each adapter is a separate package:
 
 ---
 
-## Core Public API (`@sci-notebook/core`)
+## Core Public API (`@velo-sci/notebook-core`)
 
 ### `createNotebook`
 
@@ -85,16 +85,16 @@ function validateNotebook(doc: unknown): ValidationResult;
 
 ---
 
-## React Adapter (`@sci-notebook/react`)
+## React Adapter (`@velo-sci/notebook-react`)
 
 ### `<SciNotebook>` Component
 
 The primary React component. Renders the full notebook UI.
 
 ```tsx
-import { SciNotebook } from "@sci-notebook/react";
-import { latexPlugin } from "@sci-notebook/plugin-latex";
-import { mermaidPlugin } from "@sci-notebook/plugin-mermaid";
+import { SciNotebook } from "@velo-sci/notebook-react";
+import { latexPlugin } from "@velo-sci/notebook-plugin-latex";
+import { mermaidPlugin } from "@velo-sci/notebook-plugin-mermaid";
 
 function App() {
   return (
@@ -195,7 +195,7 @@ function usePluginData<T = unknown>(pluginId: string, key: string): T | undefine
 ### Custom Cell Renderers (React)
 
 ```tsx
-import { registerCellRenderer } from "@sci-notebook/react";
+import { registerCellRenderer } from "@velo-sci/notebook-react";
 
 // Register a custom React component for a cell type
 registerCellRenderer("my-widget", ({ cell, isEditing, onUpdate }) => {
@@ -213,15 +213,15 @@ registerCellRenderer("my-widget", ({ cell, isEditing, onUpdate }) => {
 
 ---
 
-## Vanilla JS Adapter (`@sci-notebook/vanilla`)
+## Vanilla JS Adapter (`@velo-sci/notebook-vanilla`)
 
 For environments without a framework (plain HTML pages, web components, etc.).
 
 ### Mounting
 
 ```typescript
-import { mount } from "@sci-notebook/vanilla";
-import { latexPlugin } from "@sci-notebook/plugin-latex";
+import { mount } from "@velo-sci/notebook-vanilla";
+import { latexPlugin } from "@velo-sci/notebook-plugin-latex";
 
 const container = document.getElementById("notebook");
 

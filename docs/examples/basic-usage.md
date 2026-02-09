@@ -5,7 +5,7 @@ Este ejemplo muestra cómo crear un notebook con los 6 tipos de celda disponible
 ## Setup
 
 ```bash
-pnpm add @sci-notebook/core @sci-notebook/react @sci-notebook/renderer
+pnpm add@velo-sci/notebook-core@velo-sci/notebook-react@velo-sci/notebook-renderer
 
 # Opcional: rendering LaTeX con KaTeX
 pnpm add katex
@@ -15,9 +15,9 @@ pnpm add katex
 
 ```tsx
 import React, { useState, useRef, useCallback } from "react";
-import { SciNotebook } from "@sci-notebook/react";
-import { EditorEngine, Notebook } from "@sci-notebook/core";
-import "@sci-notebook/core/styles/index.css";
+import { SciNotebook } from "@velo-sci/notebook-react";
+import { EditorEngine, Notebook } from "@velo-sci/notebook-core";
+import "@velo-sci/notebook-core/styles/index.css";
 
 // Opcional: KaTeX para rendering de fórmulas
 import katex from "katex";
@@ -150,7 +150,7 @@ Texto sin procesar, útil para datos crudos o logs.
 
 ```bash
 # Desde la raíz del monorepo
-pnpm --filter @sci-notebook/example dev
+pnpm --filter@velo-sci/notebook-example dev
 
 # Abre http://localhost:5180
 ```

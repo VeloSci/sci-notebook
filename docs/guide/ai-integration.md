@@ -354,9 +354,9 @@ export function createOpenAIProvider(options: OpenAIProviderOptions): AICompleti
 ### Usage Example
 
 ```typescript
-import { createNotebook } from "@sci-notebook/core";
-import { aiPlugin } from "@sci-notebook/plugin-ai";
-import { createOpenAIProvider } from "@sci-notebook/plugin-ai/providers/openai";
+import { createNotebook } from "@velo-sci/notebook-core";
+import { aiPlugin } from "@velo-sci/notebook-plugin-ai";
+import { createOpenAIProvider } from "@velo-sci/notebook-plugin-ai/providers/openai";
 
 const notebook = createNotebook({
   plugins: [

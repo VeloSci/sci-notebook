@@ -1,6 +1,6 @@
 # Core API Reference
 
-The `@sci-notebook/core` package contains the fundamental data models and the state engine for managing scientific notebooks.
+The `@velo-sci/notebook-core` package contains the fundamental data models and the state engine for managing scientific notebooks.
 
 ## Types
 

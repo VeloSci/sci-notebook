@@ -381,7 +381,7 @@ These plugins ship with the library but are opt-in:
 
 ```typescript
 // Example: minimal plugin skeleton
-import type { SciNotebookPlugin, PluginContext } from "@sci-notebook/core";
+import type { SciNotebookPlugin, PluginContext } from "@velo-sci/notebook-core";
 
 export function myPlugin(options?: MyPluginOptions): SciNotebookPlugin {
   return {

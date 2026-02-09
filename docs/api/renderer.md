@@ -1,6 +1,6 @@
 # Renderer API Reference
 
-The `@sci-notebook/renderer` package provides a highly extensible pipeline for transforming raw cell data into rich HTML.
+The `@velo-sci/notebook-renderer` package provides a highly extensible pipeline for transforming raw cell data into rich HTML.
 
 ## RenderPipeline
 

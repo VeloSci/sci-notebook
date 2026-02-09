@@ -8,7 +8,7 @@ A plugin can add new cell types, modify the rendering pipeline, or listen to eng
 
 ```typescript
 // word-counter-plugin.ts
-import { SciNotebookPlugin, PluginContext } from '@sci-notebook/core';
+import { SciNotebookPlugin, PluginContext } from '@velo-sci/notebook-core';
 
 export const wordCounterPlugin: SciNotebookPlugin = {
   id: 'word-counter',
@@ -36,8 +36,8 @@ Register the plugin with the engine before passing it to the component.
 
 ```tsx
 import React, { useMemo } from 'react';
-import { EditorEngine, createNotebook } from '@sci-notebook/core';
-import { SciNotebook } from '@sci-notebook/react';
+import { EditorEngine, createNotebook } from '@velo-sci/notebook-core';
+import { SciNotebook } from '@velo-sci/notebook-react';
 import { wordCounterPlugin } from './word-counter-plugin';
 
 export const MyNotebookApp = () => {

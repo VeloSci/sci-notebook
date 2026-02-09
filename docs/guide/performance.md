@@ -199,10 +199,10 @@ Plugins are loaded on demand to minimize initial bundle size.
 
 ```typescript
 // Instead of:
-import { latexPlugin } from "@sci-notebook/plugin-latex";
+import { latexPlugin } from "@velo-sci/notebook-plugin-latex";
 
 // Use lazy loading:
-const latexPlugin = () => import("@sci-notebook/plugin-latex").then(m => m.latexPlugin());
+const latexPlugin = () => import("@velo-sci/notebook-plugin-latex").then(m => m.latexPlugin());
 ```
 
 ### Plugin Loader
