@@ -14,14 +14,9 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "jsdom",
+    environment: "node",
     globals: true,
     include: ["src/**/*.spec.ts", "src/**/*.spec.tsx", "packages/**/*.spec.ts", "packages/**/*.spec.tsx"],
     passWithNoTests: true,
-    server: {
-      deps: {
-        inline: [/jsdom/, /@exodus\/bytes/],
-      },
-    },
   },
 });
