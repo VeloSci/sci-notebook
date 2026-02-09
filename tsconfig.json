@@ -13,7 +13,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@sci-notebook/*": ["packages/*/src"]
+      "@velo-sci/notebook-core": ["packages/core/src"],
+      "@velo-sci/notebook-renderer": ["packages/renderer/src"],
+      "@velo-sci/notebook-react": ["packages/react/src"],
+      "@velo-sci/notebook-plugin-ai": ["packages/plugin-ai/src"],
+      "@velo-sci/notebook-plugin-latex": ["packages/plugin-latex/src"]
     }
   },
   "exclude": ["node_modules", "dist"]
