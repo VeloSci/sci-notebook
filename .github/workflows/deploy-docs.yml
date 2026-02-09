@@ -1,0 +1,49 @@
+name: Deploy Docs & Example
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
+
+      - name: Build Documentation
+        run: pnpm docs:build
+
+      - name: Build Example App
+        run: cd packages/example && pnpm build
+
+      - name: Prepare Deployment Directory
+        run: |
+          mkdir -p deploy
+          cp -r docs/dist/* deploy/
+          mkdir -p deploy/example
+          cp -r packages/example/dist/* deploy/example/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy

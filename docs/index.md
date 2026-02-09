@@ -16,6 +16,9 @@ hero:
       text: Quick Start
       link: /examples/basic-usage
     - theme: alt
+      text: Full App Demo
+      link: /example/
+    - theme: alt
       text: Estudio Competitivo
       link: /COMPETITIVE_STUDY
 

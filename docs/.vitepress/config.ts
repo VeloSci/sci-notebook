@@ -24,6 +24,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/overview' },
       { text: 'API', link: '/api/' },
       { text: 'Examples', link: '/examples/basic-usage' },
+      { text: 'Full Demo', link: '/example/', target: '_blank' },
       { text: 'Roadmap', link: '/roadmap' }
     ],
     logo: '/sci-notebook/logo.svg',
