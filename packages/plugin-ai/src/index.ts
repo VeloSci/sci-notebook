@@ -1,4 +1,4 @@
-import type { SciNotebookPlugin, PluginContext, Cell, CellType, Notebook } from "@sci-notebook/core";
+import type { SciNotebookPlugin, PluginContext, Cell, CellType, Notebook } from "@velo-sci/notebook-core";
 
 // --- Types ---
 
