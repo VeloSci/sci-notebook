@@ -1,7 +1,7 @@
 {
-  "name": "@sci-notebook/example",
+  "name": "@velo-sci/notebook-example",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.6.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@sci-notebook/core": "workspace:*",
-    "@sci-notebook/react": "workspace:*",
-    "@sci-notebook/renderer": "workspace:*",
+    "@velo-sci/notebook-core": "workspace:*",
+    "@velo-sci/notebook-react": "workspace:*",
+    "@velo-sci/notebook-renderer": "workspace:*",
     "katex": "^0.16.0",
     "mermaid": "^11.0.0",
     "react": "^18.3.1",
