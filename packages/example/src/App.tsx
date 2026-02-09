@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
-import { SciNotebook } from "@sci-notebook/react";
+import { SciNotebook } from "@velo-sci/notebook-react";
 import {
   EditorEngine,
   Notebook,
@@ -9,7 +9,7 @@ import {
   exportToIPYNB,
   exportToJSON,
   downloadExport,
-} from "@sci-notebook/core";
+} from "@velo-sci/notebook-core";
 
 const SAMPLE_NOTEBOOK: Notebook = {
   id: "demo_nb_1",
