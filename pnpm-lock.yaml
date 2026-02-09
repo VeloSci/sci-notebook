@@ -81,13 +81,13 @@ importers:
 
   packages/example:
     dependencies:
-      '@sci-notebook/core':
+      '@velo-sci/notebook-core':
         specifier: workspace:*
         version: link:../core
-      '@sci-notebook/react':
+      '@velo-sci/notebook-react':
         specifier: workspace:*
         version: link:../react
-      '@sci-notebook/renderer':
+      '@velo-sci/notebook-renderer':
         specifier: workspace:*
         version: link:../renderer
       katex:
@@ -121,7 +121,7 @@ importers:
 
   packages/plugin-ai:
     dependencies:
-      '@sci-notebook/core':
+      '@velo-sci/notebook-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -134,7 +134,7 @@ importers:
 
   packages/plugin-latex:
     dependencies:
-      '@sci-notebook/core':
+      '@velo-sci/notebook-core':
         specifier: workspace:*
         version: link:../core
       katex:
@@ -153,10 +153,10 @@ importers:
 
   packages/react:
     dependencies:
-      '@sci-notebook/core':
+      '@velo-sci/notebook-core':
         specifier: workspace:*
         version: link:../core
-      '@sci-notebook/renderer':
+      '@velo-sci/notebook-renderer':
         specifier: workspace:*
         version: link:../renderer
       react:
@@ -181,7 +181,7 @@ importers:
 
   packages/renderer:
     dependencies:
-      '@sci-notebook/core':
+      '@velo-sci/notebook-core':
         specifier: workspace:*
         version: link:../core
       dompurify:
