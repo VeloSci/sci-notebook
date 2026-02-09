@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { SciNotebook } from "@sci-notebook/react";
-import { latexPlugin } from "@sci-notebook/plugin-latex";
-import { aiPlugin } from "@sci-notebook/plugin-ai";
-import "@sci-notebook/core/src/styles/index.css";
+import { SciNotebook } from "@velo-sci/notebook-react";
+import { latexPlugin } from "@velo-sci/notebook-plugin-latex";
+import { aiPlugin } from "@velo-sci/notebook-plugin-ai";
+import "@velo-sci/notebook-core/src/styles/index.css";
 
 const initialNotebook = {
   id: "example-nb",
