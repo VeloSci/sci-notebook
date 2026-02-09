@@ -1,4 +1,4 @@
-import type { SciNotebookPlugin, PluginContext, Cell } from "@sci-notebook/core";
+import type { SciNotebookPlugin, PluginContext, Cell } from "@velo-sci/notebook-core";
 import katex from "katex";
 
 export interface LatexPluginOptions {
