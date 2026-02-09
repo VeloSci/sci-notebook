@@ -5,7 +5,7 @@
  * Supports both light and dark themes simultaneously via dual-theme mode.
  */
 
-import type { Cell } from "@sci-notebook/core";
+import type { Cell } from "@velo-sci/notebook-core";
 import type { Highlighter, BundledLanguage, BundledTheme } from "shiki";
 
 let highlighterPromise: Promise<Highlighter> | null = null;

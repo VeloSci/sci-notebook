@@ -6,7 +6,7 @@
  * for notebooks that don't use LaTeX.
  *
  * Usage:
- *   import { ensureKaTeX, createLazyKaTeXPostprocessor } from "@sci-notebook/renderer";
+ *   import { ensureKaTeX, createLazyKaTeXPostprocessor } from "@velo-sci/notebook-renderer";
  *
  *   // Option 1: Preload KaTeX eagerly
  *   await ensureKaTeX();

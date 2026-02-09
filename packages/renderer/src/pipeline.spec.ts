@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { RenderPipeline } from "../src/pipeline";
-import { Cell } from "@sci-notebook/core";
+import { Cell } from "@velo-sci/notebook-core";
 
 describe("RenderPipeline", () => {
   const createMockCell = (id: string, source: string, type: string = "markdown", metadata: any = {}): Cell => ({

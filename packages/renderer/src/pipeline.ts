@@ -1,4 +1,4 @@
-import type { Cell, Notebook, CellType } from "@sci-notebook/core";
+import type { Cell, Notebook, CellType } from "@velo-sci/notebook-core";
 import { MarkdownParser, MarkdownItParser } from "./parser";
 import { LRUCache, hashString } from "./cache";
 import type Token from "markdown-it/lib/token";
