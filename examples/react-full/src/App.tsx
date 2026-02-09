@@ -33,7 +33,7 @@ const initialNotebook = {
   updatedAt: new Date().toISOString(),
 };
 
-export function App() {
+export default function App() {
   const [notebook, setNotebook] = useState(initialNotebook);
 
   return (
