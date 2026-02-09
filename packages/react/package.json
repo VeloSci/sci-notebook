@@ -1,0 +1,33 @@
+{
+  "name": "@sci-notebook/react",
+  "version": "0.6.0",
+  "description": "React adapter for sci-notebook",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --format esm --watch --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@sci-notebook/core": "workspace:*",
+    "@sci-notebook/renderer": "workspace:*",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
+  }
+}
