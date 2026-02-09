@@ -6,17 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-#### Core (`@sci-notebook/core`)
+#### Core (`@velo-sci/notebook-core`)
 - **TemplateEngine** — Programmable templates with `{{flags}}`, dot-notation, block directives (`#table`, `#each`, `#if/#else`, `#date`, `#eval`), 13 filters, async resolvers for server/DB data binding
 - **ExportEngine** — Export notebooks to HTML (standalone), Markdown, Jupyter `.ipynb`, JSON; `downloadExport()` browser helper
 - **CodeExecutor** — JS sandbox execution with console capture, async support, timeout, custom language executors (e.g., Pyodide for Python)
 - **VersionHistory** — Snapshot-based version history with save/restore/diff, auto-save interval, configurable max entries
 
-#### Renderer (`@sci-notebook/renderer`)
+#### Renderer (`@velo-sci/notebook-renderer`)
 - **Shiki syntax highlighting** — Lazy-loaded highlighter with 30+ pre-loaded languages, dual theme (light/dark), language aliases, `createShikiPostprocessor()` for pipeline integration
 - **Mermaid diagrams** — `renderMermaidFallback()` using `globalThis.mermaid` pattern (same as KaTeX), fallback to styled code block
 
-#### React (`@sci-notebook/react`)
+#### React (`@velo-sci/notebook-react`)
 - **SlashCommand** — `/` in textarea opens filterable menu of 8 cell types with icons, descriptions, keyword search, arrow/enter/escape navigation
 - **TableCell** — Interactive table editor with add/remove row/col, Tab navigation, markdown table sync, `renderTablePreview()`
 - **TOCSidebar** — Table of contents from h1/h2/h3 headings, sticky nav, scroll-to-cell, active cell highlight
