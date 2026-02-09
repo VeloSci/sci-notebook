@@ -5,7 +5,7 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { SciNotebook } from "./SciNotebook";
-import { Notebook, createNotebook } from "@sci-notebook/core";
+import { Notebook, createNotebook } from "@velo-sci/notebook-core";
 
 describe("SciNotebook React Component", () => {
   const createMockNotebook = (): Notebook => ({

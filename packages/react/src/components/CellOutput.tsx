@@ -1,5 +1,5 @@
 import React from "react";
-import type { CellOutput as ICellOutput } from "@sci-notebook/core";
+import type { CellOutput as ICellOutput } from "@velo-sci/notebook-core";
 
 interface CellOutputProps {
   outputs: ICellOutput[];

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { CellType } from "@sci-notebook/core";
+import { CellType } from "@velo-sci/notebook-core";
 import { useSciNotebook } from "../hooks";
 
 interface InsertHandleProps {

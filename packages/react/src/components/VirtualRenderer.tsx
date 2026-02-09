@@ -7,8 +7,8 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import type { Cell as ICell } from "@sci-notebook/core";
-import { RenderPipeline } from "@sci-notebook/renderer";
+import type { Cell as ICell } from "@velo-sci/notebook-core";
+import { RenderPipeline } from "@velo-sci/notebook-renderer";
 import { Cell } from "./Cell";
 import { InsertHandle } from "./InsertHandle";
 

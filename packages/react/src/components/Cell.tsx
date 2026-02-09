@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState } from "react";
-import { Cell as ICell, CellType } from "@sci-notebook/core";
-import { RenderPipeline } from "@sci-notebook/renderer";
+import { Cell as ICell, CellType } from "@velo-sci/notebook-core";
+import { RenderPipeline } from "@velo-sci/notebook-renderer";
 import { useSciNotebook, useCell } from "../hooks";
 import { FloatingToolbar } from "./FloatingToolbar";
 import { MathEditor } from "./MathEditor";

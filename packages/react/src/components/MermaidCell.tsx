@@ -114,7 +114,7 @@ export const MermaidPreview: React.FC<MermaidPreviewProps> = ({ source, onClick 
  * @example
  * ```ts
  * import mermaid from "mermaid";
- * import { initMermaid } from "@sci-notebook/react";
+ * import { initMermaid } from "@velo-sci/notebook-react";
  * initMermaid(mermaid);
  * ```
  */

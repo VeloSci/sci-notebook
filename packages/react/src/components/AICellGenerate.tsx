@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import type { Cell, CellType } from "@sci-notebook/core";
+import type { Cell, CellType } from "@velo-sci/notebook-core";
 
 export interface GeneratedCell {
   type: CellType;

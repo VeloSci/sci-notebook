@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
-import { EditorEngine, Notebook, Cell, EventPayload } from "@sci-notebook/core";
+import { EditorEngine, Notebook, Cell, EventPayload } from "@velo-sci/notebook-core";
 
 export const NotebookContext = createContext<EditorEngine | null>(null);
 

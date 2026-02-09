@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState, useCallback } from "react";
-import { EditorEngine, createNotebook, Notebook, Cell as ICell, CellType, SciNotebookPlugin } from "@sci-notebook/core";
-import { RenderPipeline } from "@sci-notebook/renderer";
+import { EditorEngine, createNotebook, Notebook, Cell as ICell, CellType, SciNotebookPlugin } from "@velo-sci/notebook-core";
+import { RenderPipeline } from "@velo-sci/notebook-renderer";
 import { NotebookContext } from "../hooks";
 import { Cell } from "./Cell";
 import { InsertHandle } from "./InsertHandle";

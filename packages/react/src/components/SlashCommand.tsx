@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { CellType } from "@sci-notebook/core";
+import { CellType } from "@velo-sci/notebook-core";
 
 export interface SlashCommandItem {
   type: CellType;
