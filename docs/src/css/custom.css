@@ -1,0 +1,62 @@
+/**
+ * Any CSS included here will be global. The rule-of-thumb is to avoid
+ * putting styles here unless they apply to all pages. One exception is
+ * CSS variables, which are almost always defined here.
+ */
+
+:root {
+  --ifm-color-primary: #4a9eff;
+  --ifm-color-primary-dark: #3b8ee6;
+  --ifm-color-primary-darker: #3886d9;
+  --ifm-color-primary-darkest: #2e6eb3;
+  --ifm-color-primary-light: #6eb2ff;
+  --ifm-color-primary-lighter: #7fbbff;
+  --ifm-color-primary-lightest: #b3d7ff;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  /* SciNotebook Brand Colors */
+  --sci-primary: #4a9eff;
+  --sci-accent: #6366f1;
+  --sci-gradient: linear-gradient(135deg, #4a9eff 0%, #6366f1 50%, #a855f7 100%);
+}
+
+/* For readability on white background */
+[data-theme='light'] {
+  --ifm-color-primary: #2e6eb3;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #4a9eff;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+.hero--primary {
+  --ifm-hero-background-color: #0d1117;
+  --ifm-hero-text-color: #fff;
+  background: radial-gradient(circle at 10% 20%, rgba(74, 158, 255, 0.1) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+              #0d1117;
+}
+
+.hero__title {
+  background: var(--sci-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  font-size: 4rem;
+}
+
+.button--secondary {
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.button--secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(74, 158, 255, 0.2);
+}

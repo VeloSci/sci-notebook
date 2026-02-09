@@ -77,7 +77,7 @@ El notebook de ejemplo incluye 10 celdas:
 2. **Markdown** — Tabla de features
 3. **Code** — Función Fibonacci en JavaScript
 4. **Markdown** — Guía de interacciones
-5. **LaTeX** — Integral gaussiana (∫₀^∞ e^{-x²} dx)
+5. **LaTeX** — Integral gaussiana ($\int_0^\infty e^{-x^2} dx$)
 6. **Markdown** — Descripción del editor de fórmulas
 7. **Image** — Fórmula de Euler (Wikipedia)
 8. **Embed** — Video de 3Blue1Brown (YouTube)

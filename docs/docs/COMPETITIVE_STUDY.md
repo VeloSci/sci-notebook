@@ -350,7 +350,7 @@
 
 ## 7. Principios de Diseño para "El Mejor Editor"
 
-1. **Instant feedback**: Cada acción del usuario produce resultado visual inmediato (<16ms)
+1. **Instant feedback**: Cada acción del usuario produce resultado visual inmediato (&lt;16ms)
 2. **Zero friction**: Nunca más de 2 clicks para cualquier operación común
 3. **Progressive disclosure**: Simple por defecto, potente cuando lo necesitas
 4. **Keyboard-first**: Todo accesible por teclado, mouse es opcional
@@ -358,7 +358,7 @@
 6. **Composable**: Cada feature es un plugin, nada es obligatorio
 7. **Beautiful defaults**: Se ve profesional sin configuración
 8. **Accessible**: WCAG 2.1 AA, screen readers, high contrast
-9. **Fast**: <100ms para cualquier operación, <1s para boot
+9. **Fast**: &lt;100ms para cualquier operación, &lt;1s para boot
 10. **Open**: Formato JSON estándar, sin vendor lock-in, MIT license
 
 ---

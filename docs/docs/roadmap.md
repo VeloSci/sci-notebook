@@ -11,7 +11,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 - ✅ Editor visual de fórmulas (MathEditor) con 100+ bloques
 - ✅ UX moderna (click-to-edit, toolbar flotante, insert handles, slash commands, drag & drop)
 - ✅ Temas light/dark
-- ✅ TemplateEngine con {{flags}}, resolvers async, filtros
+- ✅ TemplateEngine con {'{{flags}}'}, resolvers async, filtros
 - ✅ ExportEngine (HTML, Markdown, .ipynb, JSON)
 - ✅ CodeExecutor (JS sandbox + custom language executors)
 - ✅ Shiki syntax highlighting (30+ lenguajes)
@@ -122,7 +122,7 @@ El proyecto ha completado las fases 1–6 casi en su totalidad. Ver el [Estudio 
 - [x] **FindReplace** — Ctrl+F, case sensitive, replace current/all
 - [x] **LatexAutocomplete** — 120+ comandos en 8 categorías
 - [x] **CellOutputDisplay** — Render stream/display/error outputs
-- [x] **TemplateEngine** — {{flags}}, resolvers async, #table, #each, #if, #date, 13 filtros
+- [x] **TemplateEngine** — {'{{flags}}'}, resolvers async, #table, #each, #if, #date, 13 filtros
 - [x] **ExportEngine** — HTML, Markdown, .ipynb, JSON + downloadExport()
 - [x] **CodeExecutor** — JS sandbox, console capture, async, timeout, custom executors
 - [x] **VersionHistory** — save/restore/diff, auto-save, configurable max entries
