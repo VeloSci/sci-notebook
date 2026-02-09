@@ -1,7 +1,10 @@
 {
-  "name": "@sci-notebook/core",
-  "version": "0.6.0",
+  "name": "@velo-sci/notebook-core",
+  "version": "0.6.1",
   "description": "Core document model and editor engine for sci-notebook",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
