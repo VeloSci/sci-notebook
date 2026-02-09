@@ -126,7 +126,7 @@ export default function App() {
 Rendering completo con markdown-it. Toolbar flotante para Bold, Italic, Strikethrough, Code, Headings, Links, Lists.
 
 ### Code
-Bloques de código con metadata de lenguaje. Se muestra con ``&lt;pre<pre><code>gt;&lt;code<pre><code>gt;``.
+Bloques de código con metadata de lenguaje. Se muestra con `<pre><code>`.
 
 ### LaTeX
 **Editor visual de fórmulas** con 9 categorías de bloques clickeables:

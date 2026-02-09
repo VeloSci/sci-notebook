@@ -58,7 +58,7 @@ Los bloques fundamentales para construir expresiones:
 | 3×3 paréntesis | `\begin{pmatrix}...` | ( ) |
 | 2×2 corchetes | `\begin{bmatrix}...` | [ ] |
 | 2×2 barras | `\begin{vmatrix}...` | \| \| |
-| Cases | `\begin{cases}...` | \{ |
+| Cases | `\begin{cases}...` | { |
 
 ### Griegos (25 símbolos)
 

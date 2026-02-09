@@ -155,7 +155,7 @@ interface FloatingToolbarProps {
 - **B** — Bold (`**texto**`)
 - **I** — Italic (`*texto*`)
 - **S** — Strikethrough (`~~texto~~`)
-- **\<\>** — Inline code (`` `texto` ``)
+- **<>** — Inline code (`` `texto` ``)
 - **H1** — Heading 1 (`# `)
 - **H2** — Heading 2 (`## `)
 - **🔗** — Link (`[texto](url)`)
