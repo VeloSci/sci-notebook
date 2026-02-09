@@ -73,11 +73,15 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build everything
         run: |
-          # Build all packages and examples
+          # Build packages
           pnpm -r build
           # Build docs (Docusaurus)
           pnpm docs:build
-          # Integration: Place the main example in a subfolder of the docs build
+          # Build example app
+          cd packages/example && pnpm build
+          cd ../..
+          # Integration: Place example in a subfolder of the main docs build
+          # Docusaurus output is in docs/build
           mkdir -p docs/build/example
           cp -r packages/example/dist/* docs/build/example/
       - name: Setup Pages
