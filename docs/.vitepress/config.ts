@@ -10,6 +10,9 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/sci-notebook/favicon.ico' }]
   ],
+  markdown: {
+    math: true
+  },
   vite: {
     resolve: {
       alias: [
