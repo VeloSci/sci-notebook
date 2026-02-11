@@ -73,8 +73,11 @@ function tokenHighlight(escaped: string, lang: string): string {
   result = result.replace(/@([a-zA-Z_][a-zA-Z0-9_]*)/g,
     '<span class="sci-nb-hl-decorator">@$1</span>');
 
-  // Pass 3: Restore placeholders
-  for (let i = 0; i < placeholders.length; i++) {
+  // Pass 3: Restore placeholders in reverse order.
+  // Inner placeholders (strings) may be nested inside outer ones (comments).
+  // Restoring outer first ensures that inner placeholder keys are present
+  // in `result` when we attempt to replace them.
+  for (let i = placeholders.length - 1; i >= 0; i--) {
     result = result.replace(mkKey(i), placeholders[i]);
   }
 
