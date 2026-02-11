@@ -174,7 +174,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
                 className="sci-nb-toolbar-btn"
                 onClick={() => setShowFind(v => !v)}
                 title="Find & Replace (Ctrl+F)"
-              >Buscar</button>
+              >Find</button>
               <button
                 className={`sci-nb-toolbar-btn ${showTOC ? "sci-nb-toolbar-btn--active" : ""}`}
                 onClick={() => setShowTOC(v => !v)}
@@ -199,7 +199,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
                   <line x1="14" y1="30" x2="22" y2="30" />
                 </svg>
               </div>
-              <p>Notebook vacio. Agrega una celda para comenzar.</p>
+              <p>Empty notebook. Add a cell to get started.</p>
               <InsertHandle index={0} />
             </div>
           )}
