@@ -102,7 +102,7 @@ describe("SciNotebook React Component", () => {
       cells: [],
     };
     render(<SciNotebook notebook={emptyNb} />);
-    expect(screen.getByText(/Notebook vacio/)).toBeTruthy();
+    expect(screen.getByText(/Empty notebook/)).toBeTruthy();
   });
 
   it("should hide toolbar when showToolbar is false", () => {
