@@ -9,6 +9,8 @@ export * from "./template-engine";
 export * from "./export-engine";
 export * from "./code-executor";
 export * from "./version-history";
+export * from "./presentation";
+export * from "./mobile-adapter";
 
 import { Notebook } from "./types";
 import { EditorEngine, EditorEngineConfig } from "./editor-engine";
