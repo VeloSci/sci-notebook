@@ -1,0 +1,32 @@
+{
+  "name": "@velo-sci/notebook-vue",
+  "version": "0.6.1",
+  "description": "Vue 3+ adapter for sci-notebook",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --format esm --watch --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@velo-sci/notebook-core": "workspace:*",
+    "@velo-sci/notebook-renderer": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0",
+    "vue": "^3.5.28"
+  }
+}
