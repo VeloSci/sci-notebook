@@ -1,14 +1,14 @@
 # React API Reference
 
-El paquete `@velo-sci/notebook-react` provee componentes React y hooks para integrar el editor de notebooks.
+The `@velo-sci/notebook-react` package provides React components and hooks for integrating the notebook editor.
 
 ---
 
-## Componentes
+## Components
 
 ### `SciNotebook`
 
-Componente principal que renderiza un notebook completo con toolbar, celdas, insert handles, y empty state.
+Main component that renders a full notebook with toolbar, cells, insert handles, and empty state.
 
 ```tsx
 import { SciNotebook } from '@velo-sci/notebook-react';
@@ -28,29 +28,32 @@ import '@velo-sci/notebook-core/styles/index.css';
 
 **Props:**
 
-| Prop | Tipo | Default | Descripción |
+| Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `notebook` | `Notebook` | — | Datos iniciales del notebook |
-| `theme` | `"light" \| "dark"` | `"light"` | Tema visual |
-| `onChange` | `(nb: Notebook) => void` | — | Callback en cada cambio |
-| `onCellFocus` | `(cellId: string) => void` | — | Callback al enfocar celda |
-| `engineRef` | `MutableRefObject<EditorEngine>` | — | Ref para acceso imperativo al engine |
-| `readOnly` | `boolean` | `false` | Modo solo lectura |
-| `showToolbar` | `boolean` | `true` | Mostrar/ocultar toolbar |
-| `plugins` | `SciNotebookPlugin[]` | `[]` | Plugins a registrar |
+| `notebook` | `Notebook` | — | Initial notebook data |
+| `theme` | `"light" \| "dark"` | `"light"` | Visual theme |
+| `onChange` | `(nb: Notebook) => void` | — | Callback on every change |
+| `onCellFocus` | `(cellId: string) => void` | — | Callback when a cell is focused |
+| `engineRef` | `MutableRefObject<EditorEngine>` | — | Ref for imperative engine access |
+| `readOnly` | `boolean` | `false` | Read-only mode |
+| `showToolbar` | `boolean` | `true` | Show/hide toolbar |
+| `showTOC` | `boolean` | `false` | Show/hide table of contents sidebar |
+| `plugins` | `SciNotebookPlugin[]` | `[]` | Plugins to register |
 
 ---
 
 ### `Cell`
 
-Renderiza una celda individual. Maneja automáticamente el dispatch a editores especializados según el tipo:
+Renders an individual cell. Automatically dispatches to specialized editors based on type:
 
 - `markdown` → Textarea + FloatingToolbar
-- `code` → Textarea monoespaciada
-- `latex` → MathEditor (editor visual de fórmulas)
+- `code` → Monospaced textarea
+- `latex` → MathEditor (visual formula editor)
+- `table` → TableCell (interactive table editor)
+- `mermaid` → MermaidPreview (diagram rendering)
 - `image` → ImageCell (upload, URL, resize, caption)
 - `embed` → EmbedCell (presets, iframe, sandbox)
-- `raw` → Textarea simple
+- `raw` → Simple textarea
 
 ```tsx
 interface CellProps {
@@ -61,54 +64,54 @@ interface CellProps {
 }
 ```
 
-Normalmente no necesitas usar `Cell` directamente — `SciNotebook` lo maneja internamente.
+You normally don't need to use `Cell` directly — `SciNotebook` handles it internally.
 
 ---
 
 ### `MathEditor`
 
-Editor visual de fórmulas LaTeX con paleta de bloques y preview en tiempo real.
+Visual LaTeX formula editor with block palette and real-time preview.
 
 ```tsx
 interface MathEditorProps {
-  cellId: string;       // ID de la celda
-  source: string;       // Código LaTeX (con $$ wrappers)
-  onExit: () => void;   // Callback al salir
+  cellId: string;       // Cell ID
+  source: string;       // LaTeX code (with $$ wrappers)
+  onExit: () => void;   // Callback when exiting
 }
 ```
 
 **Features:**
-- 9 categorías de bloques (100+ símbolos y estructuras)
-- Modo dual: Preview visual (KaTeX) + modo raw LaTeX
-- Inserción inteligente en posición del cursor
-- Atajos: `Escape` (salir), `Shift+Enter` (siguiente celda)
+- 9 block categories (100+ symbols and structures)
+- Dual mode: Visual preview (KaTeX) + raw LaTeX mode
+- Smart insertion at cursor position
+- Shortcuts: `Escape` (exit), `Shift+Enter` (next cell)
 
-Ver [Guía del Math Editor](../guide/math-editor.md) para documentación completa.
+See [Visual Formula Editor Guide](../guide/math-editor.md) for full documentation.
 
 ---
 
 ### `ImageCell`
 
-Editor de celdas de imagen con upload y metadatos.
+Image cell editor with upload and metadata controls.
 
 ```tsx
 interface ImageCellProps {
   cellId: string;
-  source: string;                    // URL o data URL de la imagen
+  source: string;                    // URL or data URL of the image
   metadata: Record<string, unknown>; // alt, caption, width, align
   onExit: () => void;
 }
 ```
 
 **Features:**
-- Drag & drop de archivos (convierte a data URL)
-- Input de URL para imágenes remotas
-- Controles: alt text, caption, ancho (25%–100%), alineación (izq/centro/der)
-- Botón para limpiar imagen
+- Drag & drop file upload (converts to data URL)
+- URL input for remote images
+- Controls: alt text, caption, width (25%–100%), alignment (left/center/right)
+- Clear image button
 
-**Función auxiliar:**
+**Helper function:**
 ```tsx
-// Genera HTML para modo vista
+// Generates HTML for view mode
 renderImagePreview(source: string, metadata: Record<string, unknown>): string
 ```
 
@@ -116,12 +119,12 @@ renderImagePreview(source: string, metadata: Record<string, unknown>): string
 
 ### `EmbedCell`
 
-Editor de contenido embebido vía iframe.
+Embedded content editor via iframe.
 
 ```tsx
 interface EmbedCellProps {
   cellId: string;
-  source: string;                    // URL del iframe
+  source: string;                    // iframe URL
   metadata: Record<string, unknown>; // title, height, sandbox
   onExit: () => void;
 }
@@ -129,11 +132,11 @@ interface EmbedCellProps {
 
 **Features:**
 - Presets: YouTube, CodePen, Observable, Desmos, GeoGebra
-- Input de URL personalizada
-- Toggle de preview con iframe en vivo
-- Configuración: título, altura (200–600px), nivel de sandbox
+- Custom URL input
+- Live iframe preview toggle
+- Configuration: title, height (200–600px), sandbox level
 
-**Función auxiliar:**
+**Helper function:**
 ```tsx
 renderEmbedPreview(source: string, metadata: Record<string, unknown>): string
 ```
@@ -142,7 +145,7 @@ renderEmbedPreview(source: string, metadata: Record<string, unknown>): string
 
 ### `FloatingToolbar`
 
-Toolbar contextual que aparece al seleccionar texto en celdas Markdown.
+Contextual toolbar that appears when selecting text in Markdown cells.
 
 ```tsx
 interface FloatingToolbarProps {
@@ -151,30 +154,30 @@ interface FloatingToolbarProps {
 }
 ```
 
-**Acciones disponibles:**
-- **B** — Bold (`**texto**`)
-- **I** — Italic (`*texto*`)
-- **S** — Strikethrough (`~~texto~~`)
-- **<>** — Inline code (`` `texto` ``)
+**Available actions:**
+- **B** — Bold (`**text**`)
+- **I** — Italic (`*text*`)
+- **S** — Strikethrough (`~~text~~`)
+- **<>** — Inline code (`` `text` ``)
 - **H1** — Heading 1 (`# `)
 - **H2** — Heading 2 (`## `)
-- **🔗** — Link (`[texto](url)`)
-- **•** — Lista (`- `)
+- **🔗** — Link (`[text](url)`)
+- **•** — List (`- `)
 
 ---
 
 ### `InsertHandle`
 
-Botón `+` que aparece entre celdas al hacer hover. Muestra un menú con los 6 tipos de celda disponibles.
+`+` button that appears between cells on hover. Shows a menu with all 8 available cell types.
 
 ```tsx
 interface InsertHandleProps {
-  index: number; // Posición donde insertar la nueva celda
+  index: number; // Position where the new cell will be inserted
 }
 ```
 
-**Tipos disponibles en el menú:**
-Markdown, Code, LaTeX, Imagen, Embed, Raw
+**Available types in the menu:**
+Markdown, Code, LaTeX, Table, Mermaid, Image, Embed, Raw
 
 ---
 
@@ -182,17 +185,17 @@ Markdown, Code, LaTeX, Imagen, Embed, Raw
 
 ### `useSciNotebook()`
 
-Retorna la instancia de `EditorEngine` del contexto. Debe usarse dentro de `SciNotebook`.
+Returns the `EditorEngine` instance from context. Must be used within `SciNotebook`.
 
 ```tsx
 const engine = useSciNotebook();
-engine.insertCell(0, 'markdown', '# Nuevo');
+engine.insertCell(0, 'markdown', '# New Cell');
 engine.undo();
 ```
 
 ### `useNotebook()`
 
-Retorna el objeto `Notebook` actual. Se re-renderiza automáticamente cuando el notebook cambia.
+Returns the current `Notebook` object. Re-renders automatically when the notebook changes.
 
 ```tsx
 const notebook = useNotebook();
@@ -201,7 +204,7 @@ console.log(notebook.cells.length);
 
 ### `useCell(cellId: string)`
 
-Retorna los datos de una celda específica. Optimizado para solo re-renderizar cuando esa celda cambia.
+Returns the data for a specific cell. Optimized to only re-render when that cell changes.
 
 ```tsx
 const cell = useCell('cell-1');
@@ -210,7 +213,7 @@ console.log(cell.type, cell.source);
 
 ### `useFocusedCell()`
 
-Retorna el ID de la celda enfocada actualmente.
+Returns the ID of the currently focused cell.
 
 ```tsx
 const focusedId = useFocusedCell();
@@ -218,7 +221,7 @@ const focusedId = useFocusedCell();
 
 ### `useNotebookEvent(event, handler)`
 
-Suscribe a un evento del engine. Se limpia automáticamente al desmontar.
+Subscribes to an engine event. Automatically cleans up on unmount.
 
 ```tsx
 useNotebookEvent('cell:updated', (payload) => {
@@ -231,7 +234,7 @@ useNotebookEvent('cell:updated', (payload) => {
 ## Exports
 
 ```typescript
-// Componentes
+// Components
 export { SciNotebook } from './components/SciNotebook';
 export { Cell } from './components/Cell';
 export { MathEditor } from './components/MathEditor';
@@ -239,6 +242,9 @@ export { ImageCell, renderImagePreview } from './components/ImageCell';
 export { EmbedCell, renderEmbedPreview } from './components/EmbedCell';
 export { FloatingToolbar } from './components/FloatingToolbar';
 export { InsertHandle } from './components/InsertHandle';
+export { MermaidPreview, initMermaid } from './components/MermaidCell';
+export { AIRewrite } from './components/AIRewrite';
+export { AICellGenerate } from './components/AICellGenerate';
 
 // Hooks
 export { useSciNotebook, useNotebook, useCell, useFocusedCell, useNotebookEvent } from './hooks';
