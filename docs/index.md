@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: SciNotebook
-  text: El Editor Científico de Notebooks Más Completo
-  tagline: Framework-agnostic · Open Source · Zero-server · Plugin-first · 6 tipos de celda · Editor visual de fórmulas
+  text: The Most Complete Scientific Notebook Editor
+  tagline: Framework-agnostic · Open Source · Zero-server · Plugin-first · 8 cell types · Visual formula editor · 4 framework adapters
   image:
     src: /logo.svg
     alt: SciNotebook Logo
@@ -19,28 +19,34 @@ hero:
       text: Full App Demo
       link: /example/
     - theme: alt
-      text: Estudio Competitivo
+      text: Competitive Study
       link: /COMPETITIVE_STUDY
 
 features:
-  - title: Editor Visual de Fórmulas
-    details: 100+ bloques pre-armados en 9 categorías (fracciones, integrales, matrices, griegos, operadores). Preview en tiempo real con KaTeX. Modo dual visual/raw.
+  - title: Visual Formula Editor
+    details: 100+ pre-built blocks across 9 categories (fractions, integrals, matrices, Greek letters, operators). Real-time KaTeX preview. Dual visual/raw mode.
     icon: ∑
-  - title: 6 Tipos de Celda
-    details: Markdown con toolbar flotante, Code, LaTeX con editor visual, Image con drag & drop, Embed con presets (YouTube, Desmos, CodePen), Raw.
+  - title: 8 Cell Types
+    details: Markdown with floating toolbar, Code (30+ languages), LaTeX with visual editor, Image (drag & drop, resize), Table (interactive), Mermaid diagrams, Embed (YouTube, Desmos), Raw.
     icon: 📝
-  - title: UX Moderna
-    details: Click-to-edit, toolbar flotante contextual, insert handles entre celdas, animaciones suaves, temas light/dark, keyboard-first.
+  - title: Modern UX
+    details: Click-to-edit, contextual floating toolbar, insert handles between cells, smooth animations, light/dark themes, keyboard-first navigation.
     icon: ✨
   - title: Zero-Server
-    details: 100% TypeScript, funciona offline sin backend. Core ~25KB, React adapter ~54KB. Arranque instantáneo sin kernel ni compilación.
+    details: 100% TypeScript, works offline with no backend. Core ~45KB, React adapter ~80KB. Instant startup with no kernel or compilation.
     icon: ⚡
   - title: Plugin System
-    details: Cada feature es un plugin opt-in. Extensible en cada capa — custom cell types, renderers, toolbar actions, keybindings, AI providers.
+    details: Every feature is an opt-in plugin. Extensible at every layer — custom cell types, renderers, toolbar actions, keybindings, AI providers, export formats.
     icon: 🔌
   - title: Framework Agnostic
-    details: Core puro TypeScript sin dependencias de framework. Adapter React listo. Arquitectura preparada para Vue, Svelte, Solid, Vanilla JS.
+    details: Pure TypeScript core with zero framework dependencies. Adapters ready for React 18+, Vue 3+, Svelte 5+, and Vanilla JS. 12 packages in the ecosystem.
     icon: ⚛️
+  - title: Presentation Mode
+    details: Turn any notebook into a slideshow. 3 split modes (cell, heading, manual), keyboard navigation, transitions, auto-advance, fullscreen support.
+    icon: 🎬
+  - title: Cloud Sync & Export
+    details: PDF/DOCX export plugin, cloud sync with configurable backends (LocalStorage, REST API), version history with git-like line-level diffing.
+    icon: ☁️
 ---
 
 <style>
