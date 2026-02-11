@@ -36,7 +36,7 @@ features:
     details: 100% TypeScript, works offline with no backend. Core ~45KB, React adapter ~80KB. Instant startup with no kernel or compilation.
     icon: ⚡
   - title: Plugin System
-    details: Every feature is an opt-in plugin. Extensible at every layer — custom cell types, renderers, toolbar actions, keybindings, AI providers, export formats.
+    details: Every feature is an opt-in plugin. Extensible at every layer — custom cell types, renderers, toolbar actions, keybindings, export formats.
     icon: 🔌
   - title: Framework Agnostic
     details: Pure TypeScript core with zero framework dependencies. Adapters ready for React 18+, Vue 3+, Svelte 5+, and Vanilla JS. 12 packages in the ecosystem.
@@ -44,8 +44,8 @@ features:
   - title: Presentation Mode
     details: Turn any notebook into a slideshow. 3 split modes (cell, heading, manual), keyboard navigation, transitions, auto-advance, fullscreen support.
     icon: 🎬
-  - title: Cloud Sync & Export
-    details: PDF/DOCX export plugin, cloud sync with configurable backends (LocalStorage, REST API), version history with git-like line-level diffing.
+  - title: Export
+    details: PDF/DOCX export plugin, version history with git-like line-level diffing.
     icon: ☁️
 ---
 
