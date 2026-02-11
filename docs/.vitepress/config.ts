@@ -63,12 +63,10 @@ export default defineConfig({
         {
           text: 'Advanced',
           items: [
-            { text: 'AI Integration', link: '/guide/ai-integration' },
             { text: 'Framework Adapters', link: '/guide/framework-adapters' },
             { text: 'Presentation Mode', link: '/guide/presentation-mode' },
             { text: 'Mobile & Touch', link: '/guide/mobile-support' },
             { text: 'Export (PDF/DOCX)', link: '/guide/export-plugins' },
-            { text: 'Cloud Sync', link: '/guide/cloud-sync' },
             { text: 'Performance', link: '/guide/performance' },
           ]
         }
