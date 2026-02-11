@@ -1,169 +1,175 @@
-# Editor Visual de Fórmulas (MathEditor)
+<script setup>
+import { mathEditorNotebook } from '../.vitepress/theme/notebooks/math-editor'
+</script>
 
-El MathEditor es el componente estrella de sci-notebook: un editor visual de fórmulas matemáticas tipo Word/Mathcha que permite construir expresiones complejas sin necesidad de saber LaTeX.
+# Visual Formula Editor (MathEditor)
 
----
+<InteractiveDoc :notebook="mathEditorNotebook" title="Visual Formula Editor — Interactive Notebook" />
 
-## Cómo Funciona
-
-1. **Crea una celda LaTeX** (desde el menú `+` entre celdas o cambiando el tipo de una celda existente)
-2. **Click** en la celda para abrir el MathEditor
-3. **Selecciona una categoría** de la barra de tabs
-4. **Click en un bloque** para insertarlo en la fórmula
-5. **Alterna** entre modo Preview (visual) y modo LaTeX (raw)
-6. **Escape** para salir y ver el resultado renderizado
+The MathEditor is the flagship component of sci-notebook: a visual mathematical formula editor (similar to Word/Mathcha) that lets you build complex expressions without needing to know LaTeX.
 
 ---
 
-## Categorías de Bloques
+## How It Works
 
-### Estructuras
-Los bloques fundamentales para construir expresiones:
+1. **Create a LaTeX cell** (from the `+` menu between cells or by changing an existing cell's type)
+2. **Click** on the cell to open the MathEditor
+3. **Select a category** from the tab bar
+4. **Click a block** to insert it into the formula
+5. **Toggle** between Preview (visual) and LaTeX (raw) mode
+6. **Escape** to exit and see the rendered result
 
-| Bloque | LaTeX | Resultado |
-|--------|-------|-----------|
-| Fracción | `\frac{▢}{▢}` | a/b |
-| Raíz | `\sqrt{▢}` | √x |
-| Superíndice | `^{▢}` | x² |
-| Subíndice | `_{▢}` | xᵢ |
+---
+
+## Block Categories
+
+### Structures
+The fundamental blocks for building expressions:
+
+| Block | LaTeX | Result |
+|-------|-------|--------|
+| Fraction | `\frac{▢}{▢}` | a/b |
+| Root | `\sqrt{▢}` | √x |
+| Superscript | `^{▢}` | x² |
+| Subscript | `_{▢}` | xᵢ |
 | Hat | `\hat{▢}` | x̂ |
 | Bar | `\bar{▢}` | x̄ |
 | Vec | `\vec{▢}` | x⃗ |
 | Tilde | `\tilde{▢}` | x̃ |
 | Dot | `\dot{▢}` | ẋ |
 
-### Integrales
+### Integrals
 
-| Bloque | LaTeX |
-|--------|-------|
+| Block | LaTeX |
+|-------|-------|
 | Integral | `\int ▢` |
-| Integral definida | `\int_{▢}^{▢} ▢` |
-| Integral doble | `\iint ▢` |
-| Integral triple | `\iiint ▢` |
-| Integral de contorno | `\oint ▢` |
+| Definite integral | `\int_{▢}^{▢} ▢` |
+| Double integral | `\iint ▢` |
+| Triple integral | `\iiint ▢` |
+| Contour integral | `\oint ▢` |
 
-### Sumatorias
+### Summations
 
-| Bloque | LaTeX |
-|--------|-------|
-| Sumatoria | `\sum_{▢}^{▢} ▢` |
-| Productoria | `\prod_{▢}^{▢} ▢` |
-| Límite | `\lim_{▢ \to ▢} ▢` |
+| Block | LaTeX |
+|-------|-------|
+| Summation | `\sum_{▢}^{▢} ▢` |
+| Product | `\prod_{▢}^{▢} ▢` |
+| Limit | `\lim_{▢ \to ▢} ▢` |
 
 ### Matrices
 
-| Bloque | LaTeX | Tipo |
-|--------|-------|------|
-| 2×2 paréntesis | `\begin{pmatrix}...` | ( ) |
-| 3×3 paréntesis | `\begin{pmatrix}...` | ( ) |
-| 2×2 corchetes | `\begin{bmatrix}...` | [ ] |
-| 2×2 barras | `\begin{vmatrix}...` | \| \| |
+| Block | LaTeX | Type |
+|-------|-------|------|
+| 2×2 parentheses | `\begin{pmatrix}...` | ( ) |
+| 3×3 parentheses | `\begin{pmatrix}...` | ( ) |
+| 2×2 brackets | `\begin{bmatrix}...` | [ ] |
+| 2×2 bars | `\begin{vmatrix}...` | \| \| |
 | Cases | `\begin{cases}...` | { |
 
-### Griegos (25 símbolos)
+### Greek Letters (25 symbols)
 
-**Minúsculas:** α β γ δ ε ζ η θ ι κ λ μ ν ξ π ρ σ τ υ φ χ ψ ω
+**Lowercase:** α β γ δ ε ζ η θ ι κ λ μ ν ξ π ρ σ τ υ φ χ ψ ω
 
-**Mayúsculas:** Γ Δ Θ Λ Ξ Π Σ Φ Ψ Ω
+**Uppercase:** Γ Δ Θ Λ Ξ Π Σ Φ Ψ Ω
 
-### Operadores (26 símbolos)
+### Operators (26 symbols)
 
 ± × ÷ · ∘ ⊕ ⊗ ∂ ∇ ∞ ≈ ≠ ≡ ≤ ≥ ≪ ≫ ∈ ∉ ⊂ ⊃ ⊆ ∪ ∩ ∀ ∃
 
-### Flechas
+### Arrows
 
 → ← ↔ ⇒ ⇐ ⇔ ↦ ↑ ↓
 
-### Funciones
+### Functions
 
 sin cos tan log ln exp lim max min det
 
-### Delimitadores
+### Delimiters
 
-| Bloque | LaTeX |
-|--------|-------|
-| Paréntesis | `\left( ▢ \right)` |
-| Corchetes | `\left[ ▢ \right]` |
-| Llaves | `\left\{ ▢ \right\}` |
-| Valor absoluto | `\left\| ▢ \right\|` (single) |
-| Norma | `\left\| ▢ \right\|` (double) |
-| Piso | `\lfloor ▢ \rfloor` |
-| Techo | `\lceil ▢ \rceil` |
+| Block | LaTeX |
+|-------|-------|
+| Parentheses | `\left( ▢ \right)` |
+| Brackets | `\left[ ▢ \right]` |
+| Braces | `\left\{ ▢ \right\}` |
+| Absolute value | `\left\| ▢ \right\|` (single) |
+| Norm | `\left\| ▢ \right\|` (double) |
+| Floor | `\lfloor ▢ \rfloor` |
+| Ceiling | `\lceil ▢ \rceil` |
 
 ---
 
-## Modo Dual
+## Dual Mode
 
 ### Preview (Visual)
-- Muestra la fórmula renderizada con KaTeX en tiempo real
-- Se actualiza automáticamente al insertar bloques
-- Ideal para ver el resultado mientras construyes
+- Shows the formula rendered with KaTeX in real time
+- Updates automatically when blocks are inserted
+- Ideal for seeing the result as you build
 
 ### LaTeX (Raw)
-- Textarea editable con el código LaTeX
-- Fuente monoespaciada
-- Ideal para ajustes finos o copiar/pegar LaTeX existente
-- Los bloques de la paleta se insertan en la posición del cursor
+- Editable textarea with the LaTeX code
+- Monospaced font
+- Ideal for fine-tuning or pasting existing LaTeX
+- Palette blocks are inserted at the cursor position
 
 ---
 
-## Inserción Inteligente
+## Smart Insertion
 
-Cuando haces click en un bloque de la paleta:
+When you click a block in the palette:
 
-1. **Sin selección**: El bloque se inserta en la posición del cursor (modo raw) o se agrega al final (modo preview)
-2. **Con selección**: El texto seleccionado reemplaza el primer placeholder `▢` del bloque
-3. **Cursor automático**: Después de insertar, el cursor se posiciona en el primer placeholder vacío
+1. **No selection**: The block is inserted at the cursor position (raw mode) or appended to the end (preview mode)
+2. **With selection**: The selected text replaces the first placeholder `▢` in the block
+3. **Auto-cursor**: After insertion, the cursor is positioned at the first empty placeholder
 
-### Ejemplo
+### Example
 
-Si tienes `x + y` seleccionado y haces click en "Fracción":
-- Resultado: `\frac{x + y}{}`
-- El cursor queda en el denominador vacío
+If you have `x + y` selected and click "Fraction":
+- Result: `\frac{x + y}{}`
+- The cursor is placed in the empty denominator
 
 ---
 
-## Integración con KaTeX
+## KaTeX Integration
 
-El MathEditor usa KaTeX para el preview en tiempo real. Para habilitarlo:
+The MathEditor uses KaTeX for real-time preview. To enable it:
 
 ```typescript
-// En tu entry point (main.tsx)
+// In your entry point (main.tsx)
 import katex from "katex";
 import "katex/dist/katex.min.css";
 (globalThis as any).katex = katex;
 ```
 
-Sin KaTeX, el preview muestra el código LaTeX en una fuente estilizada como fallback.
+Without KaTeX, the preview shows the LaTeX code in a styled font as a fallback.
 
 ---
 
-## Atajos de Teclado
+## Keyboard Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Escape` | Salir del editor |
-| `Shift+Enter` | Salir y pasar a la siguiente celda |
+| Shortcut | Action |
+|----------|--------|
+| `Escape` | Exit the editor |
+| `Shift+Enter` | Exit and move to the next cell |
 
 ---
 
-## API del Componente
+## Component API
 
 ```typescript
 interface MathEditorProps {
-  cellId: string;       // ID de la celda
-  source: string;       // Código LaTeX (con $$ wrappers)
-  onExit: () => void;   // Callback al salir del editor
+  cellId: string;       // Cell ID
+  source: string;       // LaTeX code (with $$ wrappers)
+  onExit: () => void;   // Callback when exiting the editor
 }
 ```
 
-El MathEditor se integra automáticamente cuando una celda de tipo `latex` entra en modo edición. No necesitas instanciarlo manualmente.
+The MathEditor integrates automatically when a `latex` cell enters edit mode. You don't need to instantiate it manually.
 
 ---
 
-## Formato de Datos
+## Data Format
 
-Las celdas LaTeX almacenan el código con delimitadores `$$`:
+LaTeX cells store the code with `$$` delimiters:
 
 ```json
 {
@@ -172,65 +178,65 @@ Las celdas LaTeX almacenan el código con delimitadores `$$`:
 }
 ```
 
-El MathEditor automáticamente:
-- **Quita** los `$$` al entrar en edición
-- **Agrega** los `$$` al guardar cambios
-- Maneja whitespace y newlines correctamente
+The MathEditor automatically:
+- **Strips** the `$$` when entering edit mode
+- **Adds** the `$$` when saving changes
+- Handles whitespace and newlines correctly
 
 ---
 
-## Ejemplos de Fórmulas
+## Formula Examples
 
-### Ecuación cuadrática
+### Quadratic Equation
 ```latex
 $$
 x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
 $$
 ```
 
-### Integral gaussiana
+### Gaussian Integral
 ```latex
 $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 ```
 
-### Serie de Taylor
+### Taylor Series
 ```latex
 $$
 f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n
 $$
 ```
 
-### Ecuación de Schrödinger
+### Schrödinger Equation
 ```latex
 $$
 i\hbar\frac{\partial}{\partial t}\Psi(\vec{r},t) = \hat{H}\Psi(\vec{r},t)
 $$
 ```
 
-### Identidad de Euler
+### Euler's Identity
 ```latex
 $$
 e^{i\pi} + 1 = 0
 $$
 ```
 
-### Transformada de Fourier
+### Fourier Transform
 ```latex
 $$
 \hat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{-2\pi i x \xi} dx
 $$
 ```
 
-### Matriz de rotación
+### Rotation Matrix
 ```latex
 $$
 R(\theta) = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}
 $$
 ```
 
-### Ecuaciones de Maxwell
+### Maxwell's Equations
 ```latex
 $$
 \nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}
