@@ -1,0 +1,76 @@
+export const frameworkAdaptersNotebook = {
+  id: "doc-framework-adapters",
+  title: "Framework Adapters",
+  cells: [
+    {
+      id: "fa-intro",
+      type: "markdown",
+      source: "# Framework Adapters\n\nThe core library (`@velo-sci/notebook-core`) is **framework-agnostic**. Framework adapters are thin wrappers that bridge the core engine to a specific UI framework's component model, lifecycle, and reactivity system.\n\n| Package | Framework | Status |\n|---------|-----------|--------|\n| `@velo-sci/notebook-react` | React 18+ | ✅ Primary |\n| `@velo-sci/notebook-vue` | Vue 3+ | ✅ Implemented |\n| `@velo-sci/notebook-svelte` | Svelte 5+ | ✅ Implemented |\n| `@velo-sci/notebook-vanilla` | Vanilla JS | ✅ Primary |",
+      metadata: {},
+    },
+    {
+      id: "fa-react",
+      type: "markdown",
+      source: "## React Adapter\n\nThe primary adapter. Provides the `<SciNotebook>` component and hooks.",
+      metadata: {},
+    },
+    {
+      id: "fa-react-code",
+      type: "code",
+      source: "import { SciNotebook } from '@velo-sci/notebook-react';\nimport '@velo-sci/notebook-core/styles/index.css';\n\nfunction App() {\n  return (\n    <SciNotebook\n      notebook={myNotebook}\n      theme=\"dark\"\n      readOnly={false}\n      showToolbar={true}\n      showTOC={true}\n      onChange={(nb) => console.log('Updated:', nb)}\n      engineRef={engineRef}\n      plugins={[latexPlugin, exportPlugin]}\n    />\n  );\n}\n\n// Hooks (inside SciNotebook tree)\nconst engine = useSciNotebook();     // EditorEngine instance\nconst notebook = useNotebook();       // Reactive notebook state\nconst cell = useCell('cell-id');      // Reactive cell data\nconst focusedId = useFocusedCell();   // Focused cell ID",
+      metadata: { language: "tsx" },
+    },
+    {
+      id: "fa-vue",
+      type: "markdown",
+      source: "## Vue 3+ Adapter\n\nUses render functions (no SFC) so it can be built with tsup without a Vue compiler.",
+      metadata: {},
+    },
+    {
+      id: "fa-vue-code",
+      type: "code",
+      source: "import { createApp, h } from 'vue';\nimport { SciNotebook } from '@velo-sci/notebook-vue';\n\nconst app = createApp({\n  render() {\n    return h(SciNotebook, {\n      notebook: myNotebook,\n      theme: 'dark',\n      showToolbar: true,\n      onChange: (nb) => console.log('Updated:', nb),\n    });\n  },\n});\napp.mount('#app');\n\n// Composables\nimport {\n  useNotebookEngine,\n  provideNotebookEngine,\n  useNotebook,\n  useCell,\n  useFocusedCell,\n} from '@velo-sci/notebook-vue';",
+      metadata: { language: "typescript" },
+    },
+    {
+      id: "fa-svelte",
+      type: "markdown",
+      source: "## Svelte 5+ Adapter\n\nProvides an imperative mounting class and Svelte-compatible stores.",
+      metadata: {},
+    },
+    {
+      id: "fa-svelte-code",
+      type: "code",
+      source: "import { SciNotebookSvelte } from '@velo-sci/notebook-svelte';\n\nconst nb = new SciNotebookSvelte({\n  target: document.getElementById('notebook'),\n  notebook: myNotebook,\n  theme: 'dark',\n  onChange: (nb) => console.log('Updated:', nb),\n});\n\nnb.setTheme('light');\nnb.destroy();\n\n// Stores\nimport { createNotebookStore } from '@velo-sci/notebook-svelte';\nconst store = createNotebookStore(engine);\n// $store.notebook, $store.cells, $store.focusedCellId",
+      metadata: { language: "typescript" },
+    },
+    {
+      id: "fa-vanilla",
+      type: "markdown",
+      source: "## Vanilla JS Adapter\n\nFor environments without a framework (plain HTML, web components, etc.).",
+      metadata: {},
+    },
+    {
+      id: "fa-vanilla-code",
+      type: "code",
+      source: "import { SciNotebookVanilla } from '@velo-sci/notebook-vanilla';\n\nconst nb = new SciNotebookVanilla({\n  target: document.getElementById('notebook'),\n  notebook: myNotebook,\n  theme: 'dark',\n  showToolbar: true,\n  showTOC: true,\n  readOnly: false,\n  onChange: (notebook) => {\n    localStorage.setItem('notebook', JSON.stringify(notebook));\n  },\n});\n\n// Built-in features:\n// - DOMCellRenderer: pipeline-based DOM rendering\n// - DragDropManager: drag-and-drop cell reordering\n// - KeyboardHandler: full keyboard navigation\n// - TOC sidebar, toolbar, insert handles\n\nnb.setTheme('light');\nnb.destroy();",
+      metadata: { language: "typescript" },
+    },
+    {
+      id: "fa-arch-diagram",
+      type: "mermaid",
+      source: "graph TD\n  A[notebook-core] --> B[notebook-react]\n  A --> C[notebook-vue]\n  A --> D[notebook-svelte]\n  A --> E[notebook-vanilla]\n  A --> F[notebook-renderer]\n  F --> B\n  F --> C\n  F --> D\n  F --> E",
+      metadata: {},
+    },
+    {
+      id: "fa-responsibilities",
+      type: "markdown",
+      source: "## Adapter Responsibilities\n\nAll adapters must:\n\n1. **Mount the editor** into a DOM container\n2. **Render cells** using the framework's component model\n3. **Bind events** from the core engine to framework reactivity\n4. **Provide text editors** (textarea, CodeMirror, Monaco) for edit mode\n5. **Hydrate plugin output** (Mermaid SVGs, component embeds)",
+      metadata: {},
+    },
+  ],
+  metadata: { author: "sci-notebook-docs" },
+  version: 1,
+  createdAt: "2025-01-01T00:00:00.000Z",
+  updatedAt: "2025-01-01T00:00:00.000Z",
+};
