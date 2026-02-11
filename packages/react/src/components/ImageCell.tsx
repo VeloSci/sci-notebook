@@ -117,7 +117,7 @@ export const ImageCell: React.FC<ImageCellProps> = ({ cellId, source, metadata, 
             <circle cx="12" cy="12" r="2.5" />
             <path d="M4 22l6-6 4 4 4-4 10 10" strokeLinejoin="round" />
           </svg>
-          <p>Arrastra, pega (Ctrl+V) o haz click para seleccionar</p>
+          <p>Drag, paste (Ctrl+V) or click to select</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -149,7 +149,7 @@ export const ImageCell: React.FC<ImageCellProps> = ({ cellId, source, metadata, 
             type="text"
             value={data.alt}
             onChange={(e) => save({ alt: e.target.value })}
-            placeholder="Descripcion de la imagen"
+            placeholder="Image description"
           />
         </div>
         <div className="sci-nb-image-field">
@@ -158,12 +158,12 @@ export const ImageCell: React.FC<ImageCellProps> = ({ cellId, source, metadata, 
             type="text"
             value={data.caption}
             onChange={(e) => save({ caption: e.target.value })}
-            placeholder="Pie de imagen (opcional)"
+            placeholder="Caption (optional)"
           />
         </div>
         <div className="sci-nb-image-row">
           <div className="sci-nb-image-field sci-nb-image-field--small">
-            <label>Ancho</label>
+            <label>Width</label>
             <select value={data.width} onChange={(e) => save({ width: e.target.value })}>
               <option value="25%">25%</option>
               <option value="50%">50%</option>
@@ -173,23 +173,23 @@ export const ImageCell: React.FC<ImageCellProps> = ({ cellId, source, metadata, 
             </select>
           </div>
           <div className="sci-nb-image-field sci-nb-image-field--small">
-            <label>Alinear</label>
+            <label>Align</label>
             <select value={data.align} onChange={(e) => save({ align: e.target.value as ImageData["align"] })}>
-              <option value="left">Izquierda</option>
-              <option value="center">Centro</option>
-              <option value="right">Derecha</option>
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
             </select>
           </div>
           {hasSrc && (
             <button className="sci-nb-image-clear" onClick={() => save({ src: "" })}>
-              Quitar imagen
+              Remove image
             </button>
           )}
         </div>
       </div>
 
       <div className="sci-nb-cell-hint">
-        <kbd>Esc</kbd> salir
+        <kbd>Esc</kbd> exit
       </div>
     </div>
   );
@@ -198,7 +198,7 @@ export const ImageCell: React.FC<ImageCellProps> = ({ cellId, source, metadata, 
 export function renderImagePreview(source: string, metadata: Record<string, unknown>): string {
   const data = parseImageSource(source, metadata);
   if (!data.src) {
-    return '<div class="sci-nb-image-empty"><span class="sci-nb-placeholder">Click para agregar imagen</span></div>';
+    return '<div class="sci-nb-image-empty"><span class="sci-nb-placeholder">Click to add image</span></div>';
   }
   const alignStyle = `text-align:${data.align}`;
   const widthStyle = `max-width:${data.width};width:auto;max-height:400px`;
