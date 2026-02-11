@@ -64,7 +64,7 @@ export const MermaidPreview: React.FC<MermaidPreviewProps> = ({ source, onClick 
   if (!source.trim()) {
     return (
       <div className="sci-nb-mermaid-preview" onClick={onClick}>
-        <span className="sci-nb-placeholder">Diagrama vacio — escribe sintaxis Mermaid</span>
+        <span className="sci-nb-placeholder">Empty diagram — write Mermaid syntax</span>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export const MermaidPreview: React.FC<MermaidPreviewProps> = ({ source, onClick 
       <div className="sci-nb-mermaid-preview" onClick={onClick}>
         <pre className="sci-nb-code"><code className="language-mermaid">{source}</code></pre>
         <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", padding: 4 }}>
-          Mermaid no disponible. Importa <code>mermaid</code> y exponlo como <code>globalThis.mermaid</code>.
+          Mermaid not available. Import <code>mermaid</code> and expose it as <code>globalThis.mermaid</code>.
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export const MermaidPreview: React.FC<MermaidPreviewProps> = ({ source, onClick 
   // Loading state
   return (
     <div className="sci-nb-mermaid-preview" onClick={onClick}>
-      <span className="sci-nb-placeholder">Renderizando diagrama...</span>
+      <span className="sci-nb-placeholder">Rendering diagram...</span>
     </div>
   );
 };
