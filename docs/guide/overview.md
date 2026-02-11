@@ -1,4 +1,10 @@
+<script setup>
+import { overviewNotebook } from '../.vitepress/theme/notebooks/overview'
+</script>
+
 # 01 — Project Overview & Architecture
+
+<InteractiveDoc :notebook="overviewNotebook" title="Architecture Overview — Interactive Notebook" />
 
 ## Vision
 
@@ -61,28 +67,19 @@ predictions — all designed for maximum performance.
 ```
 sci-notebook/
 ├── packages/
-│   ├── core/               # Document model, editor engine, event bus
-│   ├── renderer/           # Markdown→AST→HTML rendering pipeline
-│   ├── plugin-latex/       # KaTeX-based LaTeX rendering
-│   ├── plugin-mermaid/     # Mermaid diagram rendering
-│   ├── plugin-embeds/      # HTML / framework component embedding
-│   ├── plugin-ai/          # AI agent connection (completions, rewrites)
-│   ├── plugin-images/      # Image upload, paste, drag-drop, resize
-│   ├── plugin-tables/      # Rich table editing inside cells
-│   ├── react/              # React adapter + hooks
-│   ├── vue/                # Vue adapter (future)
-│   ├── svelte/             # Svelte adapter (future)
-│   └── vanilla/            # Vanilla JS adapter
-├── docs/                   # This development schema
-├── examples/
-│   ├── react-basic/
-│   ├── react-full/
-│   └── vanilla/
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── e2e/
-├── package.json            # Workspace root
+│   ├── core/               # Document model, editor engine, event bus, presentation, mobile
+│   ├── renderer/           # Markdown→AST→HTML rendering pipeline, Shiki highlighting
+│   ├── react/              # React 18+ adapter + hooks + components
+│   ├── vue/                # Vue 3+ adapter + composables
+│   ├── svelte/             # Svelte 5+ adapter + stores
+│   ├── vanilla/            # Vanilla JS adapter + DOM renderer
+│   ├── plugin-latex/       # KaTeX-based LaTeX rendering + visual editor
+│   ├── plugin-ai/          # AI completions, rewrites, cell generation
+│   ├── plugin-export/      # PDF/DOCX export
+│   ├── plugin-cloud-sync/  # Cloud sync with configurable backends
+│   └── example/            # Full demo app (React + Vite)
+├── docs/                   # VitePress documentation site
+├── package.json            # Workspace root (pnpm workspaces)
 ├── tsconfig.json
 ├── vitest.config.ts
 └── README.md
@@ -138,11 +135,13 @@ subscribe to react. Events are typed and documented.
 
 ## Non-Goals (Explicit Exclusions)
 
-- **Code execution**: This is a *document* editor, not a Jupyter kernel. Code cells are
-  for display/syntax highlighting only (execution can be added via plugin).
 - **Collaboration / CRDT**: Real-time multi-user editing is out of scope for v1.
   The architecture does not prevent it, but it is not a deliverable.
-- **PDF export**: Can be added as a plugin later. Not in core scope.
+- **Full Jupyter kernel**: Code execution is available via the `CodeExecutor` (JS sandbox),
+  but a full Jupyter-compatible kernel is not in scope.
+
+> **Note:** PDF/DOCX export and cloud sync are now available as plugins
+> (`@velo-sci/notebook-plugin-export` and `@velo-sci/notebook-plugin-cloud-sync`).
 
 ---
 
