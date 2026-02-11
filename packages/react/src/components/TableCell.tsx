@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { useSciNotebook } from "../hooks";
 
 interface TableCellProps {
@@ -23,10 +23,8 @@ function parseMarkdownTable(source: string): TableData {
     line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length);
 
   const headers = parseLine(lines[0]);
-  // Skip separator line (index 1)
   const rows = lines.slice(2).map(parseLine);
 
-  // Ensure all rows have same column count
   const colCount = headers.length;
   const normalizedRows = rows.map(row => {
     while (row.length < colCount) row.push("");
@@ -51,6 +49,8 @@ function toMarkdownTable(data: TableData): string {
 export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) => {
   const engine = useSciNotebook();
   const [data, setData] = useState<TableData>(() => parseMarkdownTable(source));
+  const [hoverCol, setHoverCol] = useState<number | null>(null);
+  const [hoverRow, setHoverRow] = useState<number | null>(null);
 
   const syncToEngine = useCallback((newData: TableData) => {
     setData(newData);
@@ -97,8 +97,6 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
     if (e.key === "Escape") {
       e.preventDefault();
       onExit();
-    } else if (e.key === "Tab" && !e.shiftKey) {
-      // Tab navigation handled by browser focus
     }
   }, [onExit]);
 
@@ -110,58 +108,63 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
       </div>
       <table>
         <thead>
-          <tr className="sci-nb-table-col-actions">
-            {data.headers.map((_, ci) => (
-              <th key={ci} style={{ padding: "2px 0", textAlign: "center" }}>
-                {data.headers.length > 1 && (
+          <tr>
+            {data.headers.map((h, ci) => (
+              <th
+                key={ci}
+                className="sci-nb-table-header-cell"
+                onMouseEnter={() => setHoverCol(ci)}
+                onMouseLeave={() => setHoverCol(null)}
+              >
+                <input
+                  value={h}
+                  onChange={e => updateHeader(ci, e.target.value)}
+                  placeholder={`Col ${ci + 1}`}
+                />
+                {data.headers.length > 1 && hoverCol === ci && (
                   <button
-                    className="sci-nb-btn sci-nb-btn--danger"
+                    className="sci-nb-table-delete-btn"
                     onClick={() => removeColumn(ci)}
                     title="Delete column"
-                    style={{ padding: "1px 4px", fontSize: 10, border: "none", background: "transparent", cursor: "pointer" }}
                   >
                     ✕
                   </button>
                 )}
               </th>
             ))}
-            <th style={{ width: 30, padding: 0 }} />
-          </tr>
-          <tr>
-            {data.headers.map((h, ci) => (
-              <th key={ci}>
-                <input
-                  value={h}
-                  onChange={e => updateHeader(ci, e.target.value)}
-                  placeholder={`Col ${ci + 1}`}
-                />
-              </th>
-            ))}
-            <th style={{ width: 30, padding: 0 }} />
           </tr>
         </thead>
         <tbody>
           {data.rows.map((row, ri) => (
-            <tr key={ri}>
-              {row.map((cell, ci) => (
-                <td key={ci}>
-                  <input
-                    value={cell}
-                    onChange={e => updateCell(ri, ci, e.target.value)}
-                    placeholder="..."
-                  />
-                </td>
-              ))}
-              <td style={{ width: 30, padding: 0, textAlign: "center" }}>
-                <button
-                  className="sci-nb-btn sci-nb-btn--danger"
-                  onClick={() => removeRow(ri)}
-                  title="Delete row"
-                  style={{ padding: "2px 4px", fontSize: 10, border: "none", background: "transparent" }}
-                >
-                  ✕
-                </button>
-              </td>
+            <tr
+              key={ri}
+              onMouseEnter={() => setHoverRow(ri)}
+              onMouseLeave={() => setHoverRow(null)}
+            >
+              {row.map((cell, ci) => {
+                const isLastCol = ci === row.length - 1;
+                return (
+                  <td
+                    key={ci}
+                    className={isLastCol ? "sci-nb-table-row-end" : ""}
+                  >
+                    <input
+                      value={cell}
+                      onChange={e => updateCell(ri, ci, e.target.value)}
+                      placeholder="..."
+                    />
+                    {isLastCol && data.rows.length > 1 && hoverRow === ri && (
+                      <button
+                        className="sci-nb-table-delete-btn"
+                        onClick={() => removeRow(ri)}
+                        title="Delete row"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
