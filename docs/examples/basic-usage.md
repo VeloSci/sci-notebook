@@ -1,17 +1,17 @@
-# Ejemplo Completo — Todos los Tipos de Celda
+# Full Example — All Cell Types
 
-Este ejemplo muestra cómo crear un notebook con los 6 tipos de celda disponibles, tema light/dark, y export/import JSON.
+This example shows how to create a notebook with all 8 built-in cell types, light/dark theme, and JSON export/import.
 
 ## Setup
 
 ```bash
-pnpm add@velo-sci/notebook-core@velo-sci/notebook-react@velo-sci/notebook-renderer
+pnpm add @velo-sci/notebook-core @velo-sci/notebook-react @velo-sci/notebook-renderer
 
-# Opcional: rendering LaTeX con KaTeX
+# Optional: LaTeX rendering with KaTeX
 pnpm add katex
 ```
 
-## Código Completo
+## Full Code
 
 ```tsx
 import React, { useState, useRef, useCallback } from "react";
@@ -19,7 +19,7 @@ import { SciNotebook } from "@velo-sci/notebook-react";
 import { EditorEngine, Notebook } from "@velo-sci/notebook-core";
 import "@velo-sci/notebook-core/styles/index.css";
 
-// Opcional: KaTeX para rendering de fórmulas
+// Optional: KaTeX for formula rendering
 import katex from "katex";
 import "katex/dist/katex.min.css";
 (globalThis as any).katex = katex;
@@ -32,7 +32,7 @@ const SAMPLE_NOTEBOOK: Notebook = {
     {
       id: "c1",
       type: "markdown",
-      source: "# Bienvenido a Sci-Notebook\n\nHaz **click** en cualquier celda para editarla.",
+      source: "# Welcome to Sci-Notebook\n\n**Click** any cell to edit it.",
       metadata: {},
     },
     // ── Code ──
@@ -55,8 +55,8 @@ const SAMPLE_NOTEBOOK: Notebook = {
       type: "image",
       source: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Euler%27s_formula.svg/400px-Euler%27s_formula.svg.png",
       metadata: {
-        alt: "Formula de Euler",
-        caption: "Representación gráfica de la fórmula de Euler",
+        alt: "Euler's formula",
+        caption: "Graphical representation of Euler's formula",
         width: "50%",
         align: "center",
       },
@@ -76,7 +76,7 @@ const SAMPLE_NOTEBOOK: Notebook = {
     {
       id: "c6",
       type: "raw",
-      source: "Texto raw — se muestra tal cual, sin formato.",
+      source: "Raw text — displayed as-is, without formatting.",
       metadata: {},
     },
   ],
@@ -107,50 +107,50 @@ export default function App() {
 }
 ```
 
-## Interacciones Disponibles
+## Available Interactions
 
-| Acción | Cómo |
-|--------|------|
-| **Editar celda** | Click en la celda |
-| **Salir de edición** | `Escape` |
-| **Siguiente celda** | `Shift+Enter` |
+| Action | How |
+|--------|-----|
+| **Edit cell** | Click on the cell |
+| **Exit edit mode** | `Escape` |
+| **Next cell** | `Shift+Enter` |
 | **Bold / Italic** | `Ctrl+B` / `Ctrl+I` |
-| **Indentar** | `Tab` / `Shift+Tab` |
+| **Indent** | `Tab` / `Shift+Tab` |
 | **Undo / Redo** | `Ctrl+Z` / `Ctrl+Shift+Z` |
-| **Insertar celda** | Hover entre celdas → click `+` |
-| **Toolbar flotante** | Seleccionar texto en celda Markdown |
+| **Insert cell** | Hover between cells → click `+` |
+| **Floating toolbar** | Select text in a Markdown cell |
 
-## Tipos de Celda
+## Cell Types
 
 ### Markdown
-Rendering completo con markdown-it. Toolbar flotante para Bold, Italic, Strikethrough, Code, Headings, Links, Lists.
+Full CommonMark rendering via markdown-it. Floating toolbar for Bold, Italic, Strikethrough, Code, Headings, Links, Lists.
 
 ### Code
-Bloques de código con metadata de lenguaje. Se muestra con `<pre><code>`.
+Code blocks with language metadata. Rendered with `<pre><code>` and Shiki syntax highlighting (30+ languages).
 
 ### LaTeX
-**Editor visual de fórmulas** con 9 categorías de bloques clickeables:
-- Estructuras, Integrales, Sumatorias, Matrices, Griegos, Operadores, Flechas, Funciones, Delimitadores
-- Modo dual: Preview visual (KaTeX) + modo raw LaTeX
+**Visual formula editor** with 9 categories of clickable blocks:
+- Structures, Integrals, Summations, Matrices, Greek letters, Operators, Arrows, Functions, Delimiters
+- Dual mode: Visual preview (KaTeX) + raw LaTeX mode
 
 ### Image
-- Drag & drop de archivos locales
-- URL para imágenes remotas
-- Alt text, caption, ancho (25%–100%), alineación
+- Drag & drop local files
+- URL for remote images
+- Alt text, caption, width (25%–100%), alignment
 
 ### Embed
 - Presets: YouTube, CodePen, Observable, Desmos, GeoGebra
-- URL personalizada con iframe sandboxed
-- Altura y nivel de sandbox configurables
+- Custom URL with sandboxed iframe
+- Configurable height and sandbox level
 
 ### Raw
-Texto sin procesar, útil para datos crudos o logs.
+Unprocessed text, useful for raw data or logs.
 
-## Correr el Ejemplo
+## Running the Example
 
 ```bash
-# Desde la raíz del monorepo
-pnpm --filter@velo-sci/notebook-example dev
+# From the monorepo root
+pnpm --filter @velo-sci/notebook-example dev
 
-# Abre http://localhost:5180
+# Opens http://localhost:5174
 ```
