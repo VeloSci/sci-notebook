@@ -1,19 +1,25 @@
-# Tipos de Celda
+<script setup>
+import { cellTypesNotebook } from '../.vitepress/theme/notebooks/cell-types'
+</script>
 
-sci-notebook soporta 6 tipos de celda built-in. Cada tipo tiene su propio editor especializado y modo de visualización.
+# Cell Types
+
+<InteractiveDoc :notebook="cellTypesNotebook" title="Cell Types — Interactive Notebook" />
+
+sci-notebook supports 8 built-in cell types. Each type has its own specialized editor and view mode.
 
 ---
 
 ## Markdown
 
-El tipo más versátil. Soporta el estándar CommonMark completo vía markdown-it.
+The most versatile type. Supports the full CommonMark standard via markdown-it.
 
-### Edición
-- **Click** en la celda para entrar en modo edición
-- **Toolbar flotante**: selecciona texto para ver opciones de formato (Bold, Italic, Strikethrough, Code, H1, H2, Link, List)
-- **Atajos**: `Ctrl+B` (bold), `Ctrl+I` (italic), `Tab` (indentar), `Shift+Tab` (des-indentar)
+### Editing
+- **Click** on the cell to enter edit mode
+- **Floating toolbar**: select text to see formatting options (Bold, Italic, Strikethrough, Code, H1, H2, Link, List)
+- **Shortcuts**: `Ctrl+B` (bold), `Ctrl+I` (italic), `Tab` (indent), `Shift+Tab` (outdent)
 
-### Sintaxis soportada
+### Supported Syntax
 
 ```markdown
 # Heading 1
@@ -23,28 +29,28 @@ El tipo más versátil. Soporta el estándar CommonMark completo vía markdown-i
 
 > Blockquote
 
-- Lista no ordenada
-1. Lista ordenada
+- Unordered list
+1. Ordered list
 
 | Col A | Col B |
 |-------|-------|
-| dato  | dato  |
+| data  | data  |
 
 [Link](https://example.com)
-![Imagen](url)
+![Image](url)
 
 ---
 
 ```code block```
 ```
 
-### Ejemplo de celda
+### Cell Example
 
 ```json
 {
   "id": "cell-1",
   "type": "markdown",
-  "source": "# Título\n\nTexto con **formato** y `código`.",
+  "source": "# Title\n\nText with **formatting** and `code`.",
   "metadata": {}
 }
 ```
@@ -53,20 +59,20 @@ El tipo más versátil. Soporta el estándar CommonMark completo vía markdown-i
 
 ## Code
 
-Bloques de código con metadata de lenguaje. En modo vista se renderizan con `<pre><code>` y clase de lenguaje para syntax highlighting.
+Code blocks with language metadata. In view mode they render with `<pre><code>` and a language class for syntax highlighting via Shiki (30+ languages).
 
-### Edición
-- Textarea con fuente monoespaciada
-- `Tab` inserta 2 espacios (no cambia foco)
-- `Shift+Enter` pasa a la siguiente celda
+### Editing
+- Textarea with monospaced font
+- `Tab` inserts 2 spaces (does not change focus)
+- `Shift+Enter` moves to the next cell
 
 ### Metadata
 
-| Campo | Tipo | Descripción |
+| Field | Type | Description |
 |-------|------|-------------|
-| `language` | `string` | Lenguaje del código (e.g. `"javascript"`, `"python"`, `"rust"`) |
+| `language` | `string` | Code language (e.g. `"javascript"`, `"python"`, `"rust"`) |
 
-### Ejemplo
+### Example
 
 ```json
 {
@@ -81,44 +87,44 @@ Bloques de código con metadata de lenguaje. En modo vista se renderizan con `<p
 
 ## LaTeX
 
-Celdas de fórmulas matemáticas con **editor visual interactivo**.
+Mathematical formula cells with an **interactive visual editor**.
 
-### Editor Visual (MathEditor)
+### Visual Editor (MathEditor)
 
-Al hacer click en una celda LaTeX se abre el MathEditor con:
+Clicking on a LaTeX cell opens the MathEditor with:
 
-1. **Paleta de bloques** organizada en 9 categorías:
+1. **Block palette** organized in 9 categories:
 
-| Categoría | Bloques | Ejemplo |
-|-----------|---------|---------|
-| **Estructuras** | Fracción, raíz, superíndice, subíndice, hat, bar, vec, tilde, dot | `\frac{a}{b}`, `\sqrt{x}` |
-| **Integrales** | Integral, integral definida, doble, triple, contorno | `\int_a^b`, `\oint` |
-| **Sumatorias** | Sumatoria, productoria, límite | `\sum_{i=0}^{n}`, `\lim_{x\to 0}` |
-| **Matrices** | 2×2, 3×3 en pmatrix, bmatrix, vmatrix, cases | `\begin{pmatrix}...\end{pmatrix}` |
-| **Griegos** | 25 símbolos: α, β, γ, δ, ε, θ, λ, μ, π, σ, φ, ω, Γ, Δ, Θ, Λ, Σ, Φ, Ψ, Ω... | `\alpha`, `\Omega` |
-| **Operadores** | 26 símbolos: ±, ×, ÷, ∂, ∇, ∞, ≈, ≠, ≤, ≥, ∈, ⊂, ∪, ∩, ∀, ∃... | `\pm`, `\nabla` |
-| **Flechas** | →, ←, ↔, ⇒, ⇐, ⇔, ↦ | `\rightarrow`, `\Leftrightarrow` |
-| **Funciones** | sin, cos, tan, log, ln, exp, lim, max, min, det | `\sin(x)`, `\det(A)` |
-| **Delimitadores** | Paréntesis, corchetes, llaves, valor absoluto, norma, piso, techo | `\left( ... \right)` |
+| Category | Blocks | Example |
+|----------|--------|---------|
+| **Structures** | Fraction, root, superscript, subscript, hat, bar, vec, tilde, dot | `\frac{a}{b}`, `\sqrt{x}` |
+| **Integrals** | Integral, definite integral, double, triple, contour | `\int_a^b`, `\oint` |
+| **Summations** | Summation, product, limit | `\sum_{i=0}^{n}`, `\lim_{x\to 0}` |
+| **Matrices** | 2×2, 3×3 in pmatrix, bmatrix, vmatrix, cases | `\begin{pmatrix}...\end{pmatrix}` |
+| **Greek** | 25 symbols: α, β, γ, δ, ε, θ, λ, μ, π, σ, φ, ω, Γ, Δ, Θ, Λ, Σ, Φ, Ψ, Ω... | `\alpha`, `\Omega` |
+| **Operators** | 26 symbols: ±, ×, ÷, ∂, ∇, ∞, ≈, ≠, ≤, ≥, ∈, ⊂, ∪, ∩, ∀, ∃... | `\pm`, `\nabla` |
+| **Arrows** | →, ←, ↔, ⇒, ⇐, ⇔, ↦ | `\rightarrow`, `\Leftrightarrow` |
+| **Functions** | sin, cos, tan, log, ln, exp, lim, max, min, det | `\sin(x)`, `\det(A)` |
+| **Delimiters** | Parentheses, brackets, braces, absolute value, norm, floor, ceiling | `\left( ... \right)` |
 
-2. **Modo dual**:
-   - **Preview**: Muestra la fórmula renderizada con KaTeX en tiempo real
-   - **LaTeX**: Textarea para editar el código LaTeX directamente
+2. **Dual mode**:
+   - **Preview**: Shows the formula rendered with KaTeX in real time
+   - **LaTeX**: Textarea for editing the LaTeX code directly
 
-3. **Inserción inteligente**: Los bloques se insertan en la posición del cursor. Si hay texto seleccionado, reemplaza el primer placeholder `▢`.
+3. **Smart insertion**: Blocks are inserted at the cursor position. If text is selected, it replaces the first placeholder `▢`.
 
 ### Rendering
 
-Las fórmulas se renderizan con KaTeX (si está disponible) o como código estilizado como fallback.
+Formulas are rendered with KaTeX (if available) or as styled code as a fallback.
 
-Para habilitar KaTeX:
+To enable KaTeX:
 ```ts
 import katex from "katex";
 import "katex/dist/katex.min.css";
 (globalThis as any).katex = katex;
 ```
 
-### Ejemplo
+### Example
 
 ```json
 {
@@ -131,30 +137,72 @@ import "katex/dist/katex.min.css";
 
 ---
 
+## Table
+
+Interactive table cells with a built-in editor.
+
+### Editor (TableCell)
+- Add/remove rows and columns
+- Edit cells inline
+- Renders as a Markdown table in view mode
+
+### Example
+
+```json
+{
+  "id": "cell-table",
+  "type": "table",
+  "source": "| Name | Value |\n|------|-------|\n| x | 42 |\n| y | 17 |",
+  "metadata": {}
+}
+```
+
+---
+
+## Mermaid
+
+Diagram cells rendered via the Mermaid library.
+
+### Supported Diagram Types
+- Flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, pie charts
+
+### Example
+
+```json
+{
+  "id": "cell-mermaid",
+  "type": "mermaid",
+  "source": "graph TD\n    A[Start] --> B[Process]\n    B --> C[End]",
+  "metadata": {}
+}
+```
+
+---
+
 ## Image
 
-Celdas de imagen con editor completo para upload, URL, y metadatos.
+Image cells with a full editor for upload, URL, and metadata.
 
 ### Editor (ImageCell)
 
-- **Drag & drop**: Arrastra un archivo de imagen sobre la zona de drop
-- **File picker**: Click en la zona de drop para seleccionar archivo
-- **URL**: Ingresa la URL de una imagen remota
-- **Controles**:
+- **Drag & drop**: Drag an image file onto the drop zone
+- **File picker**: Click the drop zone to select a file
+- **URL**: Enter the URL of a remote image
+- **Controls**:
 
-| Campo | Tipo | Opciones |
-|-------|------|----------|
-| `alt` | `string` | Texto alternativo (accesibilidad) |
-| `caption` | `string` | Pie de imagen |
+| Field | Type | Options |
+|-------|------|---------|
+| `alt` | `string` | Alt text (accessibility) |
+| `caption` | `string` | Image caption |
 | `width` | `string` | `"25%"`, `"50%"`, `"75%"`, `"100%"`, `"auto"` |
 | `align` | `string` | `"left"`, `"center"`, `"right"` |
 
-### Almacenamiento
+### Storage
 
-- **Archivos locales**: Se convierten a data URL (base64) y se almacenan en `source`
-- **URLs remotas**: Se almacenan directamente en `source`
+- **Local files**: Converted to data URL (base64) and stored in `source`
+- **Remote URLs**: Stored directly in `source`
 
-### Ejemplo
+### Example
 
 ```json
 {
@@ -162,8 +210,8 @@ Celdas de imagen con editor completo para upload, URL, y metadatos.
   "type": "image",
   "source": "https://example.com/diagram.png",
   "metadata": {
-    "alt": "Diagrama de flujo",
-    "caption": "Arquitectura del sistema",
+    "alt": "Flow diagram",
+    "caption": "System architecture",
     "width": "50%",
     "align": "center"
   }
@@ -174,11 +222,11 @@ Celdas de imagen con editor completo para upload, URL, y metadatos.
 
 ## Embed
 
-Contenido embebido vía iframe con presets y configuración de sandbox.
+Embedded content via iframe with presets and sandbox configuration.
 
 ### Editor (EmbedCell)
 
-1. **Presets rápidos**:
+1. **Quick presets**:
 
 | Preset | URL Pattern |
 |--------|-------------|
@@ -187,19 +235,19 @@ Contenido embebido vía iframe con presets y configuración de sandbox.
 | Observable | `https://observablehq.com/embed/` |
 | Desmos | `https://www.desmos.com/calculator/` |
 | GeoGebra | `https://www.geogebra.org/material/iframe/id/` |
-| Custom | Cualquier URL |
+| Custom | Any URL |
 
-2. **Configuración**:
+2. **Configuration**:
 
-| Campo | Tipo | Opciones |
-|-------|------|----------|
-| `title` | `string` | Título para accesibilidad |
+| Field | Type | Options |
+|-------|------|---------|
+| `title` | `string` | Title for accessibility |
 | `height` | `string` | `"200px"` – `"600px"` |
-| `sandbox` | `string` | `"allow-scripts allow-same-origin allow-popups"` (Standard), `"allow-scripts"` (Solo scripts), `""` (Restringido) |
+| `sandbox` | `string` | `"allow-scripts allow-same-origin allow-popups"` (Standard), `"allow-scripts"` (Scripts only), `""` (Restricted) |
 
-3. **Preview**: Toggle para ver/ocultar el iframe en vivo dentro del editor.
+3. **Preview**: Toggle to show/hide the live iframe within the editor.
 
-### Ejemplo
+### Example
 
 ```json
 {
@@ -218,13 +266,13 @@ Contenido embebido vía iframe con presets y configuración de sandbox.
 
 ## Raw
 
-Texto sin procesar. Se muestra tal cual en `<pre>`, sin rendering de Markdown ni ningún otro procesamiento.
+Unprocessed text. Displayed as-is in `<pre>`, without Markdown rendering or any other processing.
 
-### Uso
-- Datos crudos, logs, output de comandos
-- Contenido que no debe ser interpretado
+### Usage
+- Raw data, logs, command output
+- Content that should not be interpreted
 
-### Ejemplo
+### Example
 
 ```json
 {
@@ -237,9 +285,9 @@ Texto sin procesar. Se muestra tal cual en `<pre>`, sin rendering de Markdown ni
 
 ---
 
-## Tipos Custom vía Plugins
+## Custom Types via Plugins
 
-El sistema de plugins permite registrar tipos de celda adicionales:
+The plugin system allows registering additional cell types:
 
 ```typescript
 const myPlugin: SciNotebookPlugin = {
@@ -266,4 +314,4 @@ const myPlugin: SciNotebookPlugin = {
 };
 ```
 
-Ver [Plugin System](./plugin-system.md) para más detalles.
+See [Plugin System](./plugin-system.md) for more details.
