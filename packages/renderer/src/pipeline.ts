@@ -1,6 +1,7 @@
 import type { Cell, Notebook, CellType } from "@velo-sci/notebook-core";
 import { MarkdownParser, MarkdownItParser } from "./parser";
 import { LRUCache, hashString } from "./cache";
+import { highlightCodeTokens } from "./highlighter";
 import type Token from "markdown-it/lib/token";
 
 export interface RenderedCell {
@@ -32,6 +33,21 @@ export class RenderPipeline {
   constructor(parser?: MarkdownParser, cacheSize: number = 200) {
     this.parser = parser || new MarkdownItParser();
     this.cache = new LRUCache(cacheSize);
+
+    // Built-in: math rendering postprocessor (runs on markdown cells)
+    this.addPostprocessor("builtin:math", (html, cell) => {
+      if (cell.type !== "markdown") return html;
+      return this.renderMathInHtml(html);
+    }, -10);
+
+    // Built-in: code syntax highlighting postprocessor
+    this.addPostprocessor("builtin:code-highlight", (html, cell) => {
+      if (cell.type === "code") {
+        const lang = (cell.metadata.language as string) || "";
+        return highlightCodeTokens(cell.source, lang);
+      }
+      return html;
+    }, -5);
   }
 
   addPreprocessor(id: string, fn: Preprocessor, priority: number = 0): void {
@@ -152,7 +168,7 @@ export class RenderPipeline {
   private renderLatexFallback(source: string): string {
     const cleaned = source.replace(/^\$\$\s*/, "").replace(/\s*\$\$$/, "").trim();
     if (!cleaned) {
-      return '<div class="sci-nb-latex-display"><span class="sci-nb-placeholder">Formula vacia</span></div>';
+      return '<div class="sci-nb-latex-display"><span class="sci-nb-placeholder">Empty formula</span></div>';
     }
     // Try KaTeX if available globally or via optional import
     if (typeof globalThis !== "undefined" && (globalThis as any).katex) {
@@ -167,7 +183,7 @@ export class RenderPipeline {
   private renderMermaidFallback(source: string): string {
     const trimmed = source.trim();
     if (!trimmed) {
-      return '<div class="sci-nb-mermaid-preview"><span class="sci-nb-placeholder">Diagrama vacio</span></div>';
+      return '<div class="sci-nb-mermaid-preview"><span class="sci-nb-placeholder">Empty diagram</span></div>';
     }
     // Try Mermaid if available globally
     if (typeof globalThis !== "undefined" && (globalThis as any).mermaid) {
@@ -190,6 +206,36 @@ export class RenderPipeline {
     // Fallback: styled code block
     return `<div class="sci-nb-mermaid-preview"><pre class="sci-nb-code"><code class="language-mermaid">${this.escapeHtml(trimmed)}</code></pre></div>`;
   }
+
+  /**
+   * Process math expressions in rendered HTML.
+   * Handles $$...$$ (display) and $...$ (inline) using KaTeX if available.
+   */
+  private renderMathInHtml(html: string): string {
+    const katex = typeof globalThis !== "undefined" ? (globalThis as any).katex : null;
+    if (!katex) return html;
+
+    // Display math: $$...$$ (may appear as <p>$$...$$</p> after markdown rendering)
+    html = html.replace(/\$\$([\s\S]*?)\$\$/g, (_, tex) => {
+      const cleaned = tex.trim();
+      if (!cleaned) return _;
+      try {
+        return `<div class="sci-nb-latex-display">${katex.renderToString(cleaned, { displayMode: true, throwOnError: false })}</div>`;
+      } catch { return _; }
+    });
+
+    // Inline math: $...$ (not preceded/followed by $)
+    html = html.replace(/(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g, (_, tex) => {
+      const cleaned = tex.trim();
+      if (!cleaned) return _;
+      try {
+        return katex.renderToString(cleaned, { displayMode: false, throwOnError: false });
+      } catch { return _; }
+    });
+
+    return html;
+  }
+
 
   private escapeHtml(str: string): string {
     return str
