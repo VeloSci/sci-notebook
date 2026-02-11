@@ -243,8 +243,7 @@ export { EmbedCell, renderEmbedPreview } from './components/EmbedCell';
 export { FloatingToolbar } from './components/FloatingToolbar';
 export { InsertHandle } from './components/InsertHandle';
 export { MermaidPreview, initMermaid } from './components/MermaidCell';
-export { AIRewrite } from './components/AIRewrite';
-export { AICellGenerate } from './components/AICellGenerate';
+
 
 // Hooks
 export { useSciNotebook, useNotebook, useCell, useFocusedCell, useNotebookEvent } from './hooks';
