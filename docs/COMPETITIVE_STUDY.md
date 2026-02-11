@@ -1,374 +1,380 @@
-# Estudio Competitivo — Editores Científicos y Notebooks
+# Competitive Study — Scientific Editors and Notebooks
 
-> Objetivo: identificar las fortalezas y debilidades de cada competidor para construir
-> el mejor editor científico de notebooks del mercado.
-
----
-
-## 1. Panorama del Mercado
-
-| Producto | Tipo | Open Source | Foco Principal |
-|----------|------|-------------|----------------|
-| **Jupyter Notebook/Lab** | Notebook computacional | Sí | Ejecución de código + visualización |
-| **Notion** | Docs/Wiki colaborativo | No | Productividad general, bloques |
-| **Overleaf** | Editor LaTeX online | Parcial | Documentos académicos LaTeX |
-| **Mathcha** | Editor matemático visual | No | Fórmulas + diagramas WYSIWYG |
-| **Observable** | Notebook reactivo | Parcial | Visualización de datos, JS |
-| **Quarto** | Publishing científico | Sí | Documentos reproducibles multi-lenguaje |
-| **Typst** | Lenguaje de composición | Sí | Alternativa moderna a LaTeX |
-| **CoCalc** | Plataforma colaborativa | Parcial | Jupyter + LaTeX + terminal en la nube |
-| **Deepnote** | Notebook colaborativo | No | Jupyter en la nube + colaboración |
-| **HackMD/CodiMD** | Markdown colaborativo | Sí | Markdown en tiempo real |
+> Goal: identify the strengths and weaknesses of each competitor to build
+> the best scientific notebook editor on the market.
 
 ---
 
-## 2. Análisis Detallado por Competidor
+## 1. Market Overview
+
+| Product | Type | Open Source | Primary Focus |
+|---------|------|-------------|---------------|
+| **Jupyter Notebook/Lab** | Computational notebook | Yes | Code execution + visualization |
+| **Notion** | Collaborative docs/wiki | No | General productivity, blocks |
+| **Overleaf** | Online LaTeX editor | Partial | Academic LaTeX documents |
+| **Mathcha** | Visual math editor | No | Formulas + diagrams WYSIWYG |
+| **Observable** | Reactive notebook | Partial | Data visualization, JS |
+| **Quarto** | Scientific publishing | Yes | Reproducible multi-language documents |
+| **Typst** | Typesetting language | Yes | Modern alternative to LaTeX |
+| **CoCalc** | Collaborative platform | Partial | Jupyter + LaTeX + terminal in the cloud |
+| **Deepnote** | Collaborative notebook | No | Jupyter in the cloud + collaboration |
+| **HackMD/CodiMD** | Collaborative Markdown | Yes | Real-time Markdown |
+
+---
+
+## 2. Detailed Analysis by Competitor
 
 ### 2.1 Jupyter Notebook / JupyterLab
 
-**Fortalezas:**
-- Estándar de facto para computación científica
-- Ejecución de código en 100+ lenguajes vía kernels
-- Ecosistema masivo de extensiones
-- Formato `.ipynb` ampliamente adoptado
-- Rich output: gráficos, tablas, widgets interactivos
+**Strengths:**
+- De facto standard for scientific computing
+- Code execution in 100+ languages via kernels
+- Massive extension ecosystem
+- `.ipynb` format widely adopted
+- Rich output: charts, tables, interactive widgets
 
-**Debilidades:**
-- UX anticuada — la edición de texto es tosca
-- Sin WYSIWYG para Markdown (edit/preview separados)
-- LaTeX solo en preview, no hay editor visual de fórmulas
-- Sin drag & drop para reordenar celdas (JupyterLab lo agregó parcialmente)
-- Sin toolbar flotante contextual
-- Temas limitados, personalización CSS manual
-- Sin colaboración en tiempo real (JupyterLab tiene extensión experimental)
-- Arranque lento (servidor Python + kernel)
+**Weaknesses:**
+- Outdated UX — text editing is clunky
+- No WYSIWYG for Markdown (separate edit/preview)
+- LaTeX only in preview, no visual formula editor
+- No drag & drop to reorder cells (JupyterLab added it partially)
+- No contextual floating toolbar
+- Limited themes, manual CSS customization
+- No real-time collaboration (JupyterLab has experimental extension)
+- Slow startup (Python server + kernel)
 
-**Oportunidad para sci-notebook:**
-- UX moderna con click-to-edit, toolbar flotante, insert handles
-- Editor visual de fórmulas que Jupyter no tiene
-- Arranque instantáneo (sin servidor, puro frontend)
-- Mejor experiencia mobile
+**Opportunity for sci-notebook:**
+- Modern UX with click-to-edit, floating toolbar, insert handles
+- Visual formula editor that Jupyter doesn't have
+- Instant startup (no server, pure frontend)
+- Better mobile experience
 
 ---
 
 ### 2.2 Notion
 
-**Fortalezas:**
-- UX excepcional — el estándar de oro en edición por bloques
-- Slash commands (`/`) para insertar cualquier tipo de bloque
-- Drag & drop fluido para reordenar
-- Inline databases, tablas, kanban, calendarios
-- Colaboración en tiempo real
-- Templates reutilizables
-- API pública robusta
+**Strengths:**
+- Exceptional UX — the gold standard in block editing
+- Slash commands (`/`) to insert any block type
+- Smooth drag & drop reordering
+- Inline databases, tables, kanban, calendars
+- Real-time collaboration
+- Reusable templates
+- Robust public API
 
-**Debilidades:**
-- Sin soporte nativo de LaTeX (solo inline con `$$`, rendering básico)
-- Sin ejecución de código
-- Sin editor visual de fórmulas (solo raw LaTeX)
-- Cerrado, propietario, vendor lock-in
-- Sin modo offline robusto
-- Rendering de fórmulas lento comparado con KaTeX nativo
-- Sin syntax highlighting avanzado para código
+**Weaknesses:**
+- No native LaTeX support (only inline with `$$`, basic rendering)
+- No code execution
+- No visual formula editor (raw LaTeX only)
+- Closed, proprietary, vendor lock-in
+- No robust offline mode
+- Slow formula rendering compared to native KaTeX
+- No advanced syntax highlighting for code
 
-**Oportunidad para sci-notebook:**
-- Adoptar la UX de bloques de Notion pero con foco científico
-- Editor visual de fórmulas >>> lo que Notion ofrece
-- Open source, sin vendor lock-in
-- Mejor soporte de código con syntax highlighting real
+**Opportunity for sci-notebook:**
+- Adopt Notion's block UX but with a scientific focus
+- Visual formula editor >>> what Notion offers
+- Open source, no vendor lock-in
+- Better code support with real syntax highlighting
 
 ---
 
 ### 2.3 Overleaf
 
-**Fortalezas:**
-- Editor LaTeX colaborativo líder del mercado
-- Compilación en tiempo real con preview PDF
-- Miles de templates académicos
-- Integración con journals para submission directa
+**Strengths:**
+- Market-leading collaborative LaTeX editor
+- Real-time compilation with PDF preview
+- Thousands of academic templates
+- Integration with journals for direct submission
 - Git sync, Dropbox sync
-- Historial de versiones completo
+- Complete version history
 
-**Debilidades:**
-- Curva de aprendizaje alta (requiere saber LaTeX)
-- Sin modo WYSIWYG real (el "rich text" es limitado)
-- Sin celdas/bloques — es un editor de texto plano
-- Sin ejecución de código
-- Sin embeds interactivos
-- Lento para documentos grandes
-- Interfaz datada, no moderna
+**Weaknesses:**
+- Steep learning curve (requires knowing LaTeX)
+- No real WYSIWYG mode (the "rich text" is limited)
+- No cells/blocks — it's a plain text editor
+- No code execution
+- No interactive embeds
+- Slow for large documents
+- Dated, non-modern interface
 
-**Oportunidad para sci-notebook:**
-- Editor visual de fórmulas que elimina la barrera de LaTeX
-- Estructura por celdas más flexible que texto plano
-- Embeds interactivos (gráficos, videos, iframes)
-- Rendimiento superior (no necesita compilar PDF)
+**Opportunity for sci-notebook:**
+- Visual formula editor that eliminates the LaTeX barrier
+- Cell-based structure more flexible than plain text
+- Interactive embeds (charts, videos, iframes)
+- Superior performance (no need to compile PDF)
 
 ---
 
 ### 2.4 Mathcha
 
-**Fortalezas:**
-- Editor WYSIWYG de matemáticas más intuitivo del mercado
-- Paleta visual de símbolos y estructuras
-- Diagramas integrados (tikz-like)
-- Export a LaTeX, PDF, imagen
-- Sin necesidad de saber LaTeX para escribir fórmulas
+**Strengths:**
+- Most intuitive WYSIWYG math editor on the market
+- Visual palette of symbols and structures
+- Integrated diagrams (tikz-like)
+- Export to LaTeX, PDF, image
+- No need to know LaTeX to write formulas
 
-**Debilidades:**
-- Solo fórmulas y diagramas — no es un notebook completo
-- Sin celdas de código
-- Sin Markdown
-- Sin plugins ni extensibilidad
-- Sin API programática
-- Cerrado, propietario
-- Sin colaboración en tiempo real
+**Weaknesses:**
+- Only formulas and diagrams — not a complete notebook
+- No code cells
+- No Markdown
+- No plugins or extensibility
+- No programmatic API
+- Closed, proprietary
+- No real-time collaboration
 
-**Oportunidad para sci-notebook:**
-- Combinar la UX de fórmulas de Mathcha con un notebook completo
-- Nuestro MathEditor ya tiene paleta de bloques similar
-- Agregar: drag & drop de bloques de fórmula, preview en tiempo real
-- Extensible vía plugins
+**Opportunity for sci-notebook:**
+- Combine Mathcha's formula UX with a complete notebook
+- Our MathEditor already has a similar block palette
+- Add: drag & drop formula blocks, real-time preview
+- Extensible via plugins
 
 ---
 
 ### 2.5 Observable
 
-**Fortalezas:**
-- Notebooks reactivos — las celdas se actualizan automáticamente
-- Visualización de datos de primera clase (D3, Plot)
-- Importación de notebooks entre usuarios
-- Ejecución JavaScript nativa en el browser
-- Comunidad activa de visualización
+**Strengths:**
+- Reactive notebooks — cells update automatically
+- First-class data visualization (D3, Plot)
+- Notebook import between users
+- Native JavaScript execution in the browser
+- Active visualization community
 
-**Debilidades:**
-- Solo JavaScript (no Python, R, etc.)
-- Sin soporte robusto de LaTeX
-- Sin editor visual de fórmulas
-- Modelo de datos propietario (no .ipynb)
-- Sin modo offline
-- Curva de aprendizaje para el modelo reactivo
+**Weaknesses:**
+- JavaScript only (no Python, R, etc.)
+- No robust LaTeX support
+- No visual formula editor
+- Proprietary data model (not .ipynb)
+- No offline mode
+- Learning curve for the reactive model
 
-**Oportunidad para sci-notebook:**
-- Soporte multi-formato (Markdown + LaTeX + código + embeds)
-- Editor visual de fórmulas
-- Formato JSON estándar, portable
-- Embeds de Observable como iframe
+**Opportunity for sci-notebook:**
+- Multi-format support (Markdown + LaTeX + code + embeds)
+- Visual formula editor
+- Standard, portable JSON format
+- Observable embeds as iframe
 
 ---
 
 ### 2.6 Quarto
 
-**Fortalezas:**
-- Publishing científico de primera clase
-- Multi-lenguaje (Python, R, Julia, Observable JS)
-- Output a HTML, PDF, Word, presentaciones, libros
-- Integración con Jupyter kernels
-- Cross-references, citaciones, bibliografía
-- Extensible vía Lua filters
+**Strengths:**
+- First-class scientific publishing
+- Multi-language (Python, R, Julia, Observable JS)
+- Output to HTML, PDF, Word, presentations, books
+- Integration with Jupyter kernels
+- Cross-references, citations, bibliography
+- Extensible via Lua filters
 
-**Debilidades:**
-- No es un editor — es un sistema de build/publishing
-- Requiere CLI + editor externo (VS Code, RStudio)
-- Sin UX interactiva en el browser
-- Sin editor visual de fórmulas
-- Sin drag & drop
-- Sin colaboración en tiempo real
+**Weaknesses:**
+- Not an editor — it's a build/publishing system
+- Requires CLI + external editor (VS Code, RStudio)
+- No interactive UX in the browser
+- No visual formula editor
+- No drag & drop
+- No real-time collaboration
 
-**Oportunidad para sci-notebook:**
-- Ser el editor visual que Quarto necesita como frontend
-- UX interactiva que Quarto no tiene
-- Posible integración: exportar a formato Quarto (.qmd)
+**Opportunity for sci-notebook:**
+- Be the visual editor that Quarto needs as a frontend
+- Interactive UX that Quarto doesn't have
+- Possible integration: export to Quarto format (.qmd)
 
 ---
 
 ### 2.7 Typst
 
-**Fortalezas:**
-- Alternativa moderna a LaTeX con sintaxis más simple
-- Compilación incremental ultra-rápida
-- Preview en tiempo real
-- Funciones y scripting integrados
-- Mejor manejo de errores que LaTeX
+**Strengths:**
+- Modern alternative to LaTeX with simpler syntax
+- Ultra-fast incremental compilation
+- Real-time preview
+- Built-in functions and scripting
+- Better error handling than LaTeX
 - Open source
 
-**Debilidades:**
-- Ecosistema joven, pocos packages
-- Sin editor visual de fórmulas
-- Sin modelo de celdas/notebook
-- Sin ejecución de código externo
-- Adopción limitada vs LaTeX
+**Weaknesses:**
+- Young ecosystem, few packages
+- No visual formula editor
+- No cell/notebook model
+- No external code execution
+- Limited adoption vs LaTeX
 
-**Oportunidad para sci-notebook:**
-- Posible plugin para renderizar Typst además de LaTeX
-- Nuestro editor visual de fórmulas es algo que Typst no tiene
-- Modelo de celdas más flexible
+**Opportunity for sci-notebook:**
+- Possible plugin to render Typst in addition to LaTeX
+- Our visual formula editor is something Typst doesn't have
+- More flexible cell model
 
 ---
 
 ### 2.8 CoCalc
 
-**Fortalezas:**
-- Jupyter + LaTeX + terminal + chat en una plataforma
-- Colaboración en tiempo real con CRDT
-- Historial de versiones granular
-- Soporte para Sage, R, Julia, Octave
-- TimeTravel (replay de ediciones)
+**Strengths:**
+- Jupyter + LaTeX + terminal + chat in one platform
+- Real-time collaboration with CRDT
+- Granular version history
+- Support for Sage, R, Julia, Octave
+- TimeTravel (edit replay)
 
-**Debilidades:**
-- UX compleja, sobrecargada
-- Lento (servidor remoto obligatorio)
-- Sin editor visual de fórmulas
-- Interfaz anticuada
-- Requiere cuenta y conexión
+**Weaknesses:**
+- Complex, overloaded UX
+- Slow (remote server required)
+- No visual formula editor
+- Outdated interface
+- Requires account and connection
 
-**Oportunidad para sci-notebook:**
-- UX limpia y moderna vs la complejidad de CoCalc
-- Funciona offline, sin servidor
-- Editor visual de fórmulas
+**Opportunity for sci-notebook:**
+- Clean, modern UX vs CoCalc's complexity
+- Works offline, no server
+- Visual formula editor
 
 ---
 
-## 3. Matriz Comparativa de Features
+## 3. Feature Comparison Matrix
 
 | Feature | Jupyter | Notion | Overleaf | Mathcha | Observable | Quarto | Typst | CoCalc | **sci-notebook** |
 |---------|---------|--------|----------|---------|------------|--------|-------|--------|-----------------|
-| **Celdas/Bloques** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| **Cells/Blocks** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ |
 | **Markdown WYSIWYG** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **LaTeX rendering** | ✅ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ |
-| **Editor visual fórmulas** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Paleta de símbolos** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Celdas de imagen** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Drag & drop imágenes** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Visual formula editor** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Symbol palette** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Image cells** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Image drag & drop** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Embeds/iframes** | ⚠️ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| **Toolbar flotante** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Floating toolbar** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Insert handles** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Click-to-edit** | ❌ | ✅ | N/A | N/A | ❌ | N/A | N/A | ❌ | ✅ |
 | **Drag reorder** | ⚠️ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Keyboard nav** | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | N/A | ✅ | ✅ | ✅ |
-| **Temas light/dark** | ⚠️ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ⚠️ | ✅ |
-| **Ejecución de código** | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Colaboración RT** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | 🔜 |
+| **Light/dark themes** | ⚠️ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ⚠️ | ✅ |
+| **Code execution** | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **RT collaboration** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | 🔜 |
 | **Open source** | ✅ | ❌ | ⚠️ | ❌ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ |
-| **Sin servidor** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Serverless** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Plugin system** | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
 | **AI integration** | ⚠️ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ⚠️ | ✅ |
 | **Framework agnostic** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Presentation mode** | ⚠️ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
+| **PDF/DOCX export** | ⚠️ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Cloud sync** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| **Mobile support** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-**Leyenda:** ✅ = Sí | ⚠️ = Parcial | ❌ = No | 🔜 = Planeado
-
----
-
-## 4. Ventajas Competitivas Únicas de sci-notebook
-
-### 4.1 Lo que NADIE más tiene (combinado)
-
-1. **Editor visual de fórmulas + notebook**: Solo Mathcha tiene editor visual, pero no es un notebook. Solo Jupyter tiene notebook, pero no tiene editor visual. **sci-notebook es el único que combina ambos.**
-
-2. **Framework agnostic + sin servidor**: Funciona 100% en el browser sin backend. Ningún competidor ofrece esto con el mismo nivel de features.
-
-3. **Plugin system + UX moderna**: La extensibilidad de Jupyter con la UX de Notion.
-
-4. **Open source + foco científico**: Quarto es open source pero no es un editor. Jupyter es open source pero la UX es anticuada.
-
-### 4.2 Diferenciadores Clave
-
-| Diferenciador | Descripción |
-|---------------|-------------|
-| **MathEditor visual** | 9 categorías, 100+ bloques, preview en tiempo real, modo dual (visual/raw) |
-| **Zero-server** | Puro TypeScript, funciona offline, embed en cualquier app |
-| **Micro-bundle** | Core ~25KB, React adapter ~54KB, vs Jupyter (MB de Python + JS) |
-| **Instant boot** | Sin kernel startup, sin compilación, rendering inmediato |
-| **Composable** | Cada feature es un plugin opt-in, tree-shakeable |
+**Legend:** ✅ = Yes | ⚠️ = Partial | ❌ = No | 🔜 = Planned
 
 ---
 
-## 5. Gaps Identificados — Qué Nos Falta
+## 4. Unique Competitive Advantages of sci-notebook
 
-### 5.1 Críticos (necesarios para competir)
+### 4.1 What NOBODY else has (combined)
 
-| # | Gap | Competidor referencia | Prioridad |
-|---|-----|-----------------------|-----------|
-| G1 | **Slash commands** (`/` para insertar) | Notion | 🔴 Alta |
-| G2 | **Drag & drop reorder** de celdas | Notion, JupyterLab | 🔴 Alta |
-| G3 | **Ejecución de código** (al menos JS/Python vía Pyodide) | Jupyter, Observable | 🔴 Alta |
-| G4 | **Syntax highlighting** en celdas de código | Jupyter, VS Code | 🔴 Alta |
-| G5 | **Export** a PDF, HTML, Markdown, .ipynb | Quarto, Jupyter | 🔴 Alta |
-| G6 | **Colaboración en tiempo real** (Yjs/CRDT) | Notion, Overleaf, CoCalc | 🟡 Media |
+1. **Visual formula editor + notebook**: Only Mathcha has a visual editor, but it's not a notebook. Only Jupyter has a notebook, but no visual editor. **sci-notebook is the only one that combines both.**
 
-### 5.2 Importantes (diferenciadores de calidad)
+2. **Framework agnostic + serverless**: Works 100% in the browser with no backend. No competitor offers this with the same level of features.
 
-| # | Gap | Competidor referencia | Prioridad |
-|---|-----|-----------------------|-----------|
-| G7 | **Table editor** interactivo dentro de celdas | Notion | 🟡 Media |
-| G8 | **Mermaid diagrams** rendering | Jupyter, Quarto | 🟡 Media |
-| G9 | **TOC sidebar** (tabla de contenidos) | Notion, JupyterLab | 🟡 Media |
-| G10 | **Find & replace** across cells | Overleaf, Jupyter | 🟡 Media |
-| G11 | **Cell output** display (para ejecución) | Jupyter | 🟡 Media |
-| G12 | **Version history** / diffing | Overleaf, CoCalc | 🟡 Media |
+3. **Plugin system + modern UX**: Jupyter's extensibility with Notion's UX.
+
+4. **Open source + scientific focus**: Quarto is open source but not an editor. Jupyter is open source but the UX is outdated.
+
+### 4.2 Key Differentiators
+
+| Differentiator | Description |
+|----------------|-------------|
+| **Visual MathEditor** | 9 categories, 100+ blocks, real-time preview, dual mode (visual/raw) |
+| **Zero-server** | Pure TypeScript, works offline, embed in any app |
+| **Micro-bundle** | Core ~45KB, React adapter ~80KB, vs Jupyter (MB of Python + JS) |
+| **Instant boot** | No kernel startup, no compilation, immediate rendering |
+| **Composable** | Every feature is an opt-in plugin, tree-shakeable |
+
+---
+
+## 5. Identified Gaps — What We Were Missing
+
+### 5.1 Critical (necessary to compete)
+
+| # | Gap | Reference Competitor | Priority |
+|---|-----|---------------------|----------|
+| G1 | **Slash commands** (`/` to insert) | Notion | 🔴 High |
+| G2 | **Drag & drop reorder** of cells | Notion, JupyterLab | 🔴 High |
+| G3 | **Code execution** (at least JS/Python via Pyodide) | Jupyter, Observable | 🔴 High |
+| G4 | **Syntax highlighting** in code cells | Jupyter, VS Code | 🔴 High |
+| G5 | **Export** to PDF, HTML, Markdown, .ipynb | Quarto, Jupyter | 🔴 High |
+| G6 | **Real-time collaboration** (Yjs/CRDT) | Notion, Overleaf, CoCalc | 🟡 Medium |
+
+### 5.2 Important (quality differentiators)
+
+| # | Gap | Reference Competitor | Priority |
+|---|-----|---------------------|----------|
+| G7 | **Table editor** interactive within cells | Notion | 🟡 Medium |
+| G8 | **Mermaid diagrams** rendering | Jupyter, Quarto | 🟡 Medium |
+| G9 | **TOC sidebar** (table of contents) | Notion, JupyterLab | 🟡 Medium |
+| G10 | **Find & replace** across cells | Overleaf, Jupyter | 🟡 Medium |
+| G11 | **Cell output** display (for execution) | Jupyter | 🟡 Medium |
+| G12 | **Version history** / diffing | Overleaf, CoCalc | 🟡 Medium |
 
 ### 5.3 Nice-to-have (polish)
 
-| # | Gap | Competidor referencia | Prioridad |
-|---|-----|-----------------------|-----------|
-| G13 | **Presentation mode** (slideshow) | Jupyter RISE | 🟢 Baja |
-| G14 | **Comments / annotations** | Notion, Google Docs | 🟢 Baja |
-| G15 | **Templates** gallery | Notion, Overleaf | 🟢 Baja |
-| G16 | **Mobile-optimized** UI | Notion | 🟢 Baja |
-| G17 | **Autocomplete** para LaTeX commands | Overleaf | 🟢 Baja |
-| G18 | **Citation management** (BibTeX) | Overleaf, Quarto | 🟢 Baja |
+| # | Gap | Reference Competitor | Priority |
+|---|-----|---------------------|----------|
+| G13 | **Presentation mode** (slideshow) | Jupyter RISE | 🟢 Low |
+| G14 | **Comments / annotations** | Notion, Google Docs | 🟢 Low |
+| G15 | **Templates** gallery | Notion, Overleaf | 🟢 Low |
+| G16 | **Mobile-optimized** UI | Notion | 🟢 Low |
+| G17 | **Autocomplete** for LaTeX commands | Overleaf | 🟢 Low |
+| G18 | **Citation management** (BibTeX) | Overleaf, Quarto | 🟢 Low |
 
 ---
 
-## 6. Estrategia — Cómo Ser el Mejor
+## 6. Strategy — How to Be the Best
 
-### Fase Inmediata (v0.2) ✅ COMPLETADA
-- [x] **G1**: Slash commands — SlashCommand.tsx con 8 tipos, filtro, keyboard nav
-- [x] **G2**: Drag & drop reorder con indicador top/bottom
-- [x] **G4**: Syntax highlighting con Shiki (lazy loading, 30+ lenguajes)
-- [x] **G8**: Mermaid diagrams — renderMermaidFallback() en pipeline
+### Immediate Phase (v0.2) ✅ COMPLETE
+- [x] **G1**: Slash commands — SlashCommand.tsx with 8 types, filter, keyboard nav
+- [x] **G2**: Drag & drop reorder with top/bottom indicator
+- [x] **G4**: Syntax highlighting with Shiki (lazy loading, 30+ languages)
+- [x] **G8**: Mermaid diagrams — renderMermaidFallback() in pipeline
 
-### Fase Corta (v0.3) ✅ COMPLETADA
-- [x] **G3**: Ejecución de código JS en sandbox + custom language executors
-- [x] **G5**: Export a HTML standalone + Markdown + .ipynb + JSON
-- [x] **G7**: Table editor interactivo — TableCell.tsx
+### Short Phase (v0.3) ✅ COMPLETE
+- [x] **G3**: JS code execution in sandbox + custom language executors
+- [x] **G5**: Export to standalone HTML + Markdown + .ipynb + JSON
+- [x] **G7**: Interactive table editor — TableCell.tsx
 - [x] **G9**: TOC sidebar — TOCSidebar.tsx
 
-### Fase Media (v0.4) ✅ COMPLETADA
-- [x] **G10**: Find & replace global — FindReplace.tsx con Ctrl+F
+### Medium Phase (v0.4) ✅ COMPLETE
+- [x] **G10**: Global find & replace — FindReplace.tsx with Ctrl+F
 - [x] **G11**: Cell outputs — CellOutputDisplay.tsx (stream/display/error)
-- [x] **G17**: Autocomplete LaTeX — 120+ comandos en 8 categorías
-- [x] **G12**: Version history — VersionHistory con save/restore/diff
+- [x] **G17**: LaTeX autocomplete — 120+ commands in 8 categories
+- [x] **G12**: Version history — VersionHistory with save/restore/diff
 
-### Fase Larga (v1.0) — Pendiente
-- [ ] **G6**: Colaboración en tiempo real (Yjs)
-- [ ] **G13**: Presentation mode
-- [ ] **G14**: Comments
-- [ ] **G18**: Citations
+### Long Phase (v1.0) ✅ COMPLETE (partial)
+- [x] **G13**: Presentation mode — PresentationEngine with 3 split modes, transitions, fullscreen
+- [x] **G16**: Mobile-optimized UI — MobileAdapter with touch gestures, responsive CSS
+- [x] **G5** (extended): PDF/DOCX export — plugin-export with browser print and Office Open XML
+- [ ] **G6**: Real-time collaboration (Yjs) — out of scope v1.0
+- [ ] **G14**: Comments — out of scope v1.0
+- [ ] **G18**: Citations — out of scope v1.0
 
 ---
 
-## 7. Principios de Diseño para "El Mejor Editor"
+## 7. Design Principles for "The Best Editor"
 
-1. **Instant feedback**: Cada acción del usuario produce resultado visual inmediato (<16ms)
-2. **Zero friction**: Nunca más de 2 clicks para cualquier operación común
-3. **Progressive disclosure**: Simple por defecto, potente cuando lo necesitas
-4. **Keyboard-first**: Todo accesible por teclado, mouse es opcional
-5. **Offline-first**: Funciona sin conexión, sync cuando hay red
-6. **Composable**: Cada feature es un plugin, nada es obligatorio
-7. **Beautiful defaults**: Se ve profesional sin configuración
+1. **Instant feedback**: Every user action produces immediate visual result (<16ms)
+2. **Zero friction**: Never more than 2 clicks for any common operation
+3. **Progressive disclosure**: Simple by default, powerful when you need it
+4. **Keyboard-first**: Everything accessible by keyboard, mouse is optional
+5. **Offline-first**: Works without connection, syncs when online
+6. **Composable**: Every feature is a plugin, nothing is mandatory
+7. **Beautiful defaults**: Looks professional without configuration
 8. **Accessible**: WCAG 2.1 AA, screen readers, high contrast
-9. **Fast**: <100ms para cualquier operación, <1s para boot
-10. **Open**: Formato JSON estándar, sin vendor lock-in, MIT license
+9. **Fast**: <100ms for any operation, <1s for boot
+10. **Open**: Standard JSON format, no vendor lock-in, MIT license
 
 ---
 
-## 8. Conclusión
+## 8. Conclusion
 
-sci-notebook ocupa un nicho único: **editor científico de notebooks con UX moderna, editor visual de fórmulas, y arquitectura de plugins — todo sin servidor, open source, y framework agnostic**.
+sci-notebook occupies a unique niche: **scientific notebook editor with modern UX, visual formula editor, and plugin architecture — all serverless, open source, and framework agnostic**.
 
-Ningún competidor combina estas características. La estrategia es:
-1. Mantener las ventajas únicas (MathEditor, zero-server, plugins)
-2. Cerrar los gaps críticos (slash commands, drag reorder, code execution, syntax highlighting)
-3. Pulir la UX hasta superar a Notion en el nicho científico
-4. Construir comunidad con docs excelentes y ejemplos funcionales
+No competitor combines these characteristics. The strategy is:
+1. Maintain the unique advantages (MathEditor, zero-server, plugins)
+2. Close the critical gaps (slash commands, drag reorder, code execution, syntax highlighting) — ✅ DONE
+3. Polish the UX to surpass Notion in the scientific niche
+4. Build community with excellent docs and working examples
