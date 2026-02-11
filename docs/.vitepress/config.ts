@@ -20,6 +20,14 @@ export default defineConfig({
         { find: '@velo-sci/notebook-react', replacement: resolve(__dirname, '../../packages/react/src/index.ts') },
         { find: '@velo-sci/notebook-renderer', replacement: resolve(__dirname, '../../packages/renderer/src/index.ts') }
       ]
+    },
+    server: {
+      proxy: {
+        '/sci-notebook/example': {
+          target: 'http://localhost:5174',
+          changeOrigin: true,
+        }
+      }
     }
   },
   themeConfig: {
@@ -45,6 +53,8 @@ export default defineConfig({
         {
           text: 'Core Features',
           items: [
+            { text: 'Cell Types', link: '/guide/cell-types' },
+            { text: 'Visual Formula Editor', link: '/guide/math-editor' },
             { text: 'Rendering Pipeline', link: '/guide/rendering-pipeline' },
             { text: 'Plugin System', link: '/guide/plugin-system' },
             { text: 'LaTeX & Mermaid', link: '/guide/latex-mermaid' },
@@ -55,6 +65,10 @@ export default defineConfig({
           items: [
             { text: 'AI Integration', link: '/guide/ai-integration' },
             { text: 'Framework Adapters', link: '/guide/framework-adapters' },
+            { text: 'Presentation Mode', link: '/guide/presentation-mode' },
+            { text: 'Mobile & Touch', link: '/guide/mobile-support' },
+            { text: 'Export (PDF/DOCX)', link: '/guide/export-plugins' },
+            { text: 'Cloud Sync', link: '/guide/cloud-sync' },
             { text: 'Performance', link: '/guide/performance' },
           ]
         }
