@@ -207,9 +207,9 @@ onBeforeUnmount(() => {
 :deep(.interactive-doc-notebook .sci-nb-insert-handle) {
   display: none !important;
 }
-/* Collapse grid to badge + content since gutter/actions are hidden */
+/* Collapse grid to content since gutter/actions are hidden */
 :deep(.interactive-doc-notebook .sci-nb-cell) {
-  grid-template-columns: auto 1fr !important;
+  grid-template-columns: 1fr !important;
 }
 /* Center LaTeX formulas */
 :deep(.interactive-doc-notebook .sci-nb-cell--latex .sci-nb-cell-content) {
