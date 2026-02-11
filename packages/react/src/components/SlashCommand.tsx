@@ -10,14 +10,14 @@ export interface SlashCommandItem {
 }
 
 const DEFAULT_COMMANDS: SlashCommandItem[] = [
-  { type: "markdown", label: "Texto", description: "Bloque de texto con formato Markdown", icon: "M", keywords: ["text", "markdown", "paragraph", "texto"] },
-  { type: "code", label: "Código", description: "Bloque de código con syntax highlighting", icon: "</>", keywords: ["code", "codigo", "script", "program"] },
-  { type: "latex", label: "Fórmula", description: "Editor visual de fórmulas LaTeX", icon: "∑", keywords: ["latex", "math", "formula", "ecuacion", "equation"] },
-  { type: "image", label: "Imagen", description: "Imagen con drag & drop, URL, caption", icon: "🖼", keywords: ["image", "imagen", "foto", "picture", "img"] },
+  { type: "markdown", label: "Text", description: "Markdown formatted text block", icon: "M", keywords: ["text", "markdown", "paragraph"] },
+  { type: "code", label: "Code", description: "Code block with syntax highlighting", icon: "</>", keywords: ["code", "script", "program"] },
+  { type: "latex", label: "Formula", description: "Visual LaTeX formula editor", icon: "∑", keywords: ["latex", "math", "formula", "equation"] },
+  { type: "image", label: "Image", description: "Image with drag & drop, URL, caption", icon: "🖼", keywords: ["image", "picture", "photo", "img"] },
   { type: "embed", label: "Embed", description: "YouTube, CodePen, Desmos, iframe", icon: "⧉", keywords: ["embed", "iframe", "youtube", "video", "codepen"] },
-  { type: "table", label: "Tabla", description: "Tabla editable con filas y columnas", icon: "▦", keywords: ["table", "tabla", "grid", "spreadsheet"] },
-  { type: "mermaid", label: "Diagrama", description: "Diagrama Mermaid (flowchart, sequence, etc.)", icon: "◇", keywords: ["mermaid", "diagram", "diagrama", "flowchart", "chart"] },
-  { type: "raw", label: "Raw", description: "Texto sin formato", icon: "T", keywords: ["raw", "plain", "text", "crudo"] },
+  { type: "table", label: "Table", description: "Editable table with rows and columns", icon: "▦", keywords: ["table", "grid", "spreadsheet"] },
+  { type: "mermaid", label: "Diagram", description: "Mermaid diagram (flowchart, sequence, etc.)", icon: "◇", keywords: ["mermaid", "diagram", "flowchart", "chart"] },
+  { type: "raw", label: "Raw", description: "Plain unformatted text", icon: "T", keywords: ["raw", "plain", "text"] },
 ];
 
 interface SlashCommandProps {
@@ -103,7 +103,7 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
         className="sci-nb-slash-menu"
         style={{ top: position.top, left: position.left }}
       >
-        <div className="sci-nb-slash-empty">Sin resultados para "/{query}"</div>
+        <div className="sci-nb-slash-empty">No results for "/{query}"</div>
       </div>
     );
   }
@@ -114,7 +114,7 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
       className="sci-nb-slash-menu"
       style={{ top: position.top, left: position.left }}
     >
-      <div className="sci-nb-slash-header">Insertar bloque</div>
+      <div className="sci-nb-slash-header">Insert block</div>
       {filtered.map((cmd, i) => (
         <button
           key={cmd.type + cmd.label}
