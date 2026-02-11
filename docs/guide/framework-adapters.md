@@ -1,4 +1,10 @@
+<script setup>
+import { frameworkAdaptersNotebook } from '../.vitepress/theme/notebooks/framework-adapters'
+</script>
+
 # 08 — Framework Adapters & Public API
+
+<InteractiveDoc :notebook="frameworkAdaptersNotebook" title="Framework Adapters — Interactive Notebook" />
 
 ## Overview
 
@@ -10,10 +16,10 @@ Each adapter is a separate package:
 
 | Package                  | Framework    | Status     |
 |--------------------------|-------------|------------|
-| `@velo-sci/notebook-react`    | React 18+   | Primary    |
-| `@velo-sci/notebook-vue`      | Vue 3+      | Planned    |
-| `@velo-sci/notebook-svelte`   | Svelte 5+   | Planned    |
-| `@velo-sci/notebook-vanilla`  | Vanilla JS   | Primary    |
+| `@velo-sci/notebook-react`    | React 18+   | ✅ Primary    |
+| `@velo-sci/notebook-vue`      | Vue 3+      | ✅ Implemented |
+| `@velo-sci/notebook-svelte`   | Svelte 5+   | ✅ Implemented |
+| `@velo-sci/notebook-vanilla`  | Vanilla JS   | ✅ Primary    |
 
 ---
 
@@ -213,6 +219,122 @@ registerCellRenderer("my-widget", ({ cell, isEditing, onUpdate }) => {
 
 ---
 
+## Vue 3+ Adapter (`@velo-sci/notebook-vue`)
+
+The Vue adapter uses render functions (no SFC) so it can be built with tsup without a Vue compiler.
+
+### Components
+
+```typescript
+import { SciNotebook, NotebookCell, InsertHandle } from "@velo-sci/notebook-vue";
+```
+
+#### `<SciNotebook>`
+
+The primary Vue component. Renders the full notebook UI.
+
+```typescript
+import { createApp, h } from "vue";
+import { SciNotebook } from "@velo-sci/notebook-vue";
+
+const app = createApp({
+  render() {
+    return h(SciNotebook, {
+      notebook: myNotebook,
+      theme: "dark",
+      showToolbar: true,
+      showTOC: true,
+      readOnly: false,
+      onChange: (nb) => console.log("Updated:", nb),
+    });
+  },
+});
+app.mount("#app");
+```
+
+### Composables
+
+```typescript
+import {
+  useNotebookEngine,
+  provideNotebookEngine,
+  useNotebook,
+  useCell,
+  useFocusedCell,
+  NotebookEngineKey,
+} from "@velo-sci/notebook-vue";
+
+// Provide the engine at the root of your component tree
+provideNotebookEngine(engine);
+
+// Access the engine from any child component
+const engine = useNotebookEngine();
+
+// Reactive notebook state
+const notebook = useNotebook(engine);
+
+// Reactive cell state
+const cell = useCell(engine, "cell-id");
+
+// Reactive focused cell ID
+const focusedId = useFocusedCell(engine);
+```
+
+### Injection Key
+
+The `NotebookEngineKey` symbol is used for Vue's provide/inject:
+
+```typescript
+import { inject } from "vue";
+import { NotebookEngineKey } from "@velo-sci/notebook-vue";
+
+const engine = inject(NotebookEngineKey);
+```
+
+---
+
+## Svelte 5+ Adapter (`@velo-sci/notebook-svelte`)
+
+The Svelte adapter provides an imperative mounting class and Svelte-compatible stores.
+
+### Mounting
+
+```typescript
+import { SciNotebookSvelte } from "@velo-sci/notebook-svelte";
+
+const nb = new SciNotebookSvelte({
+  target: document.getElementById("notebook"),
+  notebook: myNotebook,
+  theme: "dark",
+  onChange: (nb) => console.log("Updated:", nb),
+});
+
+// Update options
+nb.setTheme("light");
+
+// Destroy
+nb.destroy();
+```
+
+### Stores
+
+```typescript
+import { createNotebookStore } from "@velo-sci/notebook-svelte";
+import { createNotebook } from "@velo-sci/notebook-core";
+
+const engine = createNotebook({ notebook: myNotebook });
+const store = createNotebookStore(engine);
+
+// Svelte $store syntax
+$: notebook = $store.notebook;
+$: cells = $store.cells;
+$: focusedCellId = $store.focusedCellId;
+```
+
+The `NotebookStore` implements Svelte's `Readable<T>` interface, so it works with `$store` auto-subscription syntax.
+
+---
+
 ## Vanilla JS Adapter (`@velo-sci/notebook-vanilla`)
 
 For environments without a framework (plain HTML pages, web components, etc.).
@@ -220,49 +342,38 @@ For environments without a framework (plain HTML pages, web components, etc.).
 ### Mounting
 
 ```typescript
-import { mount } from "@velo-sci/notebook-vanilla";
-import { latexPlugin } from "@velo-sci/notebook-plugin-latex";
+import { SciNotebookVanilla } from "@velo-sci/notebook-vanilla";
 
-const container = document.getElementById("notebook");
-
-const editor = mount(container, {
+const nb = new SciNotebookVanilla({
+  target: document.getElementById("notebook"),
   notebook: myNotebook,
-  plugins: [latexPlugin()],
   theme: "dark",
+  showToolbar: true,
+  showTOC: true,
+  readOnly: false,
   onChange: (notebook) => {
     localStorage.setItem("notebook", JSON.stringify(notebook));
   },
 });
 
-// Programmatic API
-editor.insertCell(0, "markdown", "# New Cell");
-editor.setAllViewMode();
-editor.destroy(); // cleanup
+// Access the underlying engine
+const engine = nb.engine;
+
+// Update theme
+nb.setTheme("light");
+
+// Destroy and clean up DOM
+nb.destroy();
 ```
 
-### `mount` Return Type
+### Built-in Features
 
-```typescript
-interface VanillaNotebookInstance {
-  /** The underlying EditorEngine */
-  engine: EditorEngine;
-
-  /** Update options after mount */
-  update(options: Partial<VanillaMountOptions>): void;
-
-  /** Destroy the instance and clean up DOM */
-  destroy(): void;
-
-  /** Force re-render all cells */
-  refresh(): void;
-
-  /** Get the current notebook */
-  getNotebook(): Notebook;
-
-  /** Replace the entire notebook */
-  setNotebook(notebook: Notebook): void;
-}
-```
+- **`DOMCellRenderer`** — Renders cells to DOM using the rendering pipeline
+- **`DragDropManager`** — Drag-and-drop cell reordering with visual indicators
+- **`KeyboardHandler`** — Full keyboard navigation (Escape, Enter, Shift+Enter, arrows, Ctrl+Z/Y/D)
+- **TOC sidebar** — Table of contents from headings
+- **Toolbar** — Cell type buttons, undo/redo, theme toggle
+- **Insert handles** — `+` buttons between cells
 
 ### DOM Structure
 
