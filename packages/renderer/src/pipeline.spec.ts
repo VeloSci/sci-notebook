@@ -87,9 +87,9 @@ describe("RenderPipeline", () => {
 
     const result = pipeline.render(cell);
 
-    expect(result.html).toContain('<pre class="sci-nb-code">');
+    expect(result.html).toContain('<pre class="sci-nb-code sci-nb-code--highlighted">');
     expect(result.html).toContain('<code class="language-javascript">');
-    expect(result.html).toContain("const x = 1;");
+    expect(result.html).toContain("sci-nb-hl-keyword");
   });
 
   it("should escape HTML in code cells", () => {
@@ -171,7 +171,7 @@ describe("RenderPipeline", () => {
 
     expect(results).toHaveLength(3);
     expect(results[0].html).toContain("<h1>Title</h1>");
-    expect(results[1].html).toContain("x = 1");
+    expect(results[1].html).toContain("sci-nb-code--highlighted");
     expect(results[2].html).toContain("raw");
   });
 
