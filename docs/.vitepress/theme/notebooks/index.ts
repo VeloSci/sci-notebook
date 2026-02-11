@@ -1,4 +1,11 @@
 export { overviewNotebook } from './overview';
+export { dataModelNotebook } from './data-model';
+export { editorEngineNotebook } from './editor-engine';
+export { renderingPipelineNotebook } from './rendering-pipeline';
+export { pluginSystemNotebook } from './plugin-system';
+export { latexMermaidNotebook } from './latex-mermaid';
+export { aiIntegrationNotebook } from './ai-integration';
+export { performanceNotebook } from './performance';
 export { cellTypesNotebook } from './cell-types';
 export { mathEditorNotebook } from './math-editor';
 export { presentationModeNotebook } from './presentation-mode';
