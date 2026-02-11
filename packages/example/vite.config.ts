@@ -5,6 +5,10 @@ import path from 'path'
 export default defineConfig({
   base: '/sci-notebook/example/',
   plugins: [react()],
+  server: {
+    port: 5174,
+    strictPort: true,
+  },
   resolve: {
     alias: {
       '@velo-sci/notebook-core': path.resolve(__dirname, '../core/src'),

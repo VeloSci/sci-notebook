@@ -173,3 +173,134 @@ body.dark {
   gap: 8px;
   justify-content: flex-end;
 }
+
+/* Button groups */
+.app-btn-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.app-btn-group + .app-btn-group {
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid #e0e0e0;
+}
+
+[data-app-theme="dark"] .app-btn-group + .app-btn-group {
+  border-left-color: #2a2a4a;
+}
+
+.app-btn--accent {
+  background: linear-gradient(135deg, #4a9eff, #6366f1);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.app-btn--accent:hover {
+  opacity: 0.9;
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Badge */
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #e8f5e9;
+  color: #2e7d32;
+  margin-left: 8px;
+}
+
+[data-app-theme="dark"] .app-badge {
+  background: #1b3a1b;
+  color: #66bb6a;
+}
+
+/* Version history */
+.version-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.version-empty {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  padding: 24px;
+}
+
+.version-item {
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+[data-app-theme="dark"] .version-item {
+  border-color: #2a2a4a;
+  background: #16213e;
+}
+
+.version-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.version-item-time {
+  font-size: 11px;
+  color: #888;
+}
+
+.version-item-meta {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.version-diff {
+  color: #4a9eff;
+  font-weight: 500;
+}
+
+/* Presentation overlay */
+.presentation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+}
+
+/* Responsive header */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .app-header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .app-btn-group + .app-btn-group {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .app-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}
