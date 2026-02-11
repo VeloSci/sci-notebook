@@ -23,17 +23,17 @@ const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
   { value: "code", label: "Code", icon: "</>" },
   { value: "raw", label: "Raw", icon: "T" },
   { value: "latex", label: "LaTeX", icon: "∑" },
-  { value: "image", label: "Imagen", icon: "🖼" },
+  { value: "image", label: "Image", icon: "🖼" },
   { value: "embed", label: "Embed", icon: "⧉" },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
-  markdown: "Escribe markdown aqui... (click para editar)",
-  code: "Escribe codigo aqui...",
-  raw: "Texto raw...",
-  latex: "Escribe LaTeX aqui... e.g. \\int_0^1 x^2 dx",
-  image: "Click para agregar imagen",
-  embed: "Click para agregar contenido embebido",
+  markdown: "Write markdown here... (click to edit)",
+  code: "Write code here...",
+  raw: "Raw text...",
+  latex: "Write LaTeX here... e.g. \\int_0^1 x^2 dx",
+  image: "Click to add image",
+  embed: "Click to add embedded content",
 };
 
 const SPECIALIZED_TYPES = new Set(["latex", "image", "embed"]);
@@ -425,7 +425,7 @@ function renderEditMode(
         />
       )}
       <div className="sci-nb-cell-hint">
-        <kbd>/</kbd> comandos &middot; <kbd>Shift+Enter</kbd> siguiente &middot; <kbd>Esc</kbd> salir
+        <kbd>/</kbd> commands &middot; <kbd>Shift+Enter</kbd> next &middot; <kbd>Esc</kbd> exit
       </div>
     </>
   );
