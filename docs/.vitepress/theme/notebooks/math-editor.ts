@@ -1,0 +1,82 @@
+export const mathEditorNotebook = {
+  id: "doc-math-editor",
+  title: "Visual Formula Editor",
+  cells: [
+    {
+      id: "me-intro",
+      type: "markdown",
+      source: "# Visual Formula Editor (MathEditor)\n\nThe MathEditor is a **visual LaTeX formula editor** with a clickable block palette, real-time KaTeX preview, and dual mode (visual/raw). It activates automatically when editing a LaTeX cell.",
+      metadata: {},
+    },
+    {
+      id: "me-demo",
+      type: "latex",
+      source: "$$\n\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}\n$$",
+      metadata: {},
+    },
+    {
+      id: "me-demo-desc",
+      type: "markdown",
+      source: "The formula above is a **live LaTeX cell** rendered with KaTeX. In edit mode, the MathEditor visual palette would appear.",
+      metadata: {},
+    },
+    {
+      id: "me-categories",
+      type: "markdown",
+      source: "## Block Categories\n\nThe palette provides **9 categories** with 100+ symbols and structures:\n\n| Category | Examples | Count |\n|----------|----------|-------|\n| **Structures** | `\\frac{}{}`, `\\sqrt{}`, `\\binom{}{}` | 8 |\n| **Integrals** | `\\int`, `\\iint`, `\\oint`, `\\int_a^b` | 10 |\n| **Summations** | `\\sum`, `\\prod`, `\\lim`, `\\inf`, `\\sup` | 12 |\n| **Matrices** | `pmatrix`, `bmatrix`, `vmatrix`, `cases` | 8 |\n| **Greek** | `\\alpha`, `\\beta`, `\\gamma`, `\\Omega` | 24 |\n| **Operators** | `\\pm`, `\\times`, `\\div`, `\\leq`, `\\geq` | 20 |\n| **Arrows** | `\\to`, `\\Rightarrow`, `\\leftrightarrow` | 12 |\n| **Functions** | `\\sin`, `\\cos`, `\\log`, `\\exp`, `\\det` | 15 |\n| **Delimiters** | `\\left(`, `\\right)`, `\\langle`, `\\rangle` | 10 |",
+      metadata: {},
+    },
+    {
+      id: "me-modes",
+      type: "markdown",
+      source: "## Dual Mode\n\n### Preview Mode (default)\n- Renders the formula in real-time with KaTeX\n- Click on the block palette to insert symbols at cursor position\n- Visual feedback for the current formula\n\n### Raw LaTeX Mode\n- Direct editing of the LaTeX source code\n- Full control over the formula syntax\n- Toggle with the **LaTeX** button",
+      metadata: {},
+    },
+    {
+      id: "me-shortcuts",
+      type: "markdown",
+      source: "## Keyboard Shortcuts\n\n| Shortcut | Action |\n|----------|--------|\n| `Escape` | Exit editor, return to view mode |\n| `Shift+Enter` | Exit and move to next cell |\n| `Ctrl+Z` | Undo last change |\n| `Ctrl+Shift+Z` | Redo |",
+      metadata: {},
+    },
+    {
+      id: "me-api",
+      type: "code",
+      source: "// MathEditor React component API\nimport { MathEditor } from '@velo-sci/notebook-react';\n\ninterface MathEditorProps {\n  cellId: string;       // Cell ID\n  source: string;       // LaTeX code (with $$ wrappers)\n  onExit: () => void;   // Callback when exiting\n}\n\n// The MathEditor is used internally by the Cell component\n// when a LaTeX cell enters edit mode. You rarely need to\n// use it directly.",
+      metadata: { language: "typescript" },
+    },
+    {
+      id: "me-matrix",
+      type: "latex",
+      source: "$$\n\\mathbf{A} = \\begin{pmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\ a_{21} & a_{22} & \\cdots & a_{2n} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{m1} & a_{m2} & \\cdots & a_{mn} \\end{pmatrix}\n$$",
+      metadata: {},
+    },
+    {
+      id: "me-matrix-desc",
+      type: "markdown",
+      source: "The **Matrices** category inserts the full `\\begin{pmatrix}...\\end{pmatrix}` structure with a single click.",
+      metadata: {},
+    },
+    {
+      id: "me-more-formulas",
+      type: "latex",
+      source: "$$\n\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}\n$$",
+      metadata: {},
+    },
+    {
+      id: "me-inline",
+      type: "markdown",
+      source: "Inline math also works in markdown cells: $\\vec{F} = m\\vec{a}$, $\\oint \\mathbf{B} \\cdot d\\mathbf{l} = \\mu_0 I$",
+      metadata: {},
+    },
+    {
+      id: "me-data",
+      type: "markdown",
+      source: "## Data Format\n\nLaTeX cells store their source wrapped in `$$` delimiters:\n\n```json\n{\n  \"id\": \"cell-1\",\n  \"type\": \"latex\",\n  \"source\": \"$$\\\\int_0^1 x^2 dx = \\\\frac{1}{3}$$\",\n  \"metadata\": {}\n}\n```\n\nThe `$$` wrapper is stripped during editing and re-added on save.",
+      metadata: {},
+    },
+  ],
+  metadata: { author: "sci-notebook-docs" },
+  version: 1,
+  createdAt: "2025-01-01T00:00:00.000Z",
+  updatedAt: "2025-01-01T00:00:00.000Z",
+};
