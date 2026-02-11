@@ -125,13 +125,13 @@ export const FindReplace: React.FC<FindReplaceProps> = ({ onClose }) => {
         type="text"
         value={query}
         onChange={e => setQuery(e.target.value)}
-        placeholder="Buscar..."
+        placeholder="Search..."
       />
       <span className="sci-nb-find-count">
         {matches.length > 0 ? `${currentIdx + 1}/${matches.length}` : query ? "0" : ""}
       </span>
-      <button onClick={goPrev} title="Anterior (Shift+Enter)">▲</button>
-      <button onClick={goNext} title="Siguiente (Enter)">▼</button>
+      <button onClick={goPrev} title="Previous (Shift+Enter)">▲</button>
+      <button onClick={goNext} title="Next (Enter)">▼</button>
       <button
         onClick={() => setCaseSensitive(v => !v)}
         title="Aa: Case sensitive"
@@ -139,8 +139,8 @@ export const FindReplace: React.FC<FindReplaceProps> = ({ onClose }) => {
       >
         Aa
       </button>
-      <button onClick={() => setShowReplace(v => !v)} title="Reemplazar (Ctrl+H)">
-        {showReplace ? "▾" : "▸"} Reemplazar
+      <button onClick={() => setShowReplace(v => !v)} title="Replace (Ctrl+H)">
+        {showReplace ? "▾" : "▸"} Replace
       </button>
       {showReplace && (
         <>
@@ -148,13 +148,13 @@ export const FindReplace: React.FC<FindReplaceProps> = ({ onClose }) => {
             type="text"
             value={replacement}
             onChange={e => setReplacement(e.target.value)}
-            placeholder="Reemplazar con..."
+            placeholder="Replace with..."
           />
-          <button onClick={replaceCurrent} title="Reemplazar actual">1</button>
-          <button onClick={replaceAll} title="Reemplazar todos">∀</button>
+          <button onClick={replaceCurrent} title="Replace current">1</button>
+          <button onClick={replaceAll} title="Replace all">∀</button>
         </>
       )}
-      <button onClick={onClose} title="Cerrar (Esc)">✕</button>
+      <button onClick={onClose} title="Close (Esc)">✕</button>
     </div>
   );
 };
