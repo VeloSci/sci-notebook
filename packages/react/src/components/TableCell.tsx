@@ -105,11 +105,28 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
   return (
     <div className="sci-nb-table-editor" onKeyDown={handleKeyDown}>
       <div className="sci-nb-table-toolbar">
-        <button onClick={addRow}>+ Fila</button>
-        <button onClick={addColumn}>+ Columna</button>
+        <button onClick={addRow}>+ Row</button>
+        <button onClick={addColumn}>+ Column</button>
       </div>
       <table>
         <thead>
+          <tr className="sci-nb-table-col-actions">
+            {data.headers.map((_, ci) => (
+              <th key={ci} style={{ padding: "2px 0", textAlign: "center" }}>
+                {data.headers.length > 1 && (
+                  <button
+                    className="sci-nb-btn sci-nb-btn--danger"
+                    onClick={() => removeColumn(ci)}
+                    title="Delete column"
+                    style={{ padding: "1px 4px", fontSize: 10, border: "none", background: "transparent", cursor: "pointer" }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </th>
+            ))}
+            <th style={{ width: 30, padding: 0 }} />
+          </tr>
           <tr>
             {data.headers.map((h, ci) => (
               <th key={ci}>
@@ -120,7 +137,7 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
                 />
               </th>
             ))}
-            <th style={{ width: 30, padding: 0 }}></th>
+            <th style={{ width: 30, padding: 0 }} />
           </tr>
         </thead>
         <tbody>
@@ -139,7 +156,7 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
                 <button
                   className="sci-nb-btn sci-nb-btn--danger"
                   onClick={() => removeRow(ri)}
-                  title="Eliminar fila"
+                  title="Delete row"
                   style={{ padding: "2px 4px", fontSize: 10, border: "none", background: "transparent" }}
                 >
                   ✕
@@ -150,7 +167,7 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
         </tbody>
       </table>
       <div className="sci-nb-cell-hint">
-        <kbd>Tab</kbd> siguiente celda &middot; <kbd>Esc</kbd> salir
+        <kbd>Tab</kbd> next cell &middot; <kbd>Esc</kbd> exit
       </div>
     </div>
   );
@@ -158,7 +175,7 @@ export const TableCell: React.FC<TableCellProps> = ({ cellId, source, onExit }) 
 
 export function renderTablePreview(source: string): string {
   const data = parseMarkdownTable(source);
-  if (data.headers.length === 0) return "<p>Tabla vacía</p>";
+  if (data.headers.length === 0) return "<p>Empty table</p>";
 
   const ths = data.headers.map(h => `<th>${escapeHtml(h)}</th>`).join("");
   const trs = data.rows.map(row =>
