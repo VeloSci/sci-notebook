@@ -1,85 +1,100 @@
-# Playground Interactivo
+# Interactive Playground
 
-Experimenta sci-notebook directamente en tu browser. El ejemplo incluye los 6 tipos de celda, tema light/dark, y export/import JSON.
+Try sci-notebook directly in your browser. The example includes all 8 cell types, light/dark theme, presentation mode, version history, and JSON export/import.
 
-## Correr el Playground
+## Running the Playground
 
 ```bash
-# Desde la raíz del monorepo
+# From the monorepo root
 pnpm install
 pnpm -r build
-pnpm --filter@velo-sci/notebook-example dev
+pnpm --filter @velo-sci/notebook-example dev
 ```
 
-Abre **http://localhost:5180** en tu browser.
+Open **http://localhost:5174** in your browser.
 
 ---
 
-## Qué Puedes Hacer
+## What You Can Do
 
-### Edición
-- **Click** en cualquier celda para editarla
-- **Escape** para salir del modo edición
-- **Shift+Enter** para pasar a la siguiente celda
+### Editing
+- **Click** any cell to edit it
+- **Escape** to exit edit mode
+- **Shift+Enter** to move to the next cell
 
 ### Markdown
-- Escribe Markdown con formato completo (headings, bold, italic, tablas, listas, links)
-- **Selecciona texto** para ver la toolbar flotante con opciones de formato
-- Atajos: `Ctrl+B` (bold), `Ctrl+I` (italic), `Tab` (indentar)
+- Write Markdown with full formatting (headings, bold, italic, tables, lists, links)
+- **Select text** to see the floating toolbar with formatting options
+- Shortcuts: `Ctrl+B` (bold), `Ctrl+I` (italic), `Tab` (indent)
 
-### Fórmulas LaTeX
-- Click en una celda LaTeX para abrir el **editor visual de fórmulas**
-- Usa la **paleta de bloques** para insertar fracciones, integrales, matrices, griegos, etc.
-- Alterna entre **modo Preview** (visual) y **modo LaTeX** (raw)
-- La fórmula se renderiza en tiempo real con KaTeX
+### LaTeX Formulas
+- Click a LaTeX cell to open the **visual formula editor**
+- Use the **block palette** to insert fractions, integrals, matrices, Greek letters, etc.
+- Toggle between **Preview mode** (visual) and **LaTeX mode** (raw)
+- The formula renders in real time with KaTeX
 
-### Imágenes
-- **Drag & drop** un archivo de imagen sobre la celda
-- O ingresa una **URL** de imagen remota
-- Configura: alt text, caption, ancho, alineación
+### Images
+- **Drag & drop** an image file onto the cell
+- Or enter a remote image **URL**
+- Configure: alt text, caption, width, alignment
 
 ### Embeds
-- Elige un **preset** (YouTube, CodePen, Desmos, GeoGebra, Observable)
-- O ingresa cualquier **URL** para iframe
-- Configura: título, altura, nivel de sandbox
+- Choose a **preset** (YouTube, CodePen, Desmos, GeoGebra, Observable)
+- Or enter any **URL** for an iframe
+- Configure: title, height, sandbox level
 
-### Gestión de Celdas
-- **Hover entre celdas** → botón `+` para insertar nueva celda
-- **Botones laterales**: mover arriba/abajo, duplicar, eliminar
-- **Toolbar**: undo/redo, agregar celda, cambiar modo (edit all / view all)
+### Cell Management
+- **Hover between cells** → `+` button to insert a new cell
+- **Side buttons**: move up/down, duplicate, delete
+- **Toolbar**: undo/redo, add cell, toggle mode (edit all / view all)
 
-### Temas y Export
-- **Toggle light/dark** en el header
-- **Export JSON**: descarga el notebook como JSON
-- **Import JSON**: carga un notebook desde JSON
+### Presentation Mode
+- Click **▶ Present** to start a slideshow
+- Navigate with arrow keys, Space, PageUp/Down
+- Press **Escape** to exit presentation
+
+### Version History
+- Click **Save Version** to create a snapshot
+- Click **History** to browse saved versions with diff summaries
+
+### Themes and Export
+- **Toggle light/dark** in the header
+- **Export**: JSON, HTML, Markdown, IPYNB, PDF
+- **Import JSON**: load a notebook from JSON
 
 ---
 
-## Stack Técnico
+## Technical Stack
 
-El playground usa exactamente el mismo código que usarías en producción:
+The playground uses the exact same code you would use in production:
 
-| Capa | Paquete | Rol |
-|------|---------|-----|
-| **Engine** | `@velo-sci/notebook-core` | Estado, undo/redo, eventos, keybindings |
-| **Rendering** | `@velo-sci/notebook-renderer` | Markdown → AST → HTML, LRU cache |
+| Layer | Package | Role |
+|-------|---------|------|
+| **Engine** | `@velo-sci/notebook-core` | State, undo/redo, events, keybindings, presentation, mobile |
+| **Rendering** | `@velo-sci/notebook-renderer` | Markdown → AST → HTML, LRU cache, Shiki highlighting |
 | **UI** | `@velo-sci/notebook-react` | SciNotebook, Cell, MathEditor, ImageCell, EmbedCell |
-| **LaTeX** | `katex` | Rendering de fórmulas en tiempo real |
-| **Build** | `vite` | Dev server con HMR |
+| **LaTeX** | `katex` | Real-time formula rendering |
+| **Build** | `vite` | Dev server with HMR |
 
 ---
 
-## Contenido del Demo
+## Demo Content
 
-El notebook de ejemplo incluye 10 celdas:
+The example notebook includes 16 cells:
 
-1. **Markdown** — Bienvenida con formato
-2. **Markdown** — Tabla de features
-3. **Code** — Función Fibonacci en JavaScript
-4. **Markdown** — Guía de interacciones
-5. **LaTeX** — Integral gaussiana (∫₀^∞ e^{-x²} dx)
-6. **Markdown** — Descripción del editor de fórmulas
-7. **Image** — Fórmula de Euler (Wikipedia)
-8. **Embed** — Video de 3Blue1Brown (YouTube)
-9. **Raw** — Texto sin formato
-10. **Markdown** — Tabla resumen de tipos de celda
+1. **Markdown** — Welcome with formatting
+2. **Markdown** — Features overview table
+3. **Code** — Fibonacci function in JavaScript
+4. **Table** — Keyboard shortcuts reference
+5. **LaTeX** — Gaussian integral (∫₀^∞ e^{-x²} dx)
+6. **Markdown** — Visual formula editor description
+7. **Mermaid** — Architecture diagram
+8. **Image** — Euler's formula (Wikipedia)
+9. **Embed** — 3Blue1Brown video (YouTube)
+10. **Markdown** — Template engine documentation
+11. **Markdown** — Presentation mode features
+12. **Markdown** — Version history & diffing
+13. **Markdown** — Export options
+14. **Markdown** — Framework adapters table
+15. **Raw** — Unformatted text
+16. **Markdown** — Cell types summary table
