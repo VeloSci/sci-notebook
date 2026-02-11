@@ -138,15 +138,15 @@ export const EmbedCell: React.FC<EmbedCellProps> = ({ cellId, source, metadata, 
             <label>Sandbox</label>
             <select value={data.sandbox} onChange={(e) => save({ sandbox: e.target.value })}>
               <option value="allow-scripts allow-same-origin allow-popups">Standard</option>
-              <option value="allow-scripts">Solo scripts</option>
-              <option value="">Restringido</option>
+              <option value="allow-scripts">Scripts only</option>
+              <option value="">Restricted</option>
             </select>
           </div>
         </div>
       </div>
 
       <div className="sci-nb-cell-hint">
-        <kbd>Esc</kbd> salir
+        <kbd>Esc</kbd> exit
       </div>
     </div>
   );
@@ -155,7 +155,7 @@ export const EmbedCell: React.FC<EmbedCellProps> = ({ cellId, source, metadata, 
 export function renderEmbedPreview(source: string, metadata: Record<string, unknown>): string {
   const data = parseEmbedSource(source, metadata);
   if (!data.url) {
-    return '<div class="sci-nb-embed-empty"><span class="sci-nb-placeholder">Click para agregar contenido embebido</span></div>';
+    return '<div class="sci-nb-embed-empty"><span class="sci-nb-placeholder">Click to add embedded content</span></div>';
   }
   const titleAttr = data.title ? ` title="${escapeAttr(data.title)}"` : "";
   return `<div class="sci-nb-embed-view" style="height:${data.height}">
