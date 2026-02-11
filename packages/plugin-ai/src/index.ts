@@ -71,15 +71,15 @@ export function assembleContext(
   window: { before: number; after: number } = { before: 5, after: 2 }
 ): CompletionContext {
   const cells = notebook.cells;
-  const idx = cells.findIndex(c => c.id === cellId);
+  const idx = cells.findIndex((c: Cell) => c.id === cellId);
 
   const startBefore = Math.max(0, idx - window.before);
   const endAfter = Math.min(cells.length, idx + 1 + window.after);
 
   return {
     notebookTitle: notebook.title,
-    cellsBefore: cells.slice(startBefore, idx).map(c => ({ type: c.type, source: c.source })),
-    cellsAfter: cells.slice(idx + 1, endAfter).map(c => ({ type: c.type, source: c.source })),
+    cellsBefore: cells.slice(startBefore, idx).map((c: Cell) => ({ type: c.type, source: c.source })),
+    cellsAfter: cells.slice(idx + 1, endAfter).map((c: Cell) => ({ type: c.type, source: c.source })),
     metadata: notebook.metadata,
   };
 }

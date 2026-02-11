@@ -31,7 +31,7 @@ export function latexPlugin(options: LatexPluginOptions = {}): SciNotebookPlugin
     ],
 
     rendering: {
-      preprocess: (source, cell) => {
+      preprocess: (source: string, cell: Cell) => {
         if (cell.type === "latex") {
           const cellMacros = (cell.metadata.latexMacros as Record<string, string>) || {};
           const mergedOpts = {
@@ -42,14 +42,14 @@ export function latexPlugin(options: LatexPluginOptions = {}): SciNotebookPlugin
         }
         return source;
       },
-      transformAST: (tokens, cell) => {
+      transformAST: (tokens: any[], cell: Cell) => {
         const cellMacros = (cell.metadata.latexMacros as Record<string, string>) || {};
         const mergedOpts = {
           ...opts.katexOptions,
           macros: { ...globalMacros, ...cellMacros },
         };
         // Find inline math $...$ and render it
-        tokens.forEach((token) => {
+        tokens.forEach((token: any) => {
           if (token.type === "inline") {
             token.content = renderInlineMath(token.content, mergedOpts);
           }

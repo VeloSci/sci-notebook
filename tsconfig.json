@@ -17,7 +17,10 @@
       "@velo-sci/notebook-renderer": ["packages/renderer/src"],
       "@velo-sci/notebook-react": ["packages/react/src"],
       "@velo-sci/notebook-plugin-ai": ["packages/plugin-ai/src"],
-      "@velo-sci/notebook-plugin-latex": ["packages/plugin-latex/src"]
+      "@velo-sci/notebook-plugin-latex": ["packages/plugin-latex/src"],
+      "@velo-sci/notebook-vanilla": ["packages/vanilla/src"],
+      "@velo-sci/notebook-svelte": ["packages/svelte/src"],
+      "@velo-sci/notebook-vue": ["packages/vue/src"]
     }
   },
   "exclude": ["node_modules", "dist"]

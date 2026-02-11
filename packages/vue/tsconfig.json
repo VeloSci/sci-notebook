@@ -1,11 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": "../../",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "../../",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "preserve",
-    "paths": {}
+    "jsx": "preserve"
   },
   "include": ["src"]
 }
