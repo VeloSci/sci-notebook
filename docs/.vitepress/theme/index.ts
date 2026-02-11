@@ -1,7 +1,9 @@
 import DefaultTheme from 'vitepress/theme'
 import './style.css'
+import '../../../packages/core/src/styles/index.css'
 import { h } from 'vue'
 import NotebookDemo from './components/NotebookDemo.vue'
+import InteractiveDoc from './components/InteractiveDoc.vue'
 
 export default {
   extends: DefaultTheme,
@@ -12,5 +14,6 @@ export default {
   },
   enhanceApp({ app, router, siteData }: any) {
     app.component('NotebookDemo', NotebookDemo)
+    app.component('InteractiveDoc', InteractiveDoc)
   }
 }
