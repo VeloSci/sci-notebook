@@ -732,43 +732,61 @@
 .sci-nb-math-editor {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  outline: none;
+}
+
+.sci-nb-math-editor:focus-within {
+  outline: none;
 }
 
 .sci-nb-math-tabs {
   display: flex;
-  gap: 2px;
+  gap: 4px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding: 4px 2px 6px;
   border-bottom: 1px solid var(--sci-nb-border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--sci-nb-border) transparent;
+}
+
+.sci-nb-math-tabs::-webkit-scrollbar {
+  height: 3px;
+}
+
+.sci-nb-math-tabs::-webkit-scrollbar-thumb {
+  background: var(--sci-nb-border);
+  border-radius: 3px;
 }
 
 .sci-nb-math-tab {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 5px 10px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 4px 4px 0 0;
-  background: transparent;
+  border: 1px solid var(--sci-nb-border);
+  border-radius: 6px;
+  background: var(--sci-nb-bg);
   color: var(--sci-nb-text-dim);
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.12s;
+  flex-shrink: 0;
 }
 
 .sci-nb-math-tab:hover {
   color: var(--sci-nb-text);
   background: var(--sci-nb-bg-cell-hover);
+  border-color: var(--sci-nb-text-dim);
 }
 
 .sci-nb-math-tab--active {
   color: var(--sci-nb-accent);
-  border-bottom-color: var(--sci-nb-accent);
-  background: var(--sci-nb-bg-cell-hover);
+  border-color: var(--sci-nb-accent);
+  background: rgba(34, 139, 230, 0.08);
+  font-weight: 600;
 }
 
 .sci-nb-math-tab-icon {
@@ -778,13 +796,15 @@
 
 .sci-nb-math-tab-label {
   font-size: 10px;
+  letter-spacing: 0.02em;
 }
 
 .sci-nb-math-palette {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding: 6px 0;
+  gap: 5px;
+  padding: 6px 2px;
+  min-height: 36px;
 }
 
 .sci-nb-math-block {
@@ -814,8 +834,9 @@
 
 .sci-nb-math-editor-area {
   border: 1px solid var(--sci-nb-border);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
+  background: var(--sci-nb-bg);
 }
 
 .sci-nb-math-mode-toggle {
@@ -825,7 +846,7 @@
 
 .sci-nb-math-mode-btn {
   flex: 1;
-  padding: 6px;
+  padding: 7px 8px;
   border: none;
   background: var(--sci-nb-bg);
   color: var(--sci-nb-text-dim);
@@ -833,6 +854,7 @@
   font-family: inherit;
   cursor: pointer;
   transition: all 0.12s;
+  letter-spacing: 0.03em;
 }
 
 .sci-nb-math-mode-btn:first-child {
@@ -842,7 +864,7 @@
 .sci-nb-math-mode-btn--active {
   color: var(--sci-nb-accent);
   font-weight: 600;
-  background: var(--sci-nb-bg-cell-hover);
+  background: rgba(34, 139, 230, 0.06);
 }
 
 .sci-nb-math-raw {
@@ -858,19 +880,20 @@
   line-height: 1.6;
   resize: vertical;
   outline: none;
+  box-sizing: border-box;
 }
 
 .sci-nb-math-visual {
-  padding: 16px;
+  padding: 20px 16px;
   text-align: center;
 }
 
 .sci-nb-math-preview {
-  min-height: 40px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 16px 12px;
 }
 
 .sci-nb-math-preview-code {
@@ -1580,6 +1603,71 @@
   margin: 6px 0 0;
   padding: 0;
   white-space: pre-wrap;
+}
+
+/* ── Built-in Syntax Highlighting ──────────────────────────── */
+
+.sci-nb-code--highlighted {
+  background: #1e1e2e;
+  color: #cdd6f4;
+}
+
+.sci-nb[data-theme="light"] .sci-nb-code--highlighted {
+  background: #f6f8fa;
+  color: #24292f;
+}
+
+.sci-nb-hl-keyword {
+  color: #cba6f7;
+  font-weight: 600;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-keyword {
+  color: #cf222e;
+  font-weight: 600;
+}
+
+.sci-nb-hl-string {
+  color: #a6e3a1;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-string {
+  color: #0a3069;
+}
+
+.sci-nb-hl-number {
+  color: #fab387;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-number {
+  color: #0550ae;
+}
+
+.sci-nb-hl-comment {
+  color: #6c7086;
+  font-style: italic;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-comment {
+  color: #6e7781;
+  font-style: italic;
+}
+
+.sci-nb-hl-function {
+  color: #89b4fa;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-function {
+  color: #8250df;
+}
+
+.sci-nb-hl-type {
+  color: #f9e2af;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-type {
+  color: #953800;
+}
+
+.sci-nb-hl-decorator {
+  color: #f38ba8;
+}
+.sci-nb[data-theme="light"] .sci-nb-hl-decorator {
+  color: #cf222e;
 }
 
 /* ── Shiki Syntax Highlighting ──────────────────────────────── */
