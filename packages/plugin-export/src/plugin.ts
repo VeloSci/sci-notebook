@@ -33,17 +33,25 @@ export function createExportPlugin(options: ExportPluginOptions = {}): SciNotebo
     apiVersion: "1",
 
     setup(ctx: PluginContext) {
-      ctx.on("export:pdf", () => {
-        const notebook = ctx.getNotebook();
-        exportToPDF(notebook, options.pdf);
-        ctx.log.info("PDF export triggered");
+      ctx.on("export:pdf", async () => {
+        try {
+          const notebook = ctx.getNotebook();
+          await exportToPDF(notebook, options.pdf);
+          ctx.log.info("PDF export completed");
+        } catch (e: any) {
+          ctx.log.error("PDF export failed: " + (e.message || String(e)));
+        }
       });
 
-      ctx.on("export:docx", () => {
-        const notebook = ctx.getNotebook();
-        const result = exportToDOCX(notebook, options.docx);
-        downloadDOCX(result);
-        ctx.log.info("DOCX export triggered");
+      ctx.on("export:docx", async () => {
+        try {
+          const notebook = ctx.getNotebook();
+          const result = await exportToDOCX(notebook, options.docx);
+          downloadDOCX(result);
+          ctx.log.info("DOCX export completed");
+        } catch (e: any) {
+          ctx.log.error("DOCX export failed: " + (e.message || String(e)));
+        }
       });
     },
   };

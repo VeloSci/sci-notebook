@@ -18,7 +18,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@velo-sci/notebook-core": "workspace:*"
+    "@velo-sci/notebook-core": "workspace:*",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
