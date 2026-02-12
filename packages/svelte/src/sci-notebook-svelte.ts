@@ -202,7 +202,7 @@ export class SciNotebookSvelte {
   private bindEvents(): void {
     const unsub = this.engine.on("notebook:updated", (payload) => {
       const cellsContainer = this.container.querySelector<HTMLElement>(".sci-nb-cells");
-      if (cellsContainer) this.builder.renderCells(cellsContainer);
+      if (cellsContainer) this.builder.patchCells(cellsContainer);
       if (this.showTOC) this.updateTOC();
       if (this.options.onChange) this.options.onChange(payload.data.notebook);
     });
