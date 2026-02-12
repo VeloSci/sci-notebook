@@ -19,6 +19,9 @@ import {
 } from "@velo-sci/notebook-core";
 import { SAMPLE_NOTEBOOK, simpleMarkdown } from "../../shared/sample-notebook";
 
+import { showJsonModal, showHistoryModal } from "./modals";
+import { startPresentation } from "./presentation";
+
 (globalThis as any).katex = katex;
 (globalThis as any).mermaid = mermaid;
 mermaid.initialize({ startOnLoad: false, theme: "default", securityLevel: "loose" });
@@ -28,7 +31,6 @@ let theme: "light" | "dark" = "light";
 let cellCount = SAMPLE_NOTEBOOK.cells.length;
 let svelteNotebook: SciNotebookSvelte | null = null;
 const versionHistory = new VersionHistory({ maxEntries: 50 });
-let presentationEngine: PresentationEngine | null = null;
 
 const app = document.getElementById("app")!;
 
@@ -100,236 +102,37 @@ function buildApp() {
   });
 
   // Bind buttons
-  header.querySelector("#btn-json")!.addEventListener("click", handleExportJSON);
-  header.querySelector("#btn-html")!.addEventListener("click", handleExportHTML);
-  header.querySelector("#btn-md")!.addEventListener("click", handleExportMD);
-  header.querySelector("#btn-ipynb")!.addEventListener("click", handleExportIPYNB);
-  header.querySelector("#btn-pdf")!.addEventListener("click", handleExportPDF);
-  header.querySelector("#btn-import")!.addEventListener("click", handleImport);
-  header.querySelector("#btn-save")!.addEventListener("click", handleSaveVersion);
-  header.querySelector("#btn-history")!.addEventListener("click", handleShowHistory);
-  header.querySelector("#btn-present")!.addEventListener("click", handlePresent);
-  header.querySelector("#btn-theme")!.addEventListener("click", toggleTheme);
+  header.querySelector("#btn-json")!.addEventListener("click", () => svelteNotebook && showJsonModal(JSON.stringify(svelteNotebook.getEngine().getNotebook(), null, 2), true));
+  header.querySelector("#btn-html")!.addEventListener("click", () => svelteNotebook && downloadExport(exportToHTML(svelteNotebook.getEngine().getNotebook())));
+  header.querySelector("#btn-md")!.addEventListener("click", () => svelteNotebook && downloadExport(exportToMarkdown(svelteNotebook.getEngine().getNotebook())));
+  header.querySelector("#btn-ipynb")!.addEventListener("click", () => svelteNotebook && downloadExport(exportToIPYNB(svelteNotebook.getEngine().getNotebook())));
+  header.querySelector("#btn-pdf")!.addEventListener("click", () => {
+    if (!svelteNotebook) return;
+    const html = exportToHTML(svelteNotebook.getEngine().getNotebook());
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(html.content);
+    w.document.close();
+    w.onload = () => setTimeout(() => w.print(), 400);
+  });
+  header.querySelector("#btn-import")!.addEventListener("click", () => showJsonModal("", false));
+  header.querySelector("#btn-save")!.addEventListener("click", () => {
+    if (!svelteNotebook) return;
+    const nb = svelteNotebook.getEngine().getNotebook();
+    versionHistory.save(nb, `Manual save — ${nb.cells.length} cells`);
+    updateFooter();
+  });
+  header.querySelector("#btn-history")!.addEventListener("click", () => showHistoryModal(versionHistory));
+  header.querySelector("#btn-present")!.addEventListener("click", () => svelteNotebook && startPresentation(svelteNotebook.getEngine().getNotebook(), simpleMarkdown));
+  header.querySelector("#btn-theme")!.addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    buildApp();
+  });
 }
 
 function updateFooter() {
   const footer = document.getElementById("app-footer");
   if (footer) footer.innerHTML = `<span>${cellCount} cells</span><span>v${versionHistory.count} versions</span><span>sci-notebook v0.6.2 — Svelte</span>`;
-}
-
-function getEngine(): EditorEngine | null {
-  return svelteNotebook?.getEngine() ?? null;
-}
-
-// ── Handlers ──
-function toggleTheme() {
-  theme = theme === "light" ? "dark" : "light";
-  buildApp();
-}
-
-function handleExportJSON() {
-  const engine = getEngine();
-  if (!engine) return;
-  showJsonModal(JSON.stringify(engine.getNotebook(), null, 2), true);
-}
-
-function handleExportHTML() {
-  const engine = getEngine();
-  if (!engine) return;
-  downloadExport(exportToHTML(engine.getNotebook()));
-}
-
-function handleExportMD() {
-  const engine = getEngine();
-  if (!engine) return;
-  downloadExport(exportToMarkdown(engine.getNotebook()));
-}
-
-function handleExportIPYNB() {
-  const engine = getEngine();
-  if (!engine) return;
-  downloadExport(exportToIPYNB(engine.getNotebook()));
-}
-
-function handleExportPDF() {
-  const engine = getEngine();
-  if (!engine) return;
-  const html = exportToHTML(engine.getNotebook());
-  const w = window.open("", "_blank");
-  if (!w) { alert("Please allow popups for PDF export"); return; }
-  w.document.write(html.content);
-  w.document.close();
-  w.onload = () => setTimeout(() => w.print(), 400);
-}
-
-function handleImport() {
-  showJsonModal("", false);
-}
-
-function handleSaveVersion() {
-  const engine = getEngine();
-  if (!engine) return;
-  const nb = engine.getNotebook();
-  const entry = versionHistory.save(nb, `Manual save — ${nb.cells.length} cells`);
-  alert(`Version saved: ${entry.id}\n${versionHistory.count} versions stored.`);
-  updateFooter();
-}
-
-function handleShowHistory() {
-  showHistoryModal();
-}
-
-function handlePresent() {
-  const engine = getEngine();
-  if (!engine) return;
-  const nb = engine.getNotebook();
-  presentationEngine = new PresentationEngine(nb, { splitMode: "heading", transition: "fade" });
-  let currentSlide = 0;
-  presentationEngine.on((event) => {
-    if (event.type === "slide:changed") { currentSlide = event.slide; updatePresentation(currentSlide); }
-    if (event.type === "presentation:ended") closePresentation();
-  });
-  presentationEngine.start();
-  showPresentation(currentSlide);
-}
-
-// ── Modals ──
-function showJsonModal(content: string, readOnly: boolean) {
-  const overlay = document.createElement("div");
-  overlay.className = "json-modal-overlay";
-  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-  const modal = document.createElement("div");
-  modal.className = "json-modal";
-  modal.onclick = (e) => e.stopPropagation();
-  modal.innerHTML = `<h2>${content ? "Notebook JSON" : "Import Notebook"}</h2>`;
-  const ta = document.createElement("textarea");
-  ta.value = content;
-  ta.placeholder = "Paste notebook JSON here...";
-  ta.readOnly = readOnly;
-  modal.appendChild(ta);
-  const actions = document.createElement("div");
-  actions.className = "json-modal-actions";
-  const closeBtn = document.createElement("button");
-  closeBtn.className = "app-btn"; closeBtn.textContent = "Close";
-  closeBtn.onclick = () => overlay.remove();
-  actions.appendChild(closeBtn);
-  if (readOnly && content) {
-    const copyBtn = document.createElement("button");
-    copyBtn.className = "app-btn"; copyBtn.textContent = "Copy";
-    copyBtn.onclick = () => navigator.clipboard.writeText(ta.value);
-    actions.appendChild(copyBtn);
-  }
-  if (!readOnly) {
-    const loadBtn = document.createElement("button");
-    loadBtn.className = "app-btn app-btn--active"; loadBtn.textContent = "Load";
-    loadBtn.onclick = () => {
-      try {
-        const nb = JSON.parse(ta.value);
-        if (!nb.cells || !nb.id) { alert("Invalid JSON"); return; }
-        overlay.remove();
-        window.location.reload();
-      } catch { alert("Error parsing JSON"); }
-    };
-    actions.appendChild(loadBtn);
-  }
-  modal.appendChild(actions);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-}
-
-function showHistoryModal() {
-  const overlay = document.createElement("div");
-  overlay.className = "json-modal-overlay";
-  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-  const modal = document.createElement("div");
-  modal.className = "json-modal";
-  modal.onclick = (e) => e.stopPropagation();
-  modal.innerHTML = "<h2>Version History</h2>";
-  const list = document.createElement("div");
-  list.className = "version-list";
-  const entries = versionHistory.getEntries();
-  if (entries.length === 0) {
-    list.innerHTML = '<p class="version-empty">No versions saved yet. Click "Save Version" to create a snapshot.</p>';
-  } else {
-    for (const entry of [...entries].reverse()) {
-      const item = document.createElement("div");
-      item.className = "version-item";
-      item.innerHTML = `<div class="version-item-header"><strong>${entry.description}</strong><span class="version-item-time">${new Date(entry.timestamp).toLocaleString()}</span></div><div class="version-item-meta">${entry.cellCount} cells · ID: ${entry.id}</div>`;
-      list.appendChild(item);
-    }
-  }
-  modal.appendChild(list);
-  const actions = document.createElement("div");
-  actions.className = "json-modal-actions";
-  const closeBtn = document.createElement("button");
-  closeBtn.className = "app-btn"; closeBtn.textContent = "Close";
-  closeBtn.onclick = () => overlay.remove();
-  actions.appendChild(closeBtn);
-  modal.appendChild(actions);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-}
-
-function showPresentation(slide: number) {
-  if (!presentationEngine) return;
-  let overlay = document.getElementById("presentation-overlay");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.id = "presentation-overlay";
-    overlay.className = "presentation-overlay";
-    const style = document.createElement("style");
-    style.textContent = getPresentationCSS({ transition: "fade" });
-    overlay.appendChild(style);
-    document.body.appendChild(overlay);
-  }
-  updatePresentation(slide);
-}
-
-function updatePresentation(slide: number) {
-  if (!presentationEngine) return;
-  const overlay = document.getElementById("presentation-overlay");
-  if (!overlay) return;
-  const existing = overlay.querySelector(".sci-nb-presentation");
-  if (existing) existing.remove();
-
-  const pe = presentationEngine;
-  const currentSlideData = pe.getCurrentSlide();
-  const total = pe.getSlideCount();
-
-  const pres = document.createElement("div");
-  pres.className = "sci-nb-presentation";
-  pres.innerHTML = `
-    <div class="sci-nb-slide"><div class="sci-nb-slide-content">
-      ${currentSlideData?.cells.map(cell => {
-        if (cell.type === "markdown") return `<div class="sci-nb-slide-cell sci-nb-slide-cell--markdown">${simpleMarkdown(cell.source)}</div>`;
-        if (cell.type === "code") return `<div class="sci-nb-slide-cell sci-nb-slide-cell--code"><pre><code>${escapeHtml(cell.source)}</code></pre></div>`;
-        if (cell.type === "latex") return `<div class="sci-nb-slide-cell sci-nb-slide-cell--latex slide-latex">${escapeHtml(cell.source)}</div>`;
-        return `<div class="sci-nb-slide-cell"><pre>${escapeHtml(cell.source)}</pre></div>`;
-      }).join("") || ""}
-    </div></div>
-    <div class="sci-nb-presentation-controls">
-      <button id="pres-prev" ${slide === 0 ? "disabled" : ""}>← Prev</button>
-      <span class="sci-nb-slide-number">${slide + 1} / ${total}</span>
-      <button id="pres-next" ${slide >= total - 1 ? "disabled" : ""}>Next →</button>
-      <button id="pres-exit">✕ Exit</button>
-    </div>
-    <div class="sci-nb-progress-bar"><div class="sci-nb-progress-bar-fill" style="width:${((slide + 1) / total) * 100}%"></div></div>
-  `;
-  overlay.appendChild(pres);
-  pres.querySelector("#pres-prev")!.addEventListener("click", () => pe.prev());
-  pres.querySelector("#pres-next")!.addEventListener("click", () => pe.next());
-  pres.querySelector("#pres-exit")!.addEventListener("click", closePresentation);
-}
-
-function closePresentation() {
-  presentationEngine?.end();
-  presentationEngine?.destroy();
-  presentationEngine = null;
-  document.getElementById("presentation-overlay")?.remove();
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 // ── Init ──
