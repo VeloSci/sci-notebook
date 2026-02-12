@@ -11,6 +11,7 @@
 
 import type { Cell, CellType, EditorEngine } from "@velo-sci/notebook-core";
 import { RenderPipeline } from "./pipeline";
+import { MATH_CATEGORIES, type MathBlock } from "./math-categories";
 
 // ── Constants ──────────────────────────────────────────────────────
 
@@ -207,6 +208,11 @@ export class DOMCellBuilder {
   // ── Editor (textarea — uses sci-nb-editor class like React) ──
 
   private buildEditor(cell: Cell): DocumentFragment {
+    // LaTeX cells get the visual math editor (same as React's MathEditor)
+    if (cell.type === "latex") {
+      return this.buildMathEditor(cell);
+    }
+
     const frag = document.createDocumentFragment();
     const placeholder = PLACEHOLDERS[cell.type] || "Click to edit...";
 
@@ -282,12 +288,218 @@ export class DOMCellBuilder {
     }
     frag.appendChild(hint);
 
-    // Focus + auto-resize after mount
+    // Focus + auto-resize after mount (preventScroll avoids jumping to top)
     requestAnimationFrame(() => {
-      textarea.focus();
+      textarea.focus({ preventScroll: true });
       autoResize();
     });
 
+    return frag;
+  }
+
+  // ── Math Editor (visual LaTeX editor — same as React's MathEditor) ──
+
+  private buildMathEditor(cell: Cell): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    let activeCategory = 0;
+    let showRaw = false;
+    let textareaEl: HTMLTextAreaElement | null = null;
+
+    // Read LIVE source from engine, not the stale cell snapshot
+    const getSource = () => this.engine.getCell(cell.id)?.source ?? cell.source;
+    const innerLatex = () => getSource().replace(/^\$\$\s*/, "").replace(/\s*\$\$$/, "").trim();
+
+    const updateSource = (newInner: string) => {
+      this.engine.updateCellSource(cell.id, `$$\n${newInner}\n$$`);
+    };
+
+    const exitEdit = () => this.engine.setViewMode(cell.id);
+
+    const exitAndNext = () => {
+      exitEdit();
+      const cells = this.engine.getCells();
+      const idx = cells.findIndex(c => c.id === cell.id);
+      if (idx < cells.length - 1) {
+        this.engine.focusCell(cells[idx + 1].id);
+        this.engine.setEditMode(cells[idx + 1].id);
+      }
+    };
+
+    const renderLatexPreview = (latex: string): string => {
+      const clean = latex.replace(/^\$\$\s*/, "").replace(/\s*\$\$$/, "").trim();
+      if (!clean) return '<span class="sci-nb-math-preview-empty">Empty formula</span>';
+      if (typeof globalThis !== "undefined" && (globalThis as any).katex) {
+        try {
+          return (globalThis as any).katex.renderToString(clean, { displayMode: true, throwOnError: false });
+        } catch { /* fall through */ }
+      }
+      const escaped = clean.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return `<code class="sci-nb-math-preview-code">${escaped}</code>`;
+    };
+
+    const insertBlock = (block: MathBlock) => {
+      const ta = textareaEl;
+      const inner = innerLatex();
+      if (!ta) {
+        // Preview mode: append block and refresh preview
+        updateSource(inner + (inner ? " " : "") + block.latex.replace(/▢/g, ""));
+        // Refresh the preview after engine updates
+        requestAnimationFrame(() => renderEditorContent());
+        return;
+      }
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const val = ta.value;
+      const selected = val.slice(start, end);
+      let inserted = block.latex;
+      if (selected) inserted = inserted.replace("▢", selected);
+      inserted = inserted.replace(/▢/g, "");
+      const newVal = val.slice(0, start) + inserted + val.slice(end);
+      updateSource(newVal);
+      requestAnimationFrame(() => {
+        if (textareaEl) {
+          const cursorPos = block.cursor != null ? start + block.cursor : start + inserted.length;
+          textareaEl.focus();
+          textareaEl.setSelectionRange(cursorPos, cursorPos);
+        }
+      });
+    };
+
+    // Container
+    const container = document.createElement("div");
+    container.className = "sci-nb-math-editor";
+    container.tabIndex = -1;
+
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); exitEdit(); }
+      else if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); e.stopPropagation(); exitAndNext(); }
+      else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopPropagation(); exitEdit(); }
+    });
+
+    // Category tabs
+    const tabs = document.createElement("div");
+    tabs.className = "sci-nb-math-tabs";
+
+    const renderPalette = () => {
+      palette.innerHTML = "";
+      const cat = MATH_CATEGORIES[activeCategory];
+      for (const block of cat.blocks) {
+        const btn = document.createElement("button");
+        btn.className = "sci-nb-math-block";
+        btn.textContent = block.label;
+        btn.title = block.latex;
+        btn.tabIndex = -1;
+        btn.addEventListener("click", () => insertBlock(block));
+        palette.appendChild(btn);
+      }
+    };
+
+    const renderTabs = () => {
+      tabs.innerHTML = "";
+      MATH_CATEGORIES.forEach((cat, i) => {
+        const btn = document.createElement("button");
+        btn.className = `sci-nb-math-tab ${i === activeCategory ? "sci-nb-math-tab--active" : ""}`;
+        btn.title = cat.name;
+        btn.tabIndex = -1;
+        btn.innerHTML = `<span class="sci-nb-math-tab-icon">${cat.icon}</span><span class="sci-nb-math-tab-label">${cat.name}</span>`;
+        btn.addEventListener("click", () => {
+          activeCategory = i;
+          renderTabs();
+          renderPalette();
+        });
+        tabs.appendChild(btn);
+      });
+    };
+
+    container.appendChild(tabs);
+
+    // Block palette
+    const palette = document.createElement("div");
+    palette.className = "sci-nb-math-palette";
+    container.appendChild(palette);
+
+    // Editor area
+    const editorArea = document.createElement("div");
+    editorArea.className = "sci-nb-math-editor-area";
+
+    const modeToggle = document.createElement("div");
+    modeToggle.className = "sci-nb-math-mode-toggle";
+
+    const renderEditorContent = () => {
+      // Clear editor area content (keep toggle)
+      while (editorArea.children.length > 1) editorArea.removeChild(editorArea.lastChild!);
+
+      if (showRaw) {
+        const ta = document.createElement("textarea");
+        ta.className = "sci-nb-math-raw";
+        ta.value = innerLatex();
+        ta.placeholder = "Type LaTeX here...";
+        ta.spellcheck = false;
+        textareaEl = ta;
+        ta.addEventListener("input", () => {
+          updateSource(ta.value);
+          ta.style.height = "auto";
+          ta.style.height = `${Math.max(60, ta.scrollHeight)}px`;
+        });
+        editorArea.appendChild(ta);
+        requestAnimationFrame(() => {
+          ta.focus({ preventScroll: true });
+          ta.style.height = "auto";
+          ta.style.height = `${Math.max(60, ta.scrollHeight)}px`;
+        });
+      } else {
+        textareaEl = null;
+        const visual = document.createElement("div");
+        visual.className = "sci-nb-math-visual";
+        const preview = document.createElement("div");
+        preview.className = "sci-nb-math-preview";
+        preview.innerHTML = renderLatexPreview(getSource());
+        visual.appendChild(preview);
+        const hint = document.createElement("p");
+        hint.className = "sci-nb-math-visual-hint";
+        hint.innerHTML = 'Click the blocks above to build your formula. Switch to <strong>LaTeX</strong> mode to edit directly.';
+        visual.appendChild(hint);
+        editorArea.appendChild(visual);
+      }
+    };
+
+    const renderModeToggle = () => {
+      modeToggle.innerHTML = "";
+      const previewBtn = document.createElement("button");
+      previewBtn.className = `sci-nb-math-mode-btn ${!showRaw ? "sci-nb-math-mode-btn--active" : ""}`;
+      previewBtn.textContent = "Preview";
+      previewBtn.tabIndex = -1;
+      previewBtn.addEventListener("click", () => { showRaw = false; renderModeToggle(); renderEditorContent(); });
+
+      const latexBtn = document.createElement("button");
+      latexBtn.className = `sci-nb-math-mode-btn ${showRaw ? "sci-nb-math-mode-btn--active" : ""}`;
+      latexBtn.textContent = "LaTeX";
+      latexBtn.tabIndex = -1;
+      latexBtn.addEventListener("click", () => { showRaw = true; renderModeToggle(); renderEditorContent(); });
+
+      modeToggle.appendChild(previewBtn);
+      modeToggle.appendChild(latexBtn);
+    };
+
+    editorArea.appendChild(modeToggle);
+    container.appendChild(editorArea);
+
+    // Hint bar
+    const hintBar = document.createElement("div");
+    hintBar.className = "sci-nb-cell-hint";
+    hintBar.innerHTML = `<kbd>Esc</kbd> exit &middot; <kbd>Shift+Enter</kbd> next &middot; <kbd>Ctrl+Enter</kbd> render`;
+    container.appendChild(hintBar);
+
+    // Initial render
+    renderTabs();
+    renderPalette();
+    renderModeToggle();
+    renderEditorContent();
+
+    // Focus container on mount (preventScroll avoids jumping to top)
+    requestAnimationFrame(() => container.focus({ preventScroll: true }));
+
+    frag.appendChild(container);
     return frag;
   }
 
@@ -537,7 +749,7 @@ export class DOMCellBuilder {
     return empty;
   }
 
-  // ── Render all cells into a container ──
+  // ── Render all cells into a container (full rebuild) ──
 
   renderCells(container: HTMLElement): void {
     container.innerHTML = "";
@@ -553,6 +765,123 @@ export class DOMCellBuilder {
       container.appendChild(this.buildCell(cell, idx, cells.length));
       container.appendChild(this.buildInsertHandle(idx + 1));
     });
+  }
+
+  // ── Patch cells in-place (smart diff — preserves focus) ──
+
+  /**
+   * Incrementally update the cells container.
+   *
+   * Key principle: **touch as few DOM nodes as possible**.
+   * - Cells whose type AND edit-mode haven't changed are KEPT as-is (no rebuild).
+   * - Only cells that switched mode (view↔edit) or type are rebuilt.
+   * - The actively-edited cell is NEVER touched.
+   * - Insert handles are never rebuilt (they use closures but are cheap to keep).
+   * - Structural changes (add/remove/reorder) trigger a full rebuild.
+   */
+  patchCells(container: HTMLElement): void {
+    const cells = this.engine.getCells();
+
+    // Handle empty state
+    if (cells.length === 0) {
+      container.innerHTML = "";
+      container.appendChild(this.buildEmpty());
+      return;
+    }
+
+    // Remove empty-state placeholder if present
+    const emptyEl = container.querySelector(".sci-nb-empty");
+    if (emptyEl) { container.innerHTML = ""; }
+
+    // If container is empty (first render), do full render
+    if (container.children.length === 0) {
+      this.renderCells(container);
+      return;
+    }
+
+    // Build ordered list of existing cell IDs from the DOM
+    const existingCellIds: string[] = [];
+    const existingCellNodes = new Map<string, HTMLElement>();
+    for (const child of Array.from(container.children)) {
+      const el = child as HTMLElement;
+      const id = el.getAttribute("data-cell-id");
+      if (id) {
+        existingCellIds.push(id);
+        existingCellNodes.set(id, el);
+      }
+    }
+
+    // Check if cell order/count changed (add/remove/reorder)
+    const newCellIds = cells.map(c => c.id);
+    const orderChanged = existingCellIds.length !== newCellIds.length
+      || existingCellIds.some((id, i) => id !== newCellIds[i]);
+
+    if (orderChanged) {
+      // Structural change — full rebuild, but save & restore focus
+      const activeEl = document.activeElement as HTMLElement | null;
+      const activeCellId = activeEl?.closest?.("[data-cell-id]")?.getAttribute("data-cell-id");
+      const isTextarea = activeEl?.tagName === "TEXTAREA";
+      const cursorStart = isTextarea ? (activeEl as HTMLTextAreaElement).selectionStart : 0;
+      const cursorEnd = isTextarea ? (activeEl as HTMLTextAreaElement).selectionEnd : 0;
+
+      this.renderCells(container);
+
+      // Restore focus
+      if (activeCellId && isTextarea) {
+        requestAnimationFrame(() => {
+          const cellEl = container.querySelector(`[data-cell-id="${activeCellId}"]`);
+          const ta = cellEl?.querySelector("textarea") as HTMLTextAreaElement | null;
+          if (ta) { ta.focus(); ta.setSelectionRange(cursorStart, cursorEnd); }
+        });
+      }
+      return;
+    }
+
+    // Same order/count — patch individual cells in-place
+    const totalCells = cells.length;
+    for (let idx = 0; idx < totalCells; idx++) {
+      const cell = cells[idx];
+      const existing = existingCellNodes.get(cell.id)!;
+
+      const oldType = existing.getAttribute("data-cell-type");
+      const oldEditing = existing.getAttribute("data-editing") === "true";
+      const newEditing = !!cell.editing;
+      const typeChanged = oldType !== cell.type;
+      const modeChanged = oldEditing !== newEditing;
+
+      if (!typeChanged && !modeChanged) {
+        // Nothing structural changed — keep existing DOM node completely untouched.
+        const idxLabel = existing.querySelector(".sci-nb-cell-index");
+        if (idxLabel) idxLabel.textContent = `[${idx + 1}]`;
+        continue;
+      }
+
+      // Type or mode changed — patch the cell IN-PLACE (no replaceWith = no flash)
+      // 1. Update attributes on the existing node
+      existing.className = [
+        "sci-nb-cell",
+        `sci-nb-cell--${cell.type}`,
+        newEditing ? "sci-nb-cell--edit" : "sci-nb-cell--view",
+      ].join(" ");
+      existing.setAttribute("data-editing", String(newEditing));
+      existing.setAttribute("data-cell-type", cell.type);
+      existing.setAttribute("aria-label", `${cell.type} cell ${idx + 1} of ${totalCells}${newEditing ? ", editing" : ""}`);
+      existing.setAttribute("aria-selected", String(newEditing));
+      existing.draggable = !newEditing;
+
+      // 2. Swap only the .sci-nb-cell-content child
+      const oldContent = existing.querySelector(".sci-nb-cell-content");
+      if (oldContent) {
+        const newContent = this.buildContent(cell, newEditing);
+        oldContent.replaceWith(newContent);
+      }
+
+      // 3. If type changed, update badge text
+      if (typeChanged) {
+        const badge = existing.querySelector(".sci-nb-cell-badge");
+        if (badge) badge.textContent = CELL_TYPE_ICONS[cell.type] || cell.type.slice(0, 2).toUpperCase();
+      }
+    }
   }
 
   // ── Helpers ──
