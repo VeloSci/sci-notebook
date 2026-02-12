@@ -20,7 +20,8 @@
       "@velo-sci/notebook-plugin-latex": ["packages/plugin-latex/src"],
       "@velo-sci/notebook-vanilla": ["packages/vanilla/src"],
       "@velo-sci/notebook-svelte": ["packages/svelte/src"],
-      "@velo-sci/notebook-vue": ["packages/vue/src"]
+      "@velo-sci/notebook-vue": ["packages/vue/src"],
+      "@example/shared/*": ["examples/shared/*"]
     }
   },
   "exclude": ["node_modules", "dist"]
