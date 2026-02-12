@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-vue",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Vue 3+ adapter for sci-notebook",
   "publishConfig": {
     "access": "public"
