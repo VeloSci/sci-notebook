@@ -12,6 +12,7 @@ const INSERT_TYPES: { type: CellType; label: string; icon: string }[] = [
   { type: "latex", label: "LaTeX", icon: "∑" },
   { type: "image", label: "Imagen", icon: "🖼" },
   { type: "embed", label: "Embed", icon: "⧉" },
+  { type: "table", label: "Tabla", icon: "▦" },
   { type: "raw", label: "Raw", icon: "T" },
 ];
 

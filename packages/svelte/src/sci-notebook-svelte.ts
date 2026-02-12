@@ -180,6 +180,8 @@ export class SciNotebookSvelte {
 
     this.container.appendChild(layout);
     this.builder.renderCells(cellsContainer);
+    // Hydrate pending mermaid diagrams (async render in v10+)
+    this.pipeline.hydrateMermaid(cellsContainer);
 
     // Keyboard handler
     this.container.addEventListener("keydown", (e) => {
@@ -202,7 +204,10 @@ export class SciNotebookSvelte {
   private bindEvents(): void {
     const unsub = this.engine.on("notebook:updated", (payload) => {
       const cellsContainer = this.container.querySelector<HTMLElement>(".sci-nb-cells");
-      if (cellsContainer) this.builder.patchCells(cellsContainer);
+      if (cellsContainer) {
+        this.builder.patchCells(cellsContainer);
+        this.pipeline.hydrateMermaid(cellsContainer);
+      }
       if (this.showTOC) this.updateTOC();
       if (this.options.onChange) this.options.onChange(payload.data.notebook);
     });

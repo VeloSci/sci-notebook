@@ -210,6 +210,8 @@ export class SciNotebookVanilla {
 
   private renderCells(): void {
     this.builder.patchCells(this.cellsContainer);
+    // Hydrate pending mermaid diagrams (async render in v10+)
+    this.pipeline.hydrateMermaid(this.cellsContainer);
   }
 
   private updateTOC(): void {

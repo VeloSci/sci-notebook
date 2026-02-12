@@ -3,6 +3,10 @@ import type { PropType } from "vue";
 import type { Cell, CellType } from "@velo-sci/notebook-core";
 import { RenderPipeline, MATH_CATEGORIES, type MathBlock } from "@velo-sci/notebook-renderer";
 import { useNotebookEngine } from "./composables";
+import { ImageCell, renderImagePreview } from "./ImageCell";
+import { EmbedCell, renderEmbedPreview } from "./EmbedCell";
+import { TableCell, renderTablePreview } from "./TableCell";
+import { MermaidPreview } from "./MermaidCell";
 
 const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
   { value: "markdown", label: "Markdown", icon: "M" },
@@ -321,6 +325,33 @@ export const NotebookCell = defineComponent({
             onExit: exitEdit,
           }),
         );
+      } else if (isEditing && cellType === "image") {
+        contentChildren.push(
+          h(ImageCell, {
+            cellId: props.cellId,
+            source: cell.value!.source,
+            metadata: cell.value!.metadata,
+            onExit: exitEdit,
+          }),
+        );
+      } else if (isEditing && cellType === "embed") {
+        contentChildren.push(
+          h(EmbedCell, {
+            cellId: props.cellId,
+            source: cell.value!.source,
+            metadata: cell.value!.metadata,
+            onExit: exitEdit,
+          }),
+        );
+      } else if (isEditing && cellType === "table") {
+        contentChildren.push(
+          h(TableCell, {
+            cellId: props.cellId,
+            source: cell.value!.source,
+            metadata: cell.value!.metadata,
+            onExit: exitEdit,
+          }),
+        );
       } else if (isEditing) {
         contentChildren.push(
           h("textarea", {
@@ -336,13 +367,41 @@ export const NotebookCell = defineComponent({
           h("div", { class: "sci-nb-cell-hint", innerHTML: cellType === "code" ? '<kbd>Shift+Enter</kbd> next · <kbd>Esc</kbd> exit' : '<kbd>/</kbd> commands · <kbd>Shift+Enter</kbd> next · <kbd>Esc</kbd> exit' }),
         );
       } else {
-        contentChildren.push(
-          h("div", {
-            class: `sci-nb-preview ${isEmpty ? "sci-nb-preview--empty" : ""}`,
-            innerHTML: isEmpty ? `<span class="sci-nb-placeholder">${placeholder}</span>` : renderedHtml.value,
-            onClick: enterEdit,
-          }),
-        );
+        if (cellType === "image") {
+          contentChildren.push(
+            h("div", {
+              class: "sci-nb-preview",
+              innerHTML: isEmpty ? `<span class="sci-nb-placeholder">${placeholder}</span>` : renderImagePreview(cell.value!.source, cell.value!.metadata),
+              onClick: enterEdit,
+            })
+          );
+        } else if (cellType === "embed") {
+          contentChildren.push(
+            h("div", {
+              class: "sci-nb-preview sci-nb-preview--embed",
+              innerHTML: isEmpty ? `<span class="sci-nb-placeholder">${placeholder}</span>` : renderEmbedPreview(cell.value!.source, cell.value!.metadata),
+              onClick: enterEdit,
+            })
+          );
+        } else if (cellType === "table") {
+          contentChildren.push(
+            h("div", {
+              class: "sci-nb-preview",
+              innerHTML: isEmpty ? `<span class="sci-nb-placeholder">${placeholder}</span>` : renderTablePreview(cell.value!.source),
+              onClick: enterEdit,
+            })
+          );
+        } else if (cellType === "mermaid") {
+          contentChildren.push(h(MermaidPreview, { source: cell.value!.source, onClick: enterEdit }));
+        } else {
+          contentChildren.push(
+            h("div", {
+              class: `sci-nb-preview ${isEmpty ? "sci-nb-preview--empty" : ""}`,
+              innerHTML: isEmpty ? `<span class="sci-nb-placeholder">${placeholder}</span>` : renderedHtml.value,
+              onClick: enterEdit,
+            }),
+          );
+        }
       }
 
       const content = h("div", { class: "sci-nb-cell-content" }, contentChildren);

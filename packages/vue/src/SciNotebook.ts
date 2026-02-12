@@ -22,6 +22,7 @@ export interface SciNotebookProps {
   showToolbar?: boolean;
   showTOC?: boolean;
   engineRef?: { value: EditorEngine | null };
+  onReady?: (engine: EditorEngine) => void;
 }
 
 export const SciNotebook = defineComponent({
@@ -32,6 +33,7 @@ export const SciNotebook = defineComponent({
     plugins: { type: Array as PropType<SciNotebookPlugin[]>, default: () => [] },
     theme: { type: String, default: "light" },
     onChange: { type: Function as PropType<(nb: Notebook) => void>, default: undefined },
+    onReady: { type: Function as PropType<(engine: EditorEngine) => void>, default: undefined },
     readOnly: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: true },
     showTOC: { type: Boolean, default: false },
@@ -47,6 +49,7 @@ export const SciNotebook = defineComponent({
 
     // Expose engine via ref prop
     if (props.engineRef) props.engineRef.value = engineInstance;
+    if (props.onReady) props.onReady(engineInstance);
 
     const pipeline = new RenderPipeline();
     const cells = ref(engineInstance.getCells());

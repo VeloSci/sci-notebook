@@ -510,7 +510,7 @@ interface TableData { headers: string[]; rows: string[][]; }
 function parseMarkdownTable(source: string): TableData {
   const lines = source.trim().split("\n").filter(l => l.trim());
   if (lines.length < 2) return { headers: ["Col 1", "Col 2", "Col 3"], rows: [["", "", ""], ["", "", ""]] };
-  const parseLine = (line: string): string[] => line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length);
+  const parseLine = (line: string): string[] => line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
   const headers = parseLine(lines[0]);
   const rows = lines.slice(2).map(parseLine);
   const colCount = headers.length;

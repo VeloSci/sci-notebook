@@ -12,7 +12,7 @@ function parseMarkdownTable(source: string): TableData {
     return { headers: ["Col 1", "Col 2", "Col 3"], rows: [["", "", ""], ["", "", ""]] };
   }
   const parseLine = (line: string): string[] =>
-    line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length);
+    line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
   const headers = parseLine(lines[0]);
   const rows = lines.slice(2).map(parseLine);
   const colCount = headers.length;

@@ -32,6 +32,8 @@ export interface SciNotebookProps {
   style?: React.CSSProperties;
   /** Imperative engine access */
   engineRef?: React.MutableRefObject<EditorEngine | null>;
+  /** Callback when engine is ready */
+  onReady?: (engine: EditorEngine) => void;
   /** Show TOC sidebar */
   showTOC?: boolean;
 }
@@ -49,6 +51,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
   className,
   style,
   engineRef,
+  onReady,
   showTOC: showTOCProp = false,
 }) => {
   const engine = useMemo(() => {
@@ -77,6 +80,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
   // Expose engine via ref
   useEffect(() => {
     if (engineRef) engineRef.current = engine;
+    if (onReady) onReady(engine);
     return () => { if (engineRef) engineRef.current = null; };
   }, [engine, engineRef]);
 
