@@ -137,6 +137,10 @@ export class RenderPipeline {
         html = this.renderLatexFallback(cell.source);
       } else if (cell.type === "mermaid") {
         html = this.renderMermaidFallback(cell.source);
+      } else if (cell.type === "image") {
+        html = this.renderImage(cell.source, cell.metadata);
+      } else if (cell.type === "embed") {
+        html = this.renderEmbed(cell.source, cell.metadata);
       } else {
         // Unknown type: render as markdown fallback
         html = this.parser.render(tokens);
@@ -207,6 +211,45 @@ export class RenderPipeline {
     return `<div class="sci-nb-mermaid-preview"><pre class="sci-nb-code"><code class="language-mermaid">${this.escapeHtml(trimmed)}</code></pre></div>`;
   }
 
+  private renderImage(source: string, metadata: Record<string, unknown> = {}): string {
+    const src = source || "";
+    const alt = (metadata.alt as string) || "";
+    const caption = (metadata.caption as string) || "";
+    const width = (metadata.width as string) || "100%";
+    const align = (metadata.align as string) || "center";
+
+    if (!src) {
+      return '<div class="sci-nb-image-empty"><span class="sci-nb-placeholder">Click to add image</span></div>';
+    }
+
+    const alignStyle = `text-align:${align}`;
+    const widthStyle = `max-width:${width};width:auto;max-height:400px`;
+    
+    let html = `<div class="sci-nb-image-view" style="${alignStyle}">`;
+    html += `<img src="${this.escapeAttr(src)}" alt="${this.escapeAttr(alt)}" style="${widthStyle}" loading="lazy" />`;
+    if (caption) {
+      html += `<p class="sci-nb-image-caption">${this.escapeHtml(caption)}</p>`;
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  private renderEmbed(source: string, metadata: Record<string, unknown> = {}): string {
+    const url = source || "";
+    const height = (metadata.height as string) || "400px";
+    const sandbox = (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups";
+    const title = (metadata.title as string) || "";
+
+    if (!url) {
+      return '<div class="sci-nb-embed-empty"><span class="sci-nb-placeholder">Click to add embedded content</span></div>';
+    }
+
+    const titleAttr = title ? ` title="${this.escapeAttr(title)}"` : "";
+    return `<div class="sci-nb-embed-view" style="height:${height}">
+      <iframe src="${this.escapeAttr(url)}"${titleAttr} sandbox="${this.escapeAttr(sandbox)}" style="width:100%;height:100%;border:none;border-radius:6px" loading="lazy" allowfullscreen></iframe>
+    </div>`;
+  }
+
   /**
    * Process math expressions in rendered HTML.
    * Handles $$...$$ (display) and $...$ (inline) using KaTeX if available.
@@ -243,5 +286,13 @@ export class RenderPipeline {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  private escapeAttr(str: string): string {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 }
