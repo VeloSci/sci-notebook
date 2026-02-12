@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-react",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "React adapter for sci-notebook",
   "publishConfig": {
     "access": "public"
