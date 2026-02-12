@@ -28,14 +28,22 @@ const showHistory = ref(false);
 const presenting = ref(false);
 const currentSlide = ref(0);
 const isMobile = ref(false);
-const engineRef = ref<EditorEngine | null>(null);
+const notebookRef = ref<InstanceType<typeof SciNotebook> | null>(null);
 const versionHistory = new VersionHistory({ maxEntries: 50 });
 let presentationEngine: PresentationEngine | null = null;
+
+const getEngine = (): EditorEngine | null => {
+  return (notebookRef.value as any)?.engine ?? null;
+};
 
 onMounted(() => {
   isMobile.value = MobileAdapter.isTouchDevice();
   requestAnimationFrame(() => mermaid.run());
 });
+
+const copyToClipboard = (text: string) => {
+  window.navigator.clipboard.writeText(text);
+};
 
 const toggleTheme = () => {
   theme.value = theme.value === "light" ? "dark" : "light";
@@ -47,29 +55,34 @@ const handleChange = (nb: Notebook) => {
 };
 
 const handleExportJSON = () => {
-  if (!engineRef.value) return;
-  jsonContent.value = JSON.stringify(engineRef.value.getNotebook(), null, 2);
+  const engine = getEngine();
+  if (!engine) return;
+  jsonContent.value = JSON.stringify(engine.getNotebook(), null, 2);
   showJson.value = true;
 };
 
 const handleExportHTML = () => {
-  if (!engineRef.value) return;
-  downloadExport(exportToHTML(engineRef.value.getNotebook()));
+  const engine = getEngine();
+  if (!engine) return;
+  downloadExport(exportToHTML(engine.getNotebook()));
 };
 
 const handleExportMD = () => {
-  if (!engineRef.value) return;
-  downloadExport(exportToMarkdown(engineRef.value.getNotebook()));
+  const engine = getEngine();
+  if (!engine) return;
+  downloadExport(exportToMarkdown(engine.getNotebook()));
 };
 
 const handleExportIPYNB = () => {
-  if (!engineRef.value) return;
-  downloadExport(exportToIPYNB(engineRef.value.getNotebook()));
+  const engine = getEngine();
+  if (!engine) return;
+  downloadExport(exportToIPYNB(engine.getNotebook()));
 };
 
 const handleExportPDF = () => {
-  if (!engineRef.value) return;
-  const html = exportToHTML(engineRef.value.getNotebook());
+  const engine = getEngine();
+  if (!engine) return;
+  const html = exportToHTML(engine.getNotebook());
   const w = window.open("", "_blank");
   if (!w) { alert("Please allow popups for PDF export"); return; }
   w.document.write(html.content);
@@ -92,15 +105,17 @@ const handleJsonLoad = () => {
 };
 
 const handleSaveVersion = () => {
-  if (!engineRef.value) return;
-  const nb = engineRef.value.getNotebook();
+  const engine = getEngine();
+  if (!engine) return;
+  const nb = engine.getNotebook();
   const entry = versionHistory.save(nb, `Manual save — ${nb.cells.length} cells`);
   alert(`Version saved: ${entry.id}\n${versionHistory.count} versions stored.`);
 };
 
 const handlePresent = () => {
-  if (!engineRef.value) return;
-  const nb = engineRef.value.getNotebook();
+  const engine = getEngine();
+  if (!engine) return;
+  const nb = engine.getNotebook();
   presentationEngine = new PresentationEngine(nb, { splitMode: "heading", transition: "fade" });
   presentationEngine.on((event) => {
     if (event.type === "slide:changed") currentSlide.value = event.slide;
@@ -158,10 +173,10 @@ const nextSlide = () => presentationEngine?.next();
     </header>
 
     <SciNotebook
+      ref="notebookRef"
       :notebook="SAMPLE_NOTEBOOK"
       :theme="theme"
       :onChange="handleChange"
-      :engineRef="engineRef"
       :showTOC="true"
     />
 
@@ -183,7 +198,7 @@ const nextSlide = () => presentationEngine?.next();
         />
         <div class="json-modal-actions">
           <button class="app-btn" @click="showJson = false">Close</button>
-          <button v-if="jsonContent && jsonContent.length > 10" class="app-btn" @click="window.navigator.clipboard.writeText(jsonContent)">Copy</button>
+          <button v-if="jsonContent && jsonContent.length > 10" class="app-btn" @click="copyToClipboard(jsonContent)">Copy</button>
           <button v-if="!jsonContent || jsonContent.length <= 10" class="app-btn app-btn--active" @click="handleJsonLoad">Load</button>
         </div>
       </div>
