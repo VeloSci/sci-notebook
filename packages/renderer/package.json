@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-renderer",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Markdown rendering pipeline for sci-notebook",
   "publishConfig": {
     "access": "public"
