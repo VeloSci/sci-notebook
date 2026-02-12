@@ -6,7 +6,7 @@ import {
   type CellType,
   type SciNotebookPlugin,
 } from "@velo-sci/notebook-core";
-import { RenderPipeline } from "@velo-sci/notebook-renderer";
+import { RenderPipeline, DOMCellBuilder } from "@velo-sci/notebook-renderer";
 import { createNotebookStore, type NotebookStore } from "./stores";
 
 export interface SciNotebookSvelteOptions {
@@ -26,6 +26,8 @@ export interface SciNotebookSvelteOptions {
   readOnly?: boolean;
   /** Show toolbar */
   showToolbar?: boolean;
+  /** Show TOC sidebar */
+  showTOC?: boolean;
 }
 
 /**
@@ -68,9 +70,12 @@ export class SciNotebookSvelte {
   private engine: EditorEngine;
   private container: HTMLElement;
   private pipeline: RenderPipeline;
+  private builder: DOMCellBuilder;
   private options: SciNotebookSvelteOptions;
   private unsubscribers: Array<() => void> = [];
   private destroyed = false;
+  private showTOC = false;
+  private focusedCellId: string | null = null;
 
   readonly store: NotebookStore;
 
@@ -95,6 +100,11 @@ export class SciNotebookSvelte {
     }
 
     this.pipeline = new RenderPipeline();
+    this.builder = new DOMCellBuilder({
+      engine: this.engine,
+      pipeline: this.pipeline,
+      readOnly: options.readOnly,
+    });
     this.store = createNotebookStore(this.engine);
 
     this.render();
@@ -132,99 +142,76 @@ export class SciNotebookSvelte {
     this.container.className = "sci-nb sci-nb--svelte";
     this.container.dataset.theme = this.options.theme || "light";
     this.container.tabIndex = 0;
+    this.showTOC = !!this.options.showTOC;
 
     if (this.options.showToolbar !== false) {
-      this.container.appendChild(this.createToolbar());
+      this.container.appendChild(this.builder.buildToolbar({
+        onToggleFind: () => {},
+        onToggleTOC: () => {
+          this.showTOC = !this.showTOC;
+          const tocBtn = this.container.querySelector<HTMLElement>('[data-toolbar="toc"]');
+          if (tocBtn) tocBtn.classList.toggle("sci-nb-toolbar-btn--active", this.showTOC);
+          const toc = this.container.querySelector<HTMLElement>(".sci-nb-toc");
+          if (this.showTOC && !toc) {
+            const layout = this.container.querySelector<HTMLElement>(".sci-nb-layout");
+            if (layout) layout.insertBefore(this.builder.buildTOC(this.focusedCellId), layout.firstChild);
+          } else if (!this.showTOC && toc) {
+            toc.remove();
+          }
+        },
+        showTOC: this.showTOC,
+      }));
+    }
+
+    // Layout wrapper (flex)
+    const layout = document.createElement("div");
+    layout.className = "sci-nb-layout";
+    layout.style.display = "flex";
+    layout.style.gap = "16px";
+
+    if (this.showTOC) {
+      layout.appendChild(this.builder.buildTOC(this.focusedCellId));
     }
 
     const cellsContainer = document.createElement("div");
     cellsContainer.className = "sci-nb-cells";
-    this.container.appendChild(cellsContainer);
+    cellsContainer.style.flex = "1";
+    layout.appendChild(cellsContainer);
 
-    this.renderCells(cellsContainer);
-  }
+    this.container.appendChild(layout);
+    this.builder.renderCells(cellsContainer);
 
-  private renderCells(container: HTMLElement): void {
-    container.innerHTML = "";
-    const cells = this.engine.getCells();
-
-    if (cells.length === 0) {
-      container.innerHTML = `<div class="sci-nb-empty"><p>Empty notebook. Add a cell to get started.</p></div>`;
-      return;
-    }
-
-    for (const cell of cells) {
-      const el = document.createElement("div");
-      el.className = `sci-nb-cell sci-nb-cell--${cell.type}`;
-      el.dataset.cellId = cell.id;
-
-      const content = document.createElement("div");
-      content.className = "sci-nb-cell-content";
-
-      if (cell.editing) {
-        const editor = document.createElement("textarea");
-        editor.className = "sci-nb-cell-editor";
-        editor.value = cell.source;
-        editor.rows = Math.max(3, cell.source.split("\n").length + 1);
-        editor.addEventListener("input", () => {
-          this.engine.updateCellSource(cell.id, editor.value);
-        });
-        editor.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            e.preventDefault();
-            this.engine.setViewMode(cell.id);
-          }
-        });
-        content.appendChild(editor);
-      } else {
-        content.innerHTML = this.pipeline.render(cell).html;
-        content.addEventListener("click", () => {
-          if (!this.options.readOnly) {
-            this.engine.focusCell(cell.id);
-            this.engine.setEditMode(cell.id);
-          }
-        });
+    // Keyboard handler
+    this.container.addEventListener("keydown", (e) => {
+      if (this.options.readOnly) return;
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+        e.preventDefault();
+        return;
       }
-
-      el.appendChild(content);
-      container.appendChild(el);
-    }
-  }
-
-  private createToolbar(): HTMLElement {
-    const toolbar = document.createElement("div");
-    toolbar.className = "sci-nb-toolbar";
-    const nb = this.engine.getNotebook();
-    toolbar.innerHTML = `
-      <div class="sci-nb-toolbar-group">
-        <span class="sci-nb-toolbar-title">${nb.title}</span>
-      </div>
-      <div class="sci-nb-toolbar-group">
-        <button class="sci-nb-toolbar-btn" data-toolbar="undo">Undo</button>
-        <button class="sci-nb-toolbar-btn" data-toolbar="redo">Redo</button>
-        <button class="sci-nb-toolbar-btn" data-toolbar="edit-all">Edit All</button>
-        <button class="sci-nb-toolbar-btn" data-toolbar="view-all">View All</button>
-      </div>
-    `;
-    toolbar.addEventListener("click", (e) => {
-      const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-toolbar]");
-      if (!btn) return;
-      switch (btn.dataset.toolbar) {
-        case "undo": this.engine.undo(); break;
-        case "redo": this.engine.redo(); break;
-        case "edit-all": this.engine.setAllEditMode(); break;
-        case "view-all": this.engine.setAllViewMode(); break;
-      }
+      this.engine.handleKeyDown(e);
     });
-    return toolbar;
+  }
+
+  private updateTOC(): void {
+    const oldToc = this.container.querySelector<HTMLElement>(".sci-nb-toc");
+    if (!oldToc) return;
+    const newToc = this.builder.buildTOC(this.focusedCellId);
+    oldToc.replaceWith(newToc);
   }
 
   private bindEvents(): void {
     const unsub = this.engine.on("notebook:updated", (payload) => {
       const cellsContainer = this.container.querySelector<HTMLElement>(".sci-nb-cells");
-      if (cellsContainer) this.renderCells(cellsContainer);
+      if (cellsContainer) this.builder.renderCells(cellsContainer);
+      if (this.showTOC) this.updateTOC();
       if (this.options.onChange) this.options.onChange(payload.data.notebook);
     });
     this.unsubscribers.push(unsub);
+
+    const focusUnsub = this.engine.on("cell:focused", (payload: any) => {
+      this.focusedCellId = payload.data.cellId;
+      if (this.showTOC) this.updateTOC();
+    });
+    this.unsubscribers.push(focusUnsub);
   }
 }
