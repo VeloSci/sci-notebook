@@ -7,6 +7,7 @@
     "build": "pnpm -r build",
     "test": "vitest",
     "docs:dev": "concurrently \"vitepress dev docs\" \"pnpm --filter @velo-sci/notebook-example dev\"",
+    "examples:dev": "concurrently \"pnpm --filter @velo-sci/notebook-example dev\" \"pnpm --filter example-vue-full dev\" \"pnpm --filter example-svelte-full dev\" \"pnpm --filter example-vanilla-full dev\" \"pnpm --filter example-landing dev\"",
     "docs:dev:simple": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
