@@ -11,11 +11,11 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@velo-sci/notebook-core": ["../core/src"],
-      "@velo-sci/notebook-renderer": ["../renderer/src"],
-      "@velo-sci/notebook-react": ["../react/src"],
-      "@example/shared": ["../../examples/shared"]
+      "@velo-sci/notebook-core": ["packages/core/src"],
+      "@velo-sci/notebook-renderer": ["packages/renderer/src"],
+      "@velo-sci/notebook-react": ["packages/react/src"],
+      "@example/shared/*": ["examples/shared/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/env.d.ts", "../../examples/shared"]
 }
