@@ -1,0 +1,599 @@
+/**
+ * Shared imperative DOM cell builder.
+ *
+ * Produces the exact same DOM structure and CSS class names as React's
+ * Cell.tsx + CellRenderers.tsx so that all adapters (Vue, Svelte, Vanilla)
+ * render identically.
+ *
+ * React keeps its JSX approach but uses the same class names.
+ * All other adapters call these functions to build DOM elements.
+ */
+
+import type { Cell, CellType, EditorEngine } from "@velo-sci/notebook-core";
+import { RenderPipeline } from "./pipeline";
+
+// ── Constants ──────────────────────────────────────────────────────
+
+const CELL_TYPE_ICONS: Record<string, string> = {
+  markdown: "M",
+  code: "</>",
+  raw: "T",
+  latex: "∑",
+  image: "🖼",
+  embed: "⧉",
+  table: "⊞",
+  mermaid: "◇",
+};
+
+const CELL_TYPES: { value: string; label: string; icon: string }[] = [
+  { value: "markdown", label: "Markdown", icon: "M" },
+  { value: "code", label: "Code", icon: "</>" },
+  { value: "raw", label: "Raw", icon: "T" },
+  { value: "latex", label: "LaTeX", icon: "∑" },
+  { value: "image", label: "Image", icon: "🖼" },
+  { value: "embed", label: "Embed", icon: "⧉" },
+];
+
+const PLACEHOLDERS: Record<string, string> = {
+  markdown: "Write markdown here... (click to edit)",
+  code: "Write code here...",
+  raw: "Raw text...",
+  latex: "Write LaTeX here... e.g. \\int_0^1 x^2 dx",
+  image: "Click to add image",
+  embed: "Click to add embedded content",
+};
+
+// ── SVG Icons (same as React) ──────────────────────────────────────
+
+const SVG_DRAG_HANDLE = `<svg width="12" height="20" viewBox="0 0 12 20" fill="currentColor"><circle cx="3" cy="4" r="1.5"/><circle cx="9" cy="4" r="1.5"/><circle cx="3" cy="10" r="1.5"/><circle cx="9" cy="10" r="1.5"/><circle cx="3" cy="16" r="1.5"/><circle cx="9" cy="16" r="1.5"/></svg>`;
+
+const SVG_MOVE_UP = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 11V3M7 3L3 7M7 3l4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const SVG_MOVE_DOWN = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 3v8M7 11l-4-4M7 11l4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const SVG_DUPLICATE = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 2H3.5A1.5 1.5 0 002 3.5V10"/></svg>`;
+
+const SVG_DELETE = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h8M5.5 4V3a1 1 0 011-1h1a1 1 0 011 1v1M6 6.5v3M8 6.5v3M4 4l.5 7a1.5 1.5 0 001.5 1.5h2A1.5 1.5 0 0010 11l.5-7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const SVG_INSERT = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>`;
+
+const SVG_UNDO = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h6a3 3 0 010 6H7M3 7l3-3M3 7l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const SVG_REDO = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 7H5a3 3 0 000 6h2M11 7l-3-3M11 7l-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const SVG_EMPTY = `<svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="6" width="32" height="36" rx="4"/><line x1="14" y1="14" x2="34" y2="14"/><line x1="14" y1="22" x2="28" y2="22"/><line x1="14" y1="30" x2="22" y2="30"/></svg>`;
+
+// ── DOMCellBuilder ─────────────────────────────────────────────────
+
+export interface DOMCellBuilderOptions {
+  engine: EditorEngine;
+  pipeline: RenderPipeline;
+  readOnly?: boolean;
+}
+
+/**
+ * Shared imperative DOM cell builder that produces the exact same
+ * HTML structure and CSS classes as React's Cell component.
+ */
+export class DOMCellBuilder {
+  private engine: EditorEngine;
+  private pipeline: RenderPipeline;
+  private readOnly: boolean;
+
+  constructor(opts: DOMCellBuilderOptions) {
+    this.engine = opts.engine;
+    this.pipeline = opts.pipeline;
+    this.readOnly = opts.readOnly ?? false;
+  }
+
+  // ── Full cell element ──
+
+  buildCell(cell: Cell, index: number, totalCells: number): HTMLElement {
+    const el = document.createElement("div");
+    const isEditing = !!cell.editing;
+
+    el.className = [
+      "sci-nb-cell",
+      `sci-nb-cell--${cell.type}`,
+      isEditing ? "sci-nb-cell--edit" : "sci-nb-cell--view",
+    ].join(" ");
+
+    el.setAttribute("data-testid", `cell-${cell.id}`);
+    el.setAttribute("data-cell-id", cell.id);
+    el.setAttribute("data-editing", String(isEditing));
+    el.setAttribute("data-cell-type", cell.type);
+    el.setAttribute("role", "region");
+    el.setAttribute("aria-label", `${cell.type} cell ${index + 1} of ${totalCells}${isEditing ? ", editing" : ""}`);
+    el.setAttribute("aria-selected", String(isEditing));
+    el.tabIndex = 0;
+    el.draggable = !isEditing;
+
+    // Hover
+    el.addEventListener("mouseenter", () => el.classList.add("sci-nb-cell--hover"));
+    el.addEventListener("mouseleave", () => el.classList.remove("sci-nb-cell--hover"));
+
+    // Focus
+    el.addEventListener("click", () => this.engine.focusCell(cell.id));
+
+    // Drag & drop
+    this.bindDragDrop(el, cell.id, index);
+
+    // Build children
+    el.appendChild(this.buildGutter(index));
+    el.appendChild(this.buildBadge(cell));
+    el.appendChild(this.buildContent(cell, isEditing));
+    el.appendChild(this.buildActions(cell.id, index, totalCells));
+
+    return el;
+  }
+
+  // ── Gutter (drag handle + index) ──
+
+  private buildGutter(index: number): HTMLElement {
+    const gutter = document.createElement("div");
+    gutter.className = "sci-nb-cell-gutter";
+
+    const handle = document.createElement("div");
+    handle.className = "sci-nb-cell-handle";
+    handle.title = "Drag to reorder";
+    handle.innerHTML = SVG_DRAG_HANDLE;
+    gutter.appendChild(handle);
+
+    const idx = document.createElement("span");
+    idx.className = "sci-nb-cell-index";
+    idx.textContent = `[${index + 1}]`;
+    gutter.appendChild(idx);
+
+    return gutter;
+  }
+
+  // ── Type badge ──
+
+  private buildBadge(cell: Cell): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "sci-nb-cell-badge-wrap";
+
+    const badge = document.createElement("button");
+    badge.className = "sci-nb-cell-badge";
+    badge.title = "Change cell type";
+    badge.textContent = CELL_TYPE_ICONS[cell.type] || cell.type.slice(0, 2).toUpperCase();
+
+    badge.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const existing = wrap.querySelector(".sci-nb-type-menu");
+      if (existing) { existing.remove(); return; }
+
+      const menu = document.createElement("div");
+      menu.className = "sci-nb-type-menu";
+      for (const ct of CELL_TYPES) {
+        const opt = document.createElement("button");
+        opt.className = `sci-nb-type-option ${cell.type === ct.value ? "sci-nb-type-option--active" : ""}`;
+        opt.innerHTML = `<span class="sci-nb-type-option-icon">${ct.icon}</span>${ct.label}`;
+        opt.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          this.engine.setCellType(cell.id, ct.value as CellType);
+          menu.remove();
+        });
+        menu.appendChild(opt);
+      }
+      wrap.appendChild(menu);
+
+      // Close on outside click
+      const close = (ev: MouseEvent) => {
+        if (!wrap.contains(ev.target as Node)) { menu.remove(); document.removeEventListener("mousedown", close); }
+      };
+      setTimeout(() => document.addEventListener("mousedown", close), 0);
+    });
+
+    wrap.appendChild(badge);
+    return wrap;
+  }
+
+  // ── Content (edit or view mode) ──
+
+  private buildContent(cell: Cell, isEditing: boolean): HTMLElement {
+    const content = document.createElement("div");
+    content.className = "sci-nb-cell-content";
+
+    if (isEditing) {
+      content.appendChild(this.buildEditor(cell));
+    } else {
+      content.appendChild(this.buildPreview(cell));
+    }
+
+    return content;
+  }
+
+  // ── Editor (textarea — uses sci-nb-editor class like React) ──
+
+  private buildEditor(cell: Cell): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    const placeholder = PLACEHOLDERS[cell.type] || "Click to edit...";
+
+    const textarea = document.createElement("textarea");
+    // Use the SAME class as React: "sci-nb-editor"
+    textarea.className = "sci-nb-editor";
+    textarea.value = cell.source;
+    textarea.placeholder = placeholder;
+    textarea.spellcheck = cell.type === "markdown";
+    textarea.rows = 1;
+
+    // Auto-resize
+    const autoResize = () => {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.max(40, textarea.scrollHeight)}px`;
+    };
+
+    textarea.addEventListener("input", () => {
+      this.engine.updateCellSource(cell.id, textarea.value);
+      autoResize();
+    });
+
+    textarea.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        this.engine.setViewMode(cell.id);
+      } else if (e.key === "Enter" && e.shiftKey) {
+        e.preventDefault();
+        this.engine.setViewMode(cell.id);
+        const cells = this.engine.getCells();
+        const idx = cells.findIndex(c => c.id === cell.id);
+        if (idx < cells.length - 1) {
+          this.engine.focusCell(cells[idx + 1].id);
+          this.engine.setEditMode(cells[idx + 1].id);
+        }
+      } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.engine.setViewMode(cell.id);
+      } else if (e.key === "Tab" && !e.shiftKey) {
+        e.preventDefault();
+        const start = textarea.selectionStart;
+        const val = textarea.value;
+        this.engine.updateCellSource(cell.id, val.substring(0, start) + "  " + val.substring(textarea.selectionEnd));
+        requestAnimationFrame(() => { textarea.selectionStart = textarea.selectionEnd = start + 2; });
+      } else if (e.key === "Tab" && e.shiftKey) {
+        e.preventDefault();
+        const start = textarea.selectionStart;
+        const before = textarea.value.substring(0, start);
+        const trimmed = before.replace(/  $/, "");
+        if (trimmed !== before) {
+          const diff = before.length - trimmed.length;
+          this.engine.updateCellSource(cell.id, trimmed + textarea.value.substring(start));
+          requestAnimationFrame(() => { textarea.selectionStart = textarea.selectionEnd = start - diff; });
+        }
+      } else if (e.key === "b" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.wrapSelection(textarea, cell.id, "**", "**");
+      } else if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.wrapSelection(textarea, cell.id, "*", "*");
+      }
+    });
+
+    frag.appendChild(textarea);
+
+    // Hint bar (same as React)
+    const hint = document.createElement("div");
+    hint.className = "sci-nb-cell-hint";
+    if (cell.type === "code") {
+      hint.innerHTML = `<kbd>Shift+Enter</kbd> next · <kbd>Esc</kbd> exit`;
+    } else {
+      hint.innerHTML = `<kbd>/</kbd> commands · <kbd>Shift+Enter</kbd> next · <kbd>Esc</kbd> exit`;
+    }
+    frag.appendChild(hint);
+
+    // Focus + auto-resize after mount
+    requestAnimationFrame(() => {
+      textarea.focus();
+      autoResize();
+    });
+
+    return frag;
+  }
+
+  // ── Preview (view mode — uses sci-nb-preview class like React) ──
+
+  private buildPreview(cell: Cell): HTMLElement {
+    const rendered = this.pipeline.render(cell);
+    const isEmpty = !cell.source.trim();
+    const placeholder = PLACEHOLDERS[cell.type] || "Click to edit...";
+
+    const preview = document.createElement("div");
+    preview.className = `sci-nb-preview ${isEmpty ? "sci-nb-preview--empty" : ""}`;
+
+    if (isEmpty) {
+      preview.innerHTML = `<span class="sci-nb-placeholder">${placeholder}</span>`;
+    } else {
+      preview.innerHTML = rendered.html;
+    }
+
+    if (!this.readOnly) {
+      preview.addEventListener("click", () => {
+        this.engine.focusCell(cell.id);
+        this.engine.setEditMode(cell.id);
+      });
+    }
+
+    return preview;
+  }
+
+  // ── Cell actions ──
+
+  private buildActions(cellId: string, index: number, totalCells: number): HTMLElement {
+    const actions = document.createElement("div");
+    actions.className = "sci-nb-cell-actions";
+
+    const mkBtn = (svg: string, title: string, disabled: boolean, onClick: () => void, danger = false) => {
+      const btn = document.createElement("button");
+      btn.className = `sci-nb-btn${danger ? " sci-nb-btn--danger" : ""}`;
+      btn.title = title;
+      btn.disabled = disabled;
+      btn.innerHTML = svg;
+      btn.addEventListener("click", (e) => { e.stopPropagation(); onClick(); });
+      return btn;
+    };
+
+    actions.appendChild(mkBtn(SVG_MOVE_UP, "Move up", index === 0, () => this.engine.moveCell(cellId, index - 1)));
+    actions.appendChild(mkBtn(SVG_MOVE_DOWN, "Move down", index >= totalCells - 1, () => this.engine.moveCell(cellId, index + 1)));
+    actions.appendChild(mkBtn(SVG_DUPLICATE, "Duplicate cell", false, () => this.engine.duplicateCell(cellId)));
+    actions.appendChild(mkBtn(SVG_DELETE, "Delete cell", false, () => this.engine.deleteCell(cellId), true));
+
+    return actions;
+  }
+
+  // ── Insert handle (matches React's InsertHandle exactly) ──
+
+  buildInsertHandle(index: number): HTMLElement {
+    const handle = document.createElement("div");
+    handle.className = "sci-nb-insert-handle";
+
+    const line = document.createElement("div");
+    line.className = "sci-nb-insert-line";
+
+    const btn = document.createElement("button");
+    btn.className = "sci-nb-insert-btn";
+    btn.title = "Insert cell";
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const existingMenu = handle.querySelector(".sci-nb-insert-menu");
+      if (existingMenu) { existingMenu.remove(); return; }
+
+      const menu = document.createElement("div");
+      menu.className = "sci-nb-insert-menu";
+
+      const INSERT_TYPES = [
+        { type: "markdown", label: "Markdown", icon: "M" },
+        { type: "code", label: "Code", icon: "</>" },
+        { type: "latex", label: "LaTeX", icon: "∑" },
+        { type: "image", label: "Imagen", icon: "🖼" },
+        { type: "embed", label: "Embed", icon: "⧉" },
+        { type: "raw", label: "Raw", icon: "T" },
+      ];
+
+      for (const ct of INSERT_TYPES) {
+        const opt = document.createElement("button");
+        opt.className = "sci-nb-insert-option";
+        opt.innerHTML = `<span class="sci-nb-insert-option-icon">${ct.icon}</span><span>${ct.label}</span>`;
+        opt.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          menu.remove();
+          const cell = this.engine.insertCell(index, ct.type as CellType);
+          requestAnimationFrame(() => {
+            this.engine.setEditMode(cell.id);
+            this.engine.focusCell(cell.id);
+          });
+        });
+        menu.appendChild(opt);
+      }
+
+      handle.appendChild(menu);
+
+      // Close on outside click
+      const close = (ev: MouseEvent) => {
+        if (!handle.contains(ev.target as Node)) {
+          menu.remove();
+          document.removeEventListener("mousedown", close);
+        }
+      };
+      setTimeout(() => document.addEventListener("mousedown", close), 0);
+    });
+
+    line.appendChild(btn);
+    handle.appendChild(line);
+    return handle;
+  }
+
+  // ── Toolbar ──
+
+  buildToolbar(opts: {
+    onToggleFind?: () => void;
+    onToggleTOC?: () => void;
+    showTOC?: boolean;
+  } = {}): HTMLElement {
+    const toolbar = document.createElement("div");
+    toolbar.className = "sci-nb-toolbar";
+
+    const nb = this.engine.getNotebook();
+
+    const titleGroup = document.createElement("div");
+    titleGroup.className = "sci-nb-toolbar-group";
+    const title = document.createElement("span");
+    title.className = "sci-nb-toolbar-title";
+    title.textContent = nb.title;
+    titleGroup.appendChild(title);
+
+    const actionsGroup = document.createElement("div");
+    actionsGroup.className = "sci-nb-toolbar-group";
+
+    const mkBtn = (text: string, title: string, onClick: () => void, extraClass = "") => {
+      const btn = document.createElement("button");
+      btn.className = `sci-nb-toolbar-btn ${extraClass}`.trim();
+      btn.title = title;
+      btn.textContent = text;
+      btn.addEventListener("click", onClick);
+      return btn;
+    };
+
+    const mkBtnHtml = (html: string, title: string, onClick: () => void) => {
+      const btn = document.createElement("button");
+      btn.className = "sci-nb-toolbar-btn";
+      btn.title = title;
+      btn.innerHTML = html;
+      btn.addEventListener("click", onClick);
+      return btn;
+    };
+
+    actionsGroup.appendChild(mkBtnHtml(`${SVG_UNDO} Undo`, "Undo (Ctrl+Z)", () => this.engine.undo()));
+    actionsGroup.appendChild(mkBtnHtml(`Redo ${SVG_REDO}`, "Redo (Ctrl+Shift+Z)", () => this.engine.redo()));
+
+    const sep1 = document.createElement("span");
+    sep1.className = "sci-nb-toolbar-sep";
+    actionsGroup.appendChild(sep1);
+
+    actionsGroup.appendChild(mkBtn("Edit All", "Edit all cells", () => this.engine.setAllEditMode()));
+    actionsGroup.appendChild(mkBtn("View All", "Preview all cells", () => this.engine.setAllViewMode()));
+
+    const sep2 = document.createElement("span");
+    sep2.className = "sci-nb-toolbar-sep";
+    actionsGroup.appendChild(sep2);
+
+    if (opts.onToggleFind) {
+      actionsGroup.appendChild(mkBtn("Find", "Find & Replace (Ctrl+F)", opts.onToggleFind));
+    }
+
+    if (opts.onToggleTOC) {
+      const tocBtn = mkBtn("TOC", "Table of Contents", opts.onToggleTOC, opts.showTOC ? "sci-nb-toolbar-btn--active" : "");
+      tocBtn.setAttribute("data-toolbar", "toc");
+      actionsGroup.appendChild(tocBtn);
+    }
+
+    toolbar.appendChild(titleGroup);
+    toolbar.appendChild(actionsGroup);
+    return toolbar;
+  }
+
+  // ── TOC sidebar ──
+
+  buildTOC(focusedCellId?: string | null): HTMLElement {
+    const nav = document.createElement("nav");
+    nav.className = "sci-nb-toc";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "sci-nb-toc-title";
+    titleEl.textContent = "Contenido";
+    nav.appendChild(titleEl);
+
+    const nb = this.engine.getNotebook();
+    let hasItems = false;
+
+    for (const cell of nb.cells) {
+      if (cell.type !== "markdown") continue;
+      for (const line of cell.source.split("\n")) {
+        const match = line.match(/^(#{1,3})\s+(.+)/);
+        if (match) {
+          hasItems = true;
+          const btn = document.createElement("button");
+          const text = match[2].replace(/[*_`~#]/g, "").trim();
+          btn.className = [
+            "sci-nb-toc-item",
+            `sci-nb-toc-item--h${match[1].length}`,
+            cell.id === focusedCellId ? "sci-nb-toc-item--active" : "",
+          ].filter(Boolean).join(" ");
+          btn.textContent = text;
+          btn.title = text;
+          btn.addEventListener("click", () => {
+            this.engine.focusCell(cell.id);
+            this.engine.setEditMode(cell.id);
+            const el = document.querySelector(`[data-testid="cell-${cell.id}"]`);
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+          nav.appendChild(btn);
+        }
+      }
+    }
+
+    if (!hasItems) nav.style.display = "none";
+    return nav;
+  }
+
+  // ── Empty state ──
+
+  buildEmpty(): HTMLElement {
+    const empty = document.createElement("div");
+    empty.className = "sci-nb-empty";
+
+    const icon = document.createElement("div");
+    icon.className = "sci-nb-empty-icon";
+    icon.innerHTML = SVG_EMPTY;
+    empty.appendChild(icon);
+
+    const p = document.createElement("p");
+    p.textContent = "Empty notebook. Add a cell to get started.";
+    empty.appendChild(p);
+
+    empty.appendChild(this.buildInsertHandle(0));
+    return empty;
+  }
+
+  // ── Render all cells into a container ──
+
+  renderCells(container: HTMLElement): void {
+    container.innerHTML = "";
+    const cells = this.engine.getCells();
+
+    if (cells.length === 0) {
+      container.appendChild(this.buildEmpty());
+      return;
+    }
+
+    container.appendChild(this.buildInsertHandle(0));
+    cells.forEach((cell, idx) => {
+      container.appendChild(this.buildCell(cell, idx, cells.length));
+      container.appendChild(this.buildInsertHandle(idx + 1));
+    });
+  }
+
+  // ── Helpers ──
+
+  private wrapSelection(textarea: HTMLTextAreaElement, cellId: string, before: string, after: string) {
+    const { selectionStart: start, selectionEnd: end, value: val } = textarea;
+    this.engine.updateCellSource(cellId, val.substring(0, start) + before + val.substring(start, end) + after + val.substring(end));
+    requestAnimationFrame(() => {
+      textarea.selectionStart = start + before.length;
+      textarea.selectionEnd = end + before.length;
+    });
+  }
+
+  private bindDragDrop(el: HTMLElement, cellId: string, index: number) {
+    el.addEventListener("dragstart", (e) => {
+      e.dataTransfer!.setData("text/plain", cellId);
+      e.dataTransfer!.effectAllowed = "move";
+      el.classList.add("sci-nb-cell--dragging");
+    });
+    el.addEventListener("dragend", () => {
+      el.classList.remove("sci-nb-cell--dragging", "sci-nb-cell--drag-over-top", "sci-nb-cell--drag-over-bottom");
+    });
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer!.dropEffect = "move";
+      const rect = el.getBoundingClientRect();
+      const isTop = e.clientY < rect.top + rect.height / 2;
+      el.classList.toggle("sci-nb-cell--drag-over-top", isTop);
+      el.classList.toggle("sci-nb-cell--drag-over-bottom", !isTop);
+    });
+    el.addEventListener("dragleave", () => {
+      el.classList.remove("sci-nb-cell--drag-over-top", "sci-nb-cell--drag-over-bottom");
+    });
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const draggedId = e.dataTransfer!.getData("text/plain");
+      el.classList.remove("sci-nb-cell--drag-over-top", "sci-nb-cell--drag-over-bottom");
+      if (draggedId && draggedId !== cellId) {
+        const rect = el.getBoundingClientRect();
+        this.engine.moveCell(draggedId, e.clientY < rect.top + rect.height / 2 ? index : index + 1);
+      }
+    });
+  }
+}
