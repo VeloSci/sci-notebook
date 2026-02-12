@@ -1,7 +1,7 @@
-import { defineComponent, h, ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { defineComponent, h, ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import type { PropType } from "vue";
 import type { Cell, CellType } from "@velo-sci/notebook-core";
-import { RenderPipeline } from "@velo-sci/notebook-renderer";
+import { RenderPipeline, MATH_CATEGORIES, type MathBlock } from "@velo-sci/notebook-renderer";
 import { useNotebookEngine } from "./composables";
 
 const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
@@ -21,6 +21,170 @@ const PLACEHOLDERS: Record<string, string> = {
   image: "Click to add image",
   embed: "Click to add embedded content",
 };
+
+// ── Vue Math Editor (mirrors React's MathEditor) ──
+
+function renderLatexPreview(latex: string): string {
+  const clean = latex.replace(/^\$\$\s*/, "").replace(/\s*\$\$$/, "").trim();
+  if (!clean) return '<span class="sci-nb-math-preview-empty">Empty formula</span>';
+  if (typeof globalThis !== "undefined" && (globalThis as any).katex) {
+    try {
+      return (globalThis as any).katex.renderToString(clean, { displayMode: true, throwOnError: false });
+    } catch { /* fall through */ }
+  }
+  const escaped = clean.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<code class="sci-nb-math-preview-code">${escaped}</code>`;
+}
+
+const VueMathEditor = defineComponent({
+  name: "VueMathEditor",
+  props: {
+    cellId: { type: String, required: true },
+    source: { type: String, required: true },
+    onExit: { type: Function as PropType<() => void>, required: true },
+  },
+  setup(props) {
+    const engine = useNotebookEngine();
+    const activeCategory = ref(0);
+    const showRaw = ref(false);
+    const textareaRef = ref<HTMLTextAreaElement | null>(null);
+    const containerRef = ref<HTMLDivElement | null>(null);
+
+    const innerLatex = computed(() =>
+      props.source.replace(/^\$\$\s*/, "").replace(/\s*\$\$$/, "").trim()
+    );
+
+    const updateSource = (newInner: string) => {
+      engine.updateCellSource(props.cellId, `$$\n${newInner}\n$$`);
+    };
+
+    const exitAndNext = () => {
+      props.onExit!();
+      const cells = engine.getCells();
+      const idx = cells.findIndex(c => c.id === props.cellId);
+      if (idx < cells.length - 1) {
+        engine.focusCell(cells[idx + 1].id);
+        engine.setEditMode(cells[idx + 1].id);
+      }
+    };
+
+    const insertBlock = (block: MathBlock) => {
+      const ta = textareaRef.value;
+      if (!ta) {
+        updateSource(innerLatex.value + (innerLatex.value ? " " : "") + block.latex.replace(/▢/g, ""));
+        return;
+      }
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const val = ta.value;
+      const selected = val.slice(start, end);
+      let inserted = block.latex;
+      if (selected) inserted = inserted.replace("▢", selected);
+      inserted = inserted.replace(/▢/g, "");
+      const newVal = val.slice(0, start) + inserted + val.slice(end);
+      updateSource(newVal);
+      requestAnimationFrame(() => {
+        if (textareaRef.value) {
+          const cursorPos = block.cursor != null ? start + block.cursor : start + inserted.length;
+          textareaRef.value.focus();
+          textareaRef.value.setSelectionRange(cursorPos, cursorPos);
+        }
+      });
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); props.onExit!(); }
+      else if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); e.stopPropagation(); exitAndNext(); }
+      else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopPropagation(); props.onExit!(); }
+    };
+
+    onMounted(() => {
+      nextTick(() => { containerRef.value?.focus(); });
+    });
+
+    return () => {
+      const category = MATH_CATEGORIES[activeCategory.value];
+
+      const tabs = h("div", { class: "sci-nb-math-tabs" },
+        MATH_CATEGORIES.map((cat, i) =>
+          h("button", {
+            class: `sci-nb-math-tab ${i === activeCategory.value ? "sci-nb-math-tab--active" : ""}`,
+            title: cat.name,
+            tabindex: -1,
+            onClick: () => { activeCategory.value = i; },
+          }, [
+            h("span", { class: "sci-nb-math-tab-icon" }, cat.icon),
+            h("span", { class: "sci-nb-math-tab-label" }, cat.name),
+          ])
+        )
+      );
+
+      const palette = h("div", { class: "sci-nb-math-palette" },
+        category.blocks.map((block, i) =>
+          h("button", {
+            class: "sci-nb-math-block",
+            title: block.latex,
+            tabindex: -1,
+            onClick: () => insertBlock(block),
+          }, block.label)
+        )
+      );
+
+      const modeToggle = h("div", { class: "sci-nb-math-mode-toggle" }, [
+        h("button", {
+          class: `sci-nb-math-mode-btn ${!showRaw.value ? "sci-nb-math-mode-btn--active" : ""}`,
+          tabindex: -1,
+          onClick: () => { showRaw.value = false; },
+        }, "Preview"),
+        h("button", {
+          class: `sci-nb-math-mode-btn ${showRaw.value ? "sci-nb-math-mode-btn--active" : ""}`,
+          tabindex: -1,
+          onClick: () => { showRaw.value = true; },
+        }, "LaTeX"),
+      ]);
+
+      let editorContent: any;
+      if (showRaw.value) {
+        editorContent = h("textarea", {
+          class: "sci-nb-math-raw",
+          value: innerLatex.value,
+          placeholder: "Type LaTeX here...",
+          spellcheck: false,
+          ref: (el: any) => {
+            textareaRef.value = el;
+            if (el) nextTick(() => {
+              el.focus();
+              el.style.height = "auto";
+              el.style.height = `${Math.max(60, el.scrollHeight)}px`;
+            });
+          },
+          onInput: (e: Event) => {
+            const ta = e.target as HTMLTextAreaElement;
+            updateSource(ta.value);
+            ta.style.height = "auto";
+            ta.style.height = `${Math.max(60, ta.scrollHeight)}px`;
+          },
+        });
+      } else {
+        editorContent = h("div", { class: "sci-nb-math-visual" }, [
+          h("div", { class: "sci-nb-math-preview", innerHTML: renderLatexPreview(props.source) }),
+          h("p", { class: "sci-nb-math-visual-hint", innerHTML: 'Click the blocks above to build your formula. Switch to <strong>LaTeX</strong> mode to edit directly.' }),
+        ]);
+      }
+
+      const editorArea = h("div", { class: "sci-nb-math-editor-area" }, [modeToggle, editorContent]);
+
+      const hint = h("div", { class: "sci-nb-cell-hint", innerHTML: '<kbd>Esc</kbd> exit &middot; <kbd>Shift+Enter</kbd> next &middot; <kbd>Ctrl+Enter</kbd> render' });
+
+      return h("div", {
+        class: "sci-nb-math-editor",
+        tabindex: -1,
+        onKeydown: handleKeyDown,
+        ref: containerRef,
+      }, [tabs, palette, editorArea, hint]);
+    };
+  },
+});
 
 export const NotebookCell = defineComponent({
   name: "NotebookCell",
@@ -148,7 +312,16 @@ export const NotebookCell = defineComponent({
 
       // Content — uses same CSS classes as React
       const contentChildren: any[] = [];
-      if (isEditing) {
+      if (isEditing && cellType === "latex") {
+        // LaTeX cells get the visual math editor (same as React's MathEditor)
+        contentChildren.push(
+          h(VueMathEditor, {
+            cellId: props.cellId,
+            source: cell.value!.source,
+            onExit: exitEdit,
+          }),
+        );
+      } else if (isEditing) {
         contentChildren.push(
           h("textarea", {
             class: "sci-nb-editor",
