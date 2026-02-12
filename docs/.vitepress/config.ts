@@ -18,12 +18,16 @@ export default defineConfig({
       alias: [
         { find: '@velo-sci/notebook-core', replacement: resolve(__dirname, '../../packages/core/src/index.ts') },
         { find: '@velo-sci/notebook-react', replacement: resolve(__dirname, '../../packages/react/src/index.ts') },
-        { find: '@velo-sci/notebook-renderer', replacement: resolve(__dirname, '../../packages/renderer/src/index.ts') }
+        { find: '@velo-sci/notebook-renderer', replacement: resolve(__dirname, '../../packages/renderer/src/index.ts') },
+        { find: '@velo-sci/notebook-vue', replacement: resolve(__dirname, '../../packages/vue/src/index.ts') },
+        { find: '@velo-sci/notebook-svelte', replacement: resolve(__dirname, '../../packages/svelte/src/index.ts') },
+        { find: '@velo-sci/notebook-vanilla', replacement: resolve(__dirname, '../../packages/vanilla/src/index.ts') },
+        { find: '@velo-sci/notebook-plugin-export', replacement: resolve(__dirname, '../../packages/plugin-export/src/index.ts') }
       ]
     },
     server: {
       proxy: {
-        '/sci-notebook/example': {
+        '/sci-notebook/example/': {
           target: 'http://localhost:5174',
           changeOrigin: true,
         }
@@ -39,7 +43,7 @@ export default defineConfig({
       { text: 'Full Demo', link: '/example/', target: '_blank' },
       { text: 'Roadmap', link: '/roadmap' }
     ],
-    logo: '/sci-notebook/logo.svg',
+    logo: '/logo.svg',
     sidebar: {
       '/guide/': [
         {
@@ -69,6 +73,13 @@ export default defineConfig({
             { text: 'Export (PDF/DOCX)', link: '/guide/export-plugins' },
             { text: 'Performance', link: '/guide/performance' },
           ]
+        },
+        {
+          text: 'Ecosystem',
+          items: [
+            { text: 'AI Integration', link: '/guide/ai-integration' },
+            { text: 'Cloud Sync', link: '/guide/cloud-sync' },
+          ]
         }
       ],
       '/api/': [
@@ -89,6 +100,7 @@ export default defineConfig({
           items: [
             { text: 'Interactive Playground', link: '/examples/playground' },
             { text: 'Basic Usage', link: '/examples/basic-usage' },
+            { text: 'Use Cases', link: '/examples/use-cases' },
             { text: 'Theming & Layout', link: '/examples/theming' },
             { text: 'Plugin Integration', link: '/examples/plugins' },
           ]

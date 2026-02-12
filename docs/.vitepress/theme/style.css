@@ -1,51 +1,155 @@
 /* ============================================
-   SciNotebook Documentation - Orthogonal Theme
+   SciNotebook Documentation - Modern Theme
+   Inspired by scichart-engine docs styling
+   ============================================ */
+
+/* ============================================
+   CSS Variables - Light & Dark Mode
    ============================================ */
 
 :root {
+  /* Brand Colors */
   --vp-c-brand: #8b5cf6;
   --vp-c-brand-light: #a78bfa;
   --vp-c-brand-dark: #7c3aed;
+  --vp-c-brand-lighter: #c4b5fd;
+  --vp-c-brand-darker: #6d28d9;
+
+  /* Accent Indigo */
   --sci-accent-indigo: #6366f1;
+  --sci-accent-indigo-light: #818cf8;
+
+  /* Gradients */
   --sci-gradient-brand: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  --sci-gradient-glow: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.08) 50%, transparent 100%);
+
+  /* Glassmorphism */
   --sci-glass-bg: rgba(255, 255, 255, 0.7);
   --sci-glass-border: rgba(0, 0, 0, 0.08);
+  --sci-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+  /* Surface Colors */
   --sci-surface-1: #ffffff;
   --sci-surface-2: #f8fafc;
   --sci-surface-3: #f1f5f9;
-  --sci-text-primary: #0f172a;
-  --sci-text-secondary: #475569;
+
+  /* Text */
+  --sci-text-primary: #1e293b;
+  --sci-text-secondary: #64748b;
+  --sci-text-muted: #94a3b8;
+
+  /* Borders */
   --sci-border: #e2e8f0;
-  --sci-code-bg: #f8fafc;
-  --sci-layout-max-width: 1440px;
-  --sci-layout-padding: 40px;
+  --sci-border-hover: #cbd5e1;
+
+  /* Code */
+  --sci-code-bg: #f1f5f9;
+  --sci-code-border: #e2e8f0;
+
+  /* Layout */
+  --sci-layout-max-width: 1400px;
+  --sci-layout-padding: 32px;
+
   --vp-nav-max-width: var(--sci-layout-max-width) !important;
   --vp-layout-max-width: var(--sci-layout-max-width) !important;
   --vp-nav-pad-left: var(--sci-layout-padding) !important;
   --vp-nav-pad-right: var(--sci-layout-padding) !important;
-  --grid-size: 40px;
-  --grid-color: rgba(139, 92, 246, 0.05);
+  --vp-sidebar-width: 280px !important;
 }
 
 .dark {
   --vp-c-brand: #a78bfa;
-  --sci-glass-bg: rgba(10, 15, 28, 0.8);
-  --sci-glass-border: rgba(255, 255, 255, 0.05);
-  --sci-surface-1: #05080f;
-  --sci-surface-2: #0a0f1c;
-  --sci-surface-3: #12192b;
+  --vp-c-brand-light: #c4b5fd;
+  --vp-c-brand-dark: #8b5cf6;
+  --vp-c-brand-lighter: #ddd6fe;
+  --vp-c-brand-darker: #7c3aed;
+
+  --sci-glass-bg: rgba(15, 20, 30, 0.75);
+  --sci-glass-border: rgba(255, 255, 255, 0.08);
+  --sci-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  --sci-surface-1: #0b0e14;
+  --sci-surface-2: #0f1318;
+  --sci-surface-3: #151a22;
+
   --sci-text-primary: #f1f5f9;
   --sci-text-secondary: #94a3b8;
-  --sci-border: #1e293b;
-  --sci-code-bg: #0a0f1c;
-  --grid-color: rgba(167, 139, 250, 0.05);
+  --sci-text-muted: #64748b;
+
+  --sci-border: #1e2634;
+  --sci-border-hover: #2d3748;
+
+  --sci-code-bg: #0f1318;
+  --sci-code-border: #1e2634;
+
   --vp-c-bg: var(--sci-surface-1);
+}
+
+/* ============================================
+   Global Base Styles
+   ============================================ */
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
   -webkit-font-smoothing: antialiased;
-  background-color: var(--sci-surface-1);
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
 }
+
+/* Global Fixed SVG Background */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/sci-notebook/notebook-bg.svg');
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  animation: bgFloat 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgFloat {
+  0% { transform: scale(1) translateY(0); opacity: 0.35; }
+  50% { opacity: 0.45; }
+  100% { transform: scale(1.05) translateY(-2%); opacity: 0.4; }
+}
+
+/* Overlay for content readability */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 30% 50%,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.7) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.dark body::before { opacity: 0.5; }
+
+.dark body::after {
+  background: radial-gradient(ellipse at 30% 50%,
+    transparent 0%,
+    rgba(11, 14, 20, 0.5) 50%,
+    rgba(11, 14, 20, 0.85) 100%);
+}
+
+/* ============================================
+   Navigation Bar
+   ============================================ */
 
 .VPNav {
   backdrop-filter: blur(16px) saturate(180%);
@@ -58,307 +162,594 @@ body {
   z-index: 300 !important;
 }
 
-.VPNavBarTitle .title {
-  font-weight: 800 !important;
-  background: var(--sci-gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  transition: opacity 0.2s ease;
+.VPNavBar {
+  background: transparent !important;
+  width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 0 !important;
 }
 
-.VPHero .name {
-  font-size: clamp(3.5rem, 8vw, 5.5rem) !important;
-  font-weight: 900 !important;
+.VPNavBar .container {
+  background: transparent !important;
+  max-width: var(--sci-layout-max-width) !important;
+  margin: 0 auto !important;
+  padding: 0 var(--sci-layout-padding) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.VPNavBarTitle {
+  background: transparent !important;
+  flex-shrink: 0 !important;
+  border: none !important;
+}
+
+.VPNavBar .content {
+  background: transparent !important;
+  flex-grow: 1 !important;
+  max-width: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.VPNavBar .content-body {
+  background: transparent !important;
+}
+
+.VPNavBar .divider {
+  display: none !important;
+}
+
+.VPNavBarTitle .title {
+  font-weight: 700 !important;
   background: var(--sci-gradient-brand);
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.VPNavBarMenuLink {
+  font-weight: 500 !important;
+  transition: color 0.2s ease, opacity 0.2s ease !important;
+}
+
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuLink.active {
+  color: var(--vp-c-brand) !important;
+}
+
+/* ============================================
+   Hero Section
+   ============================================ */
+
+.VPHero {
+  position: relative;
+  padding: 0 !important;
+  overflow: visible;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  background: transparent !important;
+}
+
+.VPHero::before { display: none; }
+
+.VPHero .container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  max-width: var(--sci-layout-max-width) !important;
+  margin: 0 auto !important;
+  padding: 60px var(--sci-layout-padding) !important;
+  position: relative;
+  z-index: 3;
+  width: 100%;
+}
+
+.VPHero .main {
+  z-index: 3;
+  position: relative;
+  padding: 0 !important;
+  max-width: 640px !important;
+  text-align: left !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.VPHero .main:hover { transform: none; box-shadow: none; }
+
+.VPHero .image { display: none !important; }
+
+.VPHero .name {
+  font-size: clamp(3rem, 6vw, 4.5rem) !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+  background: var(--sci-gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: left !important;
+}
+
+.VPHero .text {
+  font-size: clamp(1.5rem, 3vw, 2.2rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  margin-top: 0.5rem;
+  color: var(--sci-text-primary);
+  text-align: left !important;
+}
+
+.VPHero .tagline {
+  font-size: clamp(1rem, 1.5vw, 1.25rem) !important;
+  margin: 1.5rem 0 2.5rem 0 !important;
+  color: var(--sci-text-secondary) !important;
+  max-width: 520px;
+  line-height: 1.7;
+  text-align: left !important;
+}
+
+.VPHero .actions {
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  flex-wrap: wrap;
+}
+
+.VPHero .action {
+  transition: all 0.25s ease !important;
 }
 
 .VPButton.brand {
   background: var(--sci-gradient-brand) !important;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
   border: none !important;
+  font-weight: 600 !important;
+  padding: 12px 28px !important;
+  font-size: 1rem !important;
+  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.35);
+  transition: all 0.3s ease;
+}
+
+.VPButton.brand:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.5);
+}
+
+.VPButton.alt {
+  border: 1.5px solid var(--sci-border) !important;
+  background: var(--sci-glass-bg) !important;
+  backdrop-filter: blur(8px);
+  font-weight: 500 !important;
+  padding: 12px 28px !important;
+  font-size: 1rem !important;
+  transition: all 0.3s ease;
+}
+
+.VPButton.alt:hover {
+  border-color: var(--vp-c-brand) !important;
+  color: var(--vp-c-brand) !important;
+  background: rgba(139, 92, 246, 0.05) !important;
+}
+
+/* Responsive hero */
+@media (max-width: 1024px) {
+  .VPHero .container {
+    padding: 60px 32px !important;
+    flex-direction: column !important;
+  }
+  .VPHero .main {
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+  .VPHero .name,
+  .VPHero .text,
+  .VPHero .tagline {
+    text-align: center !important;
+  }
+  .VPHero .tagline {
+    margin: 1.5rem auto 2rem auto !important;
+  }
+  .VPHero .actions {
+    justify-content: center !important;
+  }
+}
+
+/* ============================================
+   Features Section
+   ============================================ */
+
+.VPFeatures {
+  padding: 80px 0 !important;
+  position: relative;
+}
+
+.VPFeatures .container {
+  max-width: var(--sci-layout-max-width) !important;
+  margin: 0 auto !important;
+  padding: 0 var(--sci-layout-padding) !important;
 }
 
 .VPFeature {
   background: var(--sci-glass-bg) !important;
   border: 1px solid var(--sci-glass-border) !important;
   border-radius: 20px !important;
+  padding: 32px !important;
+  transition: all 0.3s ease !important;
   backdrop-filter: blur(10px);
 }
 
-.vp-doc h1 {
-  background: var(--sci-gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 900 !important;
+.VPFeature:hover {
+  transform: translateY(-6px);
+  border-color: var(--vp-c-brand) !important;
+  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
 }
 
-/* ============================================
-   SciNotebook Library Styles (Integrated)
-   ============================================ */
-
-.sci-nb {
-  --nb-bg: #ffffff;
-  --nb-cell-bg: #f8fafc;
-  --nb-cell-border: transparent;
-  --nb-accent: #8b5cf6;
-  --nb-text: #1e293b;
-  --nb-text-dim: #64748b;
-  
-  font-family: inherit;
-  color: var(--nb-text);
-  background: var(--nb-bg);
-  padding: 1rem;
+.VPFeature .icon {
+  font-size: 2.5rem !important;
+  margin-bottom: 16px;
 }
 
-.dark .sci-nb {
-  --nb-bg: #0f172a;
-  --nb-cell-bg: #1e293b;
-  --nb-text: #f1f5f9;
-  --nb-text-dim: #94a3b8;
+.VPFeature .title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: var(--sci-text-primary);
+  margin-bottom: 8px;
 }
 
-.sci-nb-cells {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.sci-nb-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1.5rem;
-  background: var(--nb-cell-bg);
-  border-radius: 12px;
-  border: 1px solid var(--sci-glass-border);
-}
-
-.sci-nb-toolbar-title {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--nb-text);
-}
-
-.sci-nb-toolbar-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.sci-nb-toolbar-actions button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.sci-nb-toolbar-actions button:hover {
-  background: rgba(139, 92, 246, 0.1);
-}
-
-.sci-nb-cell {
-  background: var(--nb-cell-bg);
-  border: 1px solid var(--nb-cell-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-.sci-nb-cell:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-}
-
-.sci-nb-cell--edit {
-  border: 1px solid var(--nb-accent) !important;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-}
-
-.sci-nb-editor {
-  width: 100%;
-  min-height: 120px;
-  background: transparent;
-  border: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.9rem;
-  color: inherit;
-  outline: none;
-  resize: none;
-}
-
-.sci-nb-cell-badge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(139, 92, 246, 0.1);
-  color: var(--nb-accent);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.sci-nb-preview {
-  font-size: 1rem;
+.VPFeature .details {
+  color: var(--sci-text-secondary) !important;
   line-height: 1.6;
 }
 
-.sci-nb-add-cell {
-  width: 100%;
-  margin-top: 1.5rem;
-  padding: 0.75rem;
-  background: transparent;
-  border: 2px dashed var(--sci-border);
-  border-radius: 12px;
-  color: var(--nb-text-dim);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* ============================================
+   Sidebar
+   ============================================ */
+
+.VPSidebar {
+  background: var(--sci-surface-2) !important;
+  border-right: 1px solid var(--sci-border) !important;
+  z-index: 200 !important;
 }
 
-.sci-nb-add-cell:hover {
-  background: rgba(139, 92, 246, 0.05);
-  border-color: var(--nb-accent);
-  color: var(--nb-accent);
+.dark .VPSidebar {
+  background: var(--sci-surface-2) !important;
 }
 
-.sci-nb-cell-handle {
-  position: absolute;
-  left: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  transition: opacity 0.2s;
-  cursor: grab;
-  color: var(--nb-text-dim);
+.VPSidebarItem .text {
+  font-weight: 500 !important;
+  transition: color 0.2s ease;
 }
 
-.sci-nb-cell:hover .sci-nb-cell-handle {
-  opacity: 1;
+.VPSidebarItem.is-active > .item > .link > .text {
+  color: var(--vp-c-brand) !important;
+  font-weight: 600 !important;
 }
 
-.sci-nb-cell-handle:hover {
-  color: var(--nb-accent);
+.VPSidebarItem .link:hover .text {
+  color: var(--vp-c-brand) !important;
 }
 
-.sci-nb-btn-delete {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  opacity: 0.5;
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.sci-nb-btn-delete:hover {
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-.sci-nb-preview code {
-  background: rgba(139, 92, 246, 0.1);
-  color: var(--nb-accent);
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: inherit;
-}
-
-.sci-nb-preview h1, .sci-nb-preview h2, .sci-nb-preview h3 {
-  margin-top: 0;
-  color: var(--nb-text);
-  background: none;
-  -webkit-text-fill-color: initial;
+.VPSidebarItem.level-0 > .item > .text {
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--sci-text-muted) !important;
 }
 
 /* ============================================
-   Cell Hint Footer (keyboard shortcuts)
+   Content Area
    ============================================ */
 
-.sci-nb-cell-hint {
+.VPHome .vp-doc {
+  padding: 0 var(--sci-layout-padding) !important;
+  max-width: var(--sci-layout-max-width) !important;
+  margin: 0 auto !important;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--sci-glass-border);
-  font-size: 0.65rem;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.VPHome .vp-doc > div,
+.VPHome .vp-doc > h2,
+.VPHome .vp-doc > h3,
+.VPHome .vp-doc > p,
+.VPHome .vp-doc > section,
+.VPHome .vp-doc > table {
+  width: 100% !important;
+  max-width: none !important;
+  text-align: left !important;
+}
+
+.vp-doc { max-width: 100%; }
+
+.vp-doc h1 {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em;
+  background: var(--sci-gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.5rem;
+}
+
+.vp-doc h2 {
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  border-bottom: 2px solid var(--sci-border);
+  padding-bottom: 0.75rem;
+  margin-top: 3rem;
+}
+
+.vp-doc h3 {
+  font-size: 1.35rem !important;
+  font-weight: 600 !important;
+}
+
+.vp-doc p {
+  line-height: 1.8;
   color: var(--sci-text-secondary);
-  opacity: 0.5;
-  user-select: none;
-  letter-spacing: 0.02em;
 }
 
-.sci-nb-cell-hint kbd {
-  display: inline-block;
-  padding: 0.1rem 0.35rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.6rem;
-  background: var(--sci-surface-3);
-  border: 1px solid var(--sci-border);
-  border-radius: 4px;
-  line-height: 1.4;
+.vp-doc a {
+  color: var(--vp-c-brand) !important;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
 
-/* ============================================
-   LaTeX Display Fallback (when KaTeX not loaded)
-   ============================================ */
-
-.sci-nb-latex-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem 1rem;
-  background: var(--sci-surface-3);
-  border-radius: 8px;
-  border: 1px solid var(--sci-glass-border);
-  min-height: 60px;
-}
-
-.sci-nb-latex-code {
-  font-family: 'KaTeX_Main', 'Times New Roman', serif;
-  font-size: 1.2rem;
-  color: var(--vp-c-brand);
-  background: transparent !important;
-  padding: 0 !important;
-  white-space: pre-wrap;
-  word-break: break-word;
+.vp-doc a:hover {
+  border-bottom-color: var(--vp-c-brand);
 }
 
 /* ============================================
-   Mermaid Fallback
+   Code Blocks
    ============================================ */
 
-.sci-nb-mermaid-preview pre {
-  background: var(--sci-surface-3) !important;
-  border: 1px solid var(--sci-glass-border);
-  border-radius: 8px;
-  padding: 1rem;
-  font-size: 0.85rem;
-}
-
-/* Custom Background for Hero */
-.VPHomeHero {
-  background-image: url('/sci-notebook/notebook-bg.svg');
-  background-size: cover;
-  background-position: center;
+.vp-doc div[class*='language-'] {
+  border-radius: 16px !important;
+  border: 1px solid var(--sci-code-border) !important;
+  background: var(--sci-code-bg) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
   position: relative;
 }
 
-.VPHomeHero::after {
-  content: "";
+.dark .vp-doc div[class*='language-'] {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.vp-doc div[class*='language-'] > button.copy {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+  background: var(--sci-glass-bg) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--sci-glass-border) !important;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+.vp-doc div[class*='language-']:hover > button.copy { opacity: 1; }
+
+.vp-doc div[class*='language-'] > button.copy:hover {
+  border-color: var(--vp-c-brand) !important;
+  background: rgba(139, 92, 246, 0.1) !important;
+  transform: scale(1.05);
+}
+
+.vp-doc div[class*='language-'] > span.lang {
+  color: var(--sci-text-muted) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, transparent, var(--sci-surface-1) 70%);
-  pointer-events: none;
+  top: 8px;
+  right: 60px;
+}
+
+.vp-doc :not(pre) > code {
+  background: var(--sci-code-bg) !important;
+  border: 1px solid var(--sci-code-border);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  color: var(--vp-c-brand-dark);
+}
+
+.dark .vp-doc :not(pre) > code {
+  color: var(--vp-c-brand);
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+
+.vp-doc table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--sci-border);
+}
+
+.vp-doc th {
+  background: var(--sci-surface-3) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--sci-text-muted);
+  padding: 16px !important;
+}
+
+.vp-doc td {
+  padding: 14px 16px !important;
+  border-top: 1px solid var(--sci-border);
+}
+
+.vp-doc tr:hover td {
+  background: var(--sci-surface-2);
+}
+
+/* ============================================
+   Blockquotes & Tips
+   ============================================ */
+
+.vp-doc blockquote {
+  border-left: 4px solid var(--vp-c-brand) !important;
+  background: var(--sci-surface-2) !important;
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px;
+  margin: 24px 0;
+}
+
+.vp-doc .tip,
+.vp-doc .warning,
+.vp-doc .danger,
+.vp-doc .info {
+  border-radius: 12px !important;
+  border: none !important;
+  padding: 20px 24px !important;
+}
+
+.vp-doc .tip {
+  background: rgba(139, 92, 246, 0.1) !important;
+  border-left: 4px solid var(--vp-c-brand) !important;
+}
+
+.vp-doc .warning {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-left: 4px solid #f59e0b !important;
+}
+
+.vp-doc .danger {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+
+.VPFooter {
+  background: var(--sci-surface-2) !important;
+  border-top: 1px solid var(--sci-border) !important;
+  padding: 32px var(--sci-layout-padding) !important;
+  max-width: var(--sci-layout-max-width);
+  margin: 0 auto;
+}
+
+.VPFooter .message,
+.VPFooter .copyright {
+  color: var(--sci-text-muted) !important;
+}
+
+/* ============================================
+   Scrollbar (Dark mode)
+   ============================================ */
+
+.dark ::-webkit-scrollbar { width: 8px; height: 8px; }
+.dark ::-webkit-scrollbar-track { background: var(--sci-surface-2); }
+.dark ::-webkit-scrollbar-thumb { background: var(--sci-border-hover); border-radius: 4px; }
+.dark ::-webkit-scrollbar-thumb:hover { background: var(--vp-c-brand-dark); }
+
+/* ============================================
+   Animations & Micro-interactions
+   ============================================ */
+
+.VPNavBarMenuLink,
+.VPSidebarItem .link,
+.VPFeature,
+.vp-doc a {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.VPContent { transition: opacity 0.15s ease; }
+
+:focus-visible {
+  outline: 2px solid var(--vp-c-brand) !important;
+  outline-offset: 2px;
+}
+
+.aside-curtain { display: none !important; }
+
+/* ============================================
+   Mobile Navigation
+   ============================================ */
+
+.VPNavScreen {
+  background: var(--sci-surface-1) !important;
+  z-index: 250 !important;
+  top: var(--vp-nav-height) !important;
+  height: calc(100vh - var(--vp-nav-height)) !important;
+  padding: 24px !important;
+}
+
+.dark .VPNavScreen { background: var(--sci-surface-1) !important; }
+
+.VPNavScreenMenuLink {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  padding: 12px 0 !important;
+  border-bottom: 1px solid var(--sci-border) !important;
+}
+
+.VPNavScreenMenuLink:hover { color: var(--vp-c-brand) !important; }
+
+.VPNavScreen.open {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .VPHero { padding: 60px 16px !important; min-height: 70vh; }
+  .VPHero .main { padding: 2rem 1.5rem; border-radius: 20px; }
+  .VPHero .actions { flex-direction: column !important; width: 100%; }
+  .VPHero .action { width: 100%; }
+  .VPButton { width: 100% !important; justify-content: center; }
+  .VPFeature { padding: 24px !important; }
+  .VPSidebar { z-index: 200 !important; }
+  .VPNav { z-index: 300 !important; }
+  .VPNavBar .hamburger,
+  .VPNavBarHamburger { z-index: 301 !important; }
+}
+
+/* ============================================
+   SciNotebook — Docs-only overrides
+   ============================================
+   The library ships its own complete styles via
+   @velo-sci/notebook-core/styles/index.css.
+   Below we only fix VitePress-specific conflicts.
+   ============================================ */
+
+/* Prevent VitePress gradient text-fill from leaking into notebook headings */
+.sci-nb-preview h1,
+.sci-nb-preview h2,
+.sci-nb-preview h3 {
+  background: none;
+  -webkit-text-fill-color: initial;
 }

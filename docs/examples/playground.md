@@ -1,17 +1,12 @@
+<script setup>
+import { sampleNotebookData } from '../.vitepress/theme/notebooks'
+</script>
+
 # Interactive Playground
 
 Try sci-notebook directly in your browser. The example includes all 8 cell types, light/dark theme, presentation mode, version history, and JSON export/import.
 
-## Running the Playground
-
-```bash
-# From the monorepo root
-pnpm install
-pnpm -r build
-pnpm --filter @velo-sci/notebook-example dev
-```
-
-Open **http://localhost:5174** in your browser.
+<FrameworkDemo :notebook="sampleNotebookData" title="Multi-Framework Playground" />
 
 ---
 

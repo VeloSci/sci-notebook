@@ -31,14 +31,22 @@ import '@velo-sci/notebook-core/styles/index.css';
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `notebook` | `Notebook` | — | Initial notebook data |
-| `theme` | `"light" \| "dark"` | `"light"` | Visual theme |
+| `engine` | `EditorEngine` | — | Pre-built engine instance (takes priority over `notebook`) |
+| `plugins` | `SciNotebookPlugin[]` | `[]` | Plugins to register |
+| `initialContent` | `string` | — | Zero-config: pass raw markdown content to auto-create a notebook |
+| `theme` | `"light" \| "dark" \| string` | `"light"` | Visual theme |
 | `onChange` | `(nb: Notebook) => void` | — | Callback on every change |
-| `onCellFocus` | `(cellId: string) => void` | — | Callback when a cell is focused |
-| `engineRef` | `MutableRefObject<EditorEngine>` | — | Ref for imperative engine access |
+| `onCellFocus` | `(cellId: string \| null) => void` | — | Callback when a cell is focused |
 | `readOnly` | `boolean` | `false` | Read-only mode |
 | `showToolbar` | `boolean` | `true` | Show/hide toolbar |
 | `showTOC` | `boolean` | `false` | Show/hide table of contents sidebar |
-| `plugins` | `SciNotebookPlugin[]` | `[]` | Plugins to register |
+| `className` | `string` | — | CSS class for the root element |
+| `style` | `React.CSSProperties` | — | Inline styles for the root element |
+| `engineRef` | `MutableRefObject<EditorEngine \| null>` | — | Ref for imperative engine access |
+
+::: tip Zero-Config Mode
+You can skip building a `Notebook` object entirely and just pass a markdown string via `initialContent`. The component will auto-create a single-cell notebook from it.
+:::
 
 ---
 
@@ -234,17 +242,34 @@ useNotebookEvent('cell:updated', (payload) => {
 ## Exports
 
 ```typescript
-// Components
-export { SciNotebook } from './components/SciNotebook';
-export { Cell } from './components/Cell';
-export { MathEditor } from './components/MathEditor';
-export { ImageCell, renderImagePreview } from './components/ImageCell';
-export { EmbedCell, renderEmbedPreview } from './components/EmbedCell';
-export { FloatingToolbar } from './components/FloatingToolbar';
-export { InsertHandle } from './components/InsertHandle';
-export { MermaidPreview, initMermaid } from './components/MermaidCell';
-
-
 // Hooks
 export { useSciNotebook, useNotebook, useCell, useFocusedCell, useNotebookEvent } from './hooks';
+
+// Core Components
+export { SciNotebook } from './components/SciNotebook';
+export { Cell } from './components/Cell';
+export { InsertHandle } from './components/InsertHandle';
+export { FloatingToolbar } from './components/FloatingToolbar';
+
+// Cell Editors
+export { MathEditor } from './components/MathEditor';
+export { ImageCell } from './components/ImageCell';
+export { EmbedCell } from './components/EmbedCell';
+export { TableCell } from './components/TableCell';
+export { MermaidCell } from './components/MermaidCell';
+
+// Features
+export { SlashCommand } from './components/SlashCommand';
+export { TOCSidebar } from './components/TOCSidebar';
+export { FindReplace } from './components/FindReplace';
+export { LatexAutocomplete } from './components/LatexAutocomplete';
+export { CellOutput } from './components/CellOutput';
+export { ImageResize } from './components/ImageResize';
+export { VirtualRenderer } from './components/VirtualRenderer';
+
+// AI Components
+export { GhostText } from './components/GhostText';
+export { ChatSidebar } from './components/ChatSidebar';
+export { AIRewrite } from './components/AIRewrite';
+export { AICellGenerate } from './components/AICellGenerate';
 ```

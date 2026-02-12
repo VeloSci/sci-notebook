@@ -14,7 +14,7 @@ pnpm add katex
 ## Full Code
 
 ```tsx
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { SciNotebook } from "@velo-sci/notebook-react";
 import { EditorEngine, Notebook } from "@velo-sci/notebook-core";
 import "@velo-sci/notebook-core/styles/index.css";

@@ -13,3 +13,4 @@ export { exportPluginsNotebook } from './export-plugins';
 export { cloudSyncNotebook } from './cloud-sync';
 export { mobileSupportNotebook } from './mobile-support';
 export { frameworkAdaptersNotebook } from './framework-adapters';
+export { sampleNotebookData } from './sample-demo';
