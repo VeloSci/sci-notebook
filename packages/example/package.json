@@ -12,15 +12,20 @@
     "@velo-sci/notebook-core": "workspace:*",
     "@velo-sci/notebook-react": "workspace:*",
     "@velo-sci/notebook-renderer": "workspace:*",
+    "@velo-sci/notebook-vue": "workspace:*",
+    "@velo-sci/notebook-svelte": "workspace:*",
+    "@velo-sci/notebook-vanilla": "workspace:*",
     "katex": "^0.16.0",
     "mermaid": "^11.0.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "vue": "^3.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^4.3.0",
+    "@vitejs/plugin-vue": "^5.0.0",
     "typescript": "~5.9.3",
     "vite": "^5.4.0"
   }
