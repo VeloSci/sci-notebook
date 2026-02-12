@@ -252,11 +252,9 @@
 | **Open source** | ✅ | ❌ | ⚠️ | ❌ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ |
 | **Serverless** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Plugin system** | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
-| **AI integration** | ⚠️ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ⚠️ | ✅ |
 | **Framework agnostic** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Presentation mode** | ⚠️ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
 | **PDF/DOCX export** | ⚠️ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Cloud sync** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
 | **Mobile support** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 **Legend:** ✅ = Yes | ⚠️ = Partial | ❌ = No | 🔜 = Planned
