@@ -5,8 +5,8 @@
 The project has completed all 7 phases. See the [Competitive Study](./COMPETITIVE_STUDY.md) for market context.
 
 **Summary of implemented features:**
-- ✅ 12 packages working (core, renderer, react, vanilla, vue, svelte, plugin-latex, plugin-ai, plugin-export, plugin-cloud-sync, example)
-- ✅ 129 tests passing (12 test files)
+- ✅ 10 packages working (core, renderer, react, vanilla, vue, svelte, plugin-latex, plugin-export, example)
+- ✅ 129 tests passing
 - ✅ 8 cell types (markdown, code, latex, image, embed, raw, table, mermaid)
 - ✅ Visual formula editor (MathEditor) with 100+ blocks
 - ✅ Modern UX (click-to-edit, floating toolbar, insert handles, slash commands, drag & drop)
@@ -18,7 +18,6 @@ The project has completed all 7 phases. See the [Competitive Study](./COMPETITIV
 - ✅ Mermaid diagrams
 - ✅ Interactive table editor
 - ✅ TOC sidebar, Find & Replace, LaTeX autocomplete
-- ✅ Cell outputs display, Ghost text AI, Chat sidebar
 - ✅ VirtualRenderer for large notebooks
 - ✅ Version history with diff (git-like line-level diffing)
 - ✅ Image resize handles, paste from clipboard
@@ -27,7 +26,6 @@ The project has completed all 7 phases. See the [Competitive Study](./COMPETITIV
 - ✅ Full example app with 16 demo cells
 - ✅ Framework adapters: React 18+, Vue 3+, Svelte 5+, Vanilla JS
 - ✅ PDF/DOCX export plugin
-- ✅ Cloud sync plugin (LocalStorage + REST API backends)
 - ✅ Presentation mode (slideshow with 3 split modes, navigation, fullscreen)
 - ✅ Mobile support (touch adapter with swipe, long press, responsive CSS)
 
@@ -152,17 +150,7 @@ The project has completed all 7 phases. See the [Competitive Study](./COMPETITIV
 
 ---
 
-## Phase 5: AI Integration ✅ COMPLETE
-
-- [x] `@velo-sci/notebook-plugin-ai` package scaffold
-- [x] `AICompletionProvider` interface
-- [x] `InlineCompletionManager`
-- [x] OpenAI-compatible provider with streaming
-- [x] **GhostText** — Ghost text rendering in Cell.tsx (Tab accept, Escape dismiss)
-- [x] **ChatSidebar** — Conversational chat component with onSend/onApply
-- [x] Keybindings: Tab (accept), Escape (reject) in GhostText
-- [x] **AIRewrite** — select → prompt → preview diff (old/new) → accept/reject/retry
-- [x] **AICellGenerate** — prompt → generate → preview cells → insert/regenerate/cancel
+---
 
 ---
 
@@ -250,13 +238,6 @@ Phase 3 (Adapters) ✅   Phase 4 (Plugins) ✅
   - `exportToDOCX()` — Office Open XML with headings, code, bold/italic, blockquotes, lists
   - `downloadDOCX()` — direct download
   - `createExportPlugin()` — plugin that listens to `export:pdf` / `export:docx` events
-- [x] **Cloud sync** — `@velo-sci/notebook-plugin-cloud-sync`:
-  - `CloudSyncManager` — bidirectional sync with auto-sync, conflict detection, offline mode
-  - `CloudBackend` interface — configurable backend
-  - `LocalStorageBackend` — offline-first and testing backend
-  - `RestAPIBackend` — REST backend with auth, timeout, full CRUD
-  - `createCloudSyncPlugin()` — plugin with sync:trigger/push/pull events
-  - Conflict resolution: local/remote/merge strategies
 - [x] **Presentation mode** — `PresentationEngine` in core:
   - 3 split modes: `cell` (1 cell = 1 slide), `heading` (split on h1/h2), `manual` (breakpoints)
   - Navigation: next/prev/goTo/first/last
@@ -286,7 +267,7 @@ Phase 3 (Adapters) ✅   Phase 4 (Plugins) ✅
 
 - **Tests**: 129 tests passing across 12 test files.
 - **Types**: Strict TypeScript. Minimal use of `any`.
-- **Packages**: 12 packages (core, renderer, react, vanilla, vue, svelte, plugin-latex, plugin-ai, plugin-export, plugin-cloud-sync, example).
+- **Packages**: 10 packages (core, renderer, react, vanilla, vue, svelte, plugin-latex, plugin-export, example).
 - **Bundle**: Core ~45KB, React ~80KB, Renderer ~10KB, Vanilla ~15KB, Vue ~12KB, Svelte ~10KB.
 - **Docs**: API reference, guides, competitive study, working examples, CHANGELOG.
 - **CI/CD**: GitHub Actions with test matrix Node 18/20/22, auto-publish npm.
@@ -318,6 +299,4 @@ Architecturally supported but out of scope for v1:
 | `@velo-sci/notebook-svelte` | Svelte 5+ | ✅ Implemented |
 | `@velo-sci/notebook-vanilla` | Vanilla JS | ✅ Primary |
 | `@velo-sci/notebook-plugin-latex` | — | ✅ Plugin |
-| `@velo-sci/notebook-plugin-ai` | — | ✅ Plugin |
 | `@velo-sci/notebook-plugin-export` | — | ✅ Plugin |
-| `@velo-sci/notebook-plugin-cloud-sync` | — | ✅ Plugin |
