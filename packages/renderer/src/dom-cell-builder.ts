@@ -13,6 +13,26 @@ import type { Cell, CellType, EditorEngine } from "@velo-sci/notebook-core";
 import { RenderPipeline } from "./pipeline";
 import { MATH_CATEGORIES, type MathBlock } from "./math-categories";
 
+interface TableData {
+  headers: string[];
+  rows: string[][];
+}
+
+interface ImageData {
+  src: string;
+  alt: string;
+  caption: string;
+  width: string;
+  align: "left" | "center" | "right";
+}
+
+interface EmbedData {
+  url: string;
+  height: string;
+  sandbox: string;
+  title: string;
+}
+
 // ── Constants ──────────────────────────────────────────────────────
 
 const CELL_TYPE_ICONS: Record<string, string> = {
@@ -22,17 +42,19 @@ const CELL_TYPE_ICONS: Record<string, string> = {
   latex: "∑",
   image: "🖼",
   embed: "⧉",
-  table: "⊞",
+  table: "▦",
   mermaid: "◇",
 };
 
 const CELL_TYPES: { value: string; label: string; icon: string }[] = [
   { value: "markdown", label: "Markdown", icon: "M" },
   { value: "code", label: "Code", icon: "</>" },
-  { value: "raw", label: "Raw", icon: "T" },
   { value: "latex", label: "LaTeX", icon: "∑" },
+  { value: "table", label: "Table", icon: "▦" },
   { value: "image", label: "Image", icon: "🖼" },
+  { value: "mermaid", label: "Diagram", icon: "◇" },
   { value: "embed", label: "Embed", icon: "⧉" },
+  { value: "raw", label: "Raw", icon: "T" },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -42,6 +64,7 @@ const PLACEHOLDERS: Record<string, string> = {
   latex: "Write LaTeX here... e.g. \\int_0^1 x^2 dx",
   image: "Click to add image",
   embed: "Click to add embedded content",
+  table: "| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |",
 };
 
 // ── SVG Icons (same as React) ──────────────────────────────────────
@@ -208,9 +231,15 @@ export class DOMCellBuilder {
   // ── Editor (textarea — uses sci-nb-editor class like React) ──
 
   private buildEditor(cell: Cell): DocumentFragment {
-    // LaTeX cells get the visual math editor (same as React's MathEditor)
-    if (cell.type === "latex") {
-      return this.buildMathEditor(cell);
+    // Table cells get the visual table editor (same as React's TableCell)
+    if (cell.type === "table") {
+      return this.buildTableEditor(cell);
+    }
+    if (cell.type === "image") {
+      return this.buildImageEditor(cell);
+    }
+    if (cell.type === "embed") {
+      return this.buildEmbedEditor(cell);
     }
 
     const frag = document.createDocumentFragment();
@@ -340,22 +369,36 @@ export class DOMCellBuilder {
     const insertBlock = (block: MathBlock) => {
       const ta = textareaEl;
       const inner = innerLatex();
+
       if (!ta) {
-        // Preview mode: append block and refresh preview
-        updateSource(inner + (inner ? " " : "") + block.latex.replace(/▢/g, ""));
+        // Visual mode: append block and refresh preview
+        const inserted = block.latex.replace(/▢/g, "");
+        const newVal = inner + (inner ? " " : "") + inserted;
+        updateSource(newVal);
         // Refresh the preview after engine updates
         requestAnimationFrame(() => renderEditorContent());
         return;
       }
+
+      // LaTeX (raw) mode: insert at cursor
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
       const val = ta.value;
       const selected = val.slice(start, end);
+
       let inserted = block.latex;
       if (selected) inserted = inserted.replace("▢", selected);
       inserted = inserted.replace(/▢/g, "");
+
       const newVal = val.slice(0, start) + inserted + val.slice(end);
+
+      // Update both engine AND DOM element
+      ta.value = newVal;
       updateSource(newVal);
+
+      // Trigger auto-resize and other listeners
+      ta.dispatchEvent(new Event("input"));
+
       requestAnimationFrame(() => {
         if (textareaEl) {
           const cursorPos = block.cursor != null ? start + block.cursor : start + inserted.length;
@@ -385,11 +428,16 @@ export class DOMCellBuilder {
       const cat = MATH_CATEGORIES[activeCategory];
       for (const block of cat.blocks) {
         const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = "sci-nb-math-block";
         btn.textContent = block.label;
         btn.title = block.latex;
         btn.tabIndex = -1;
-        btn.addEventListener("click", () => insertBlock(block));
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          insertBlock(block);
+        });
         palette.appendChild(btn);
       }
     };
@@ -398,11 +446,14 @@ export class DOMCellBuilder {
       tabs.innerHTML = "";
       MATH_CATEGORIES.forEach((cat, i) => {
         const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = `sci-nb-math-tab ${i === activeCategory ? "sci-nb-math-tab--active" : ""}`;
         btn.title = cat.name;
         btn.tabIndex = -1;
         btn.innerHTML = `<span class="sci-nb-math-tab-icon">${cat.icon}</span><span class="sci-nb-math-tab-label">${cat.name}</span>`;
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           activeCategory = i;
           renderTabs();
           renderPalette();
@@ -503,6 +554,525 @@ export class DOMCellBuilder {
     return frag;
   }
 
+  private parseMarkdownTable(source: string): TableData {
+    const lines = source.trim().split("\n").filter(l => l.trim());
+    if (lines.length < 2) {
+      return { headers: ["Col 1", "Col 2", "Col 3"], rows: [["", "", ""], ["", "", ""]] };
+    }
+
+    const parseLine = (line: string): string[] =>
+      line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
+
+    const headers = parseLine(lines[0]);
+    const rows = lines.slice(2).filter(l => l.includes("|") && !l.includes("---")).map(parseLine);
+
+    const colCount = headers.length;
+    const normalizedRows = rows.map(row => {
+      const r = [...row];
+      while (r.length < colCount) r.push("");
+      return r.slice(0, colCount);
+    });
+
+    if (normalizedRows.length === 0) {
+      normalizedRows.push(new Array(colCount).fill(""));
+    }
+
+    return { headers, rows: normalizedRows };
+  }
+
+  private toMarkdownTable(data: TableData): string {
+    const { headers, rows } = data;
+    const headerLine = `| ${headers.join(" | ")} |`;
+    const sepLine = `| ${headers.map(() => "---").join(" | ")} |`;
+    const rowLines = rows.map(row => `| ${row.join(" | ")} |`);
+    return [headerLine, sepLine, ...rowLines].join("\n");
+  }
+
+  // ── Image Editor (matches React ImageCell) ──
+
+  private parseImageSource(source: string, metadata: Record<string, unknown>): ImageData {
+    return {
+      src: source || "",
+      alt: (metadata.alt as string) || "",
+      caption: (metadata.caption as string) || "",
+      width: (metadata.width as string) || "100%",
+      align: (metadata.align as "left" | "center" | "right") || "center",
+    };
+  }
+
+  private buildImageEditor(cell: Cell): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    let data = this.parseImageSource(cell.source, cell.metadata);
+
+    const container = document.createElement("div");
+    container.className = "sci-nb-image-editor";
+    container.tabIndex = -1;
+
+    const save = (updates: Partial<ImageData>) => {
+      data = { ...data, ...updates };
+      this.engine.updateCellSource(cell.id, data.src);
+      this.engine.updateCellMetadata(cell.id, {
+        alt: data.alt,
+        caption: data.caption,
+        width: data.width,
+        align: data.align,
+      });
+      render();
+    };
+
+    const handleFileSelect = (file: File) => {
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        save({ src: dataUrl });
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const render = () => {
+      container.innerHTML = "";
+      const hasSrc = !!data.src.trim();
+
+      // Preview / Dropzone
+      if (hasSrc) {
+        const preview = document.createElement("div");
+        preview.className = "sci-nb-image-preview";
+        preview.style.textAlign = data.align;
+        const img = document.createElement("img");
+        img.src = data.src;
+        img.alt = data.alt;
+        img.style.maxWidth = data.width;
+        img.style.width = "auto";
+        img.style.maxHeight = "400px";
+        preview.appendChild(img);
+        if (data.caption) {
+          const cap = document.createElement("p");
+          cap.className = "sci-nb-image-caption";
+          cap.textContent = data.caption;
+          preview.appendChild(cap);
+        }
+        container.appendChild(preview);
+      } else {
+        const zone = document.createElement("div");
+        zone.className = "sci-nb-image-dropzone";
+        zone.innerHTML = `
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="4" width="24" height="24" rx="3" />
+            <circle cx="12" cy="12" r="2.5" />
+            <path d="M4 22l6-6 4 4 4-4 10 10" stroke-linejoin="round" />
+          </svg>
+          <p>Drag, paste or click to select</p>
+        `;
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.style.display = "none";
+        fileInput.addEventListener("change", (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) handleFileSelect(file);
+        });
+        zone.appendChild(fileInput);
+        zone.addEventListener("click", () => fileInput.click());
+
+        // Drag events
+        zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("sci-nb-image-dropzone--active"); });
+        zone.addEventListener("dragleave", () => zone.classList.remove("sci-nb-image-dropzone--active"));
+        zone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          zone.classList.remove("sci-nb-image-dropzone--active");
+          const file = e.dataTransfer?.files[0];
+          if (file) handleFileSelect(file);
+        });
+        container.appendChild(zone);
+      }
+
+      // Controls
+      const controls = document.createElement("div");
+      controls.className = "sci-nb-image-controls";
+
+      // URL field
+      const urlField = document.createElement("div");
+      urlField.className = "sci-nb-image-field";
+      urlField.innerHTML = `<label>URL</label>`;
+      const urlInput = document.createElement("input");
+      urlInput.type = "text";
+      urlInput.value = data.src.startsWith("data:") ? "(local file)" : data.src;
+      urlInput.placeholder = "https://example.com/image.png";
+      urlInput.disabled = data.src.startsWith("data:");
+      urlInput.addEventListener("input", (e) => save({ src: (e.target as HTMLInputElement).value }));
+      urlField.appendChild(urlInput);
+      controls.appendChild(urlField);
+
+      // Alt text field
+      const altField = document.createElement("div");
+      altField.className = "sci-nb-image-field";
+      altField.innerHTML = `<label>Alt text</label>`;
+      const altInput = document.createElement("input");
+      altInput.type = "text";
+      altInput.value = data.alt;
+      altInput.placeholder = "Image description";
+      altInput.addEventListener("input", (e) => save({ alt: (e.target as HTMLInputElement).value }));
+      altField.appendChild(altInput);
+      controls.appendChild(altField);
+
+      // Caption field
+      const capField = document.createElement("div");
+      capField.className = "sci-nb-image-field";
+      capField.innerHTML = `<label>Caption</label>`;
+      const capInput = document.createElement("input");
+      capInput.type = "text";
+      capInput.value = data.caption;
+      capInput.placeholder = "Caption (optional)";
+      capInput.addEventListener("input", (e) => save({ caption: (e.target as HTMLInputElement).value }));
+      capField.appendChild(capInput);
+      controls.appendChild(capField);
+
+      // Row for width/align/clear
+      const row = document.createElement("div");
+      row.className = "sci-nb-image-row";
+
+      const widthField = document.createElement("div");
+      widthField.className = "sci-nb-image-field sci-nb-image-field--small";
+      widthField.innerHTML = `<label>Width</label>`;
+      const widthSelect = document.createElement("select");
+      ["25%", "50%", "75%", "100%", "auto"].forEach(w => {
+        const op = document.createElement("option");
+        op.value = w; op.textContent = w;
+        if (w === data.width) op.selected = true;
+        widthSelect.appendChild(op);
+      });
+      widthSelect.addEventListener("change", (e) => save({ width: (e.target as HTMLSelectElement).value }));
+      widthField.appendChild(widthSelect);
+      row.appendChild(widthField);
+
+      const alignField = document.createElement("div");
+      alignField.className = "sci-nb-image-field sci-nb-image-field--small";
+      alignField.innerHTML = `<label>Align</label>`;
+      const alignSelect = document.createElement("select");
+      ["left", "center", "right"].forEach(a => {
+        const op = document.createElement("option");
+        op.value = a; op.textContent = a.charAt(0).toUpperCase() + a.slice(1);
+        if (a === data.align) op.selected = true;
+        alignSelect.appendChild(op);
+      });
+      alignSelect.addEventListener("change", (e) => save({ align: (e.target as HTMLSelectElement).value as ImageData["align"] }));
+      alignField.appendChild(alignSelect);
+      row.appendChild(alignField);
+
+      if (hasSrc) {
+        const clearBtn = document.createElement("button");
+        clearBtn.className = "sci-nb-image-clear";
+        clearBtn.textContent = "Remove image";
+        clearBtn.addEventListener("click", () => save({ src: "" }));
+        row.appendChild(clearBtn);
+      }
+
+      controls.appendChild(row);
+      container.appendChild(controls);
+
+      const hint = document.createElement("div");
+      hint.className = "sci-nb-cell-hint";
+      hint.innerHTML = `<kbd>Esc</kbd> exit`;
+      container.appendChild(hint);
+    };
+
+    // Paste handler
+    const onPaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) handleFileSelect(file);
+          return;
+        }
+      }
+    };
+    container.addEventListener("paste", onPaste);
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); this.engine.setViewMode(cell.id); }
+    });
+
+    render();
+    frag.appendChild(container);
+    return frag;
+  }
+
+  // ── Embed Editor (matches React EmbedCell) ──
+
+  private parseEmbedSource(source: string, metadata: Record<string, unknown>): EmbedData {
+    return {
+      url: source || "",
+      height: (metadata.height as string) || "400px",
+      sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups",
+      title: (metadata.title as string) || "",
+    };
+  }
+
+  private buildEmbedEditor(cell: Cell): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    let data = this.parseEmbedSource(cell.source, cell.metadata);
+
+    const container = document.createElement("div");
+    container.className = "sci-nb-embed-editor";
+    container.tabIndex = -1;
+
+    const save = (updates: Partial<EmbedData>) => {
+      data = { ...data, ...updates };
+      this.engine.updateCellSource(cell.id, data.url);
+      this.engine.updateCellMetadata(cell.id, {
+        height: data.height,
+        sandbox: data.sandbox,
+        title: data.title,
+      });
+      render();
+    };
+
+    const render = () => {
+      container.innerHTML = "";
+
+      // Presets
+      const presets = document.createElement("div");
+      presets.className = "sci-nb-embed-presets";
+      const items = [
+        { label: "YouTube", url: "https://www.youtube.com/embed/" },
+        { label: "Desmos", url: "https://www.desmos.com/calculator/" },
+        { label: "GeoGebra", url: "https://www.geogebra.org/calculator/" },
+        { label: "CodePen", url: "https://codepen.io/" },
+      ];
+      items.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "sci-nb-embed-preset";
+        btn.textContent = item.label;
+        btn.addEventListener("click", () => save({ url: item.url }));
+        presets.appendChild(btn);
+      });
+      container.appendChild(presets);
+
+      // URL field
+      const urlRow = document.createElement("div");
+      urlRow.className = "sci-nb-embed-url-row";
+      const input = document.createElement("input");
+      input.className = "sci-nb-embed-url";
+      input.value = data.url;
+      input.placeholder = "Paste embed URL or iframe code...";
+      input.addEventListener("input", (e) => save({ url: (e.target as HTMLInputElement).value }));
+      urlRow.appendChild(input);
+      container.appendChild(urlRow);
+
+      // Preview
+      if (data.url) {
+        const wrap = document.createElement("div");
+        wrap.className = "sci-nb-embed-frame-wrap";
+        wrap.style.height = data.height;
+        const ifr = document.createElement("iframe");
+        ifr.src = data.url;
+        ifr.sandbox = data.sandbox;
+        ifr.title = data.title;
+        ifr.style.width = "100%";
+        ifr.style.height = "100%";
+        ifr.style.border = "none";
+        wrap.appendChild(ifr);
+        container.appendChild(wrap);
+      }
+
+      // Settings
+      const settings = document.createElement("div");
+      settings.className = "sci-nb-embed-settings";
+      settings.innerHTML = `
+        <div class="sci-nb-embed-row">
+          <div class="sci-nb-embed-field sci-nb-embed-field--small">
+            <label>Height</label>
+            <input type="text" value="${data.height}" placeholder="400px" />
+          </div>
+          <div class="sci-nb-embed-field">
+            <label>Title</label>
+            <input type="text" value="${data.title}" placeholder="Accessibility title" />
+          </div>
+        </div>
+      `;
+      const hInput = settings.querySelector('input[placeholder="400px"]') as HTMLInputElement;
+      hInput.addEventListener("input", (e) => save({ height: (e.target as HTMLInputElement).value }));
+      const tInput = settings.querySelector('input[placeholder="Accessibility title"]') as HTMLInputElement;
+      tInput.addEventListener("input", (e) => save({ title: (e.target as HTMLInputElement).value }));
+      container.appendChild(settings);
+
+      const hint = document.createElement("div");
+      hint.className = "sci-nb-cell-hint";
+      hint.innerHTML = `<kbd>Esc</kbd> exit`;
+      container.appendChild(hint);
+    };
+
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); this.engine.setViewMode(cell.id); }
+    });
+
+    render();
+    frag.appendChild(container);
+    return frag;
+  }
+
+  private buildTableEditor(cell: Cell): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    let data = this.parseMarkdownTable(cell.source);
+
+    const container = document.createElement("div");
+    container.className = "sci-nb-table-editor";
+    container.tabIndex = -1;
+
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        this.engine.setViewMode(cell.id);
+      }
+    });
+
+    const sync = () => {
+      this.engine.updateCellSource(cell.id, this.toMarkdownTable(data));
+    };
+
+    const render = () => {
+      container.innerHTML = "";
+
+      // Toolbar
+      const toolbar = document.createElement("div");
+      toolbar.className = "sci-nb-table-toolbar";
+
+      const addRowBtn = document.createElement("button");
+      addRowBtn.textContent = "+ Row";
+      addRowBtn.onclick = () => {
+        data.rows.push(new Array(data.headers.length).fill(""));
+        sync();
+        render();
+      };
+
+      const addColBtn = document.createElement("button");
+      addColBtn.textContent = "+ Column";
+      addColBtn.onclick = () => {
+        data.headers.push(`Col ${data.headers.length + 1}`);
+        data.rows.forEach(r => r.push(""));
+        sync();
+        render();
+      };
+
+      toolbar.appendChild(addRowBtn);
+      toolbar.appendChild(addColBtn);
+      container.appendChild(toolbar);
+
+      // Table
+      const table = document.createElement("table");
+
+      // Header
+      const thead = document.createElement("thead");
+      const htr = document.createElement("tr");
+      data.headers.forEach((h, ci) => {
+        const th = document.createElement("th");
+        th.className = "sci-nb-table-header-cell";
+
+        const input = document.createElement("input");
+        input.value = h;
+        input.placeholder = `Col ${ci + 1}`;
+        input.oninput = (e) => {
+          data.headers[ci] = (e.target as HTMLInputElement).value;
+          sync();
+        };
+
+        th.appendChild(input);
+
+        let delBtn: HTMLButtonElement | null = null;
+        th.onmouseenter = () => {
+          if (data.headers.length <= 1) return;
+          delBtn = document.createElement("button");
+          delBtn.className = "sci-nb-table-delete-btn";
+          delBtn.innerHTML = "✕";
+          delBtn.title = "Delete column";
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            data.headers.splice(ci, 1);
+            data.rows.forEach(r => r.splice(ci, 1));
+            sync();
+            render();
+          };
+          th.appendChild(delBtn);
+        };
+        th.onmouseleave = () => {
+          if (delBtn) { delBtn.remove(); delBtn = null; }
+        };
+
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr);
+      table.appendChild(thead);
+
+      // Body
+      const tbody = document.createElement("tbody");
+      data.rows.forEach((row, ri) => {
+        const tr = document.createElement("tr");
+        row.forEach((cellVal, ci) => {
+          const td = document.createElement("td");
+          const isLastCol = ci === row.length - 1;
+          if (isLastCol) td.className = "sci-nb-table-row-end";
+
+          const input = document.createElement("input");
+          input.value = cellVal;
+          input.placeholder = "...";
+          input.oninput = (e) => {
+            data.rows[ri][ci] = (e.target as HTMLInputElement).value;
+            sync();
+          };
+          td.appendChild(input);
+
+          if (isLastCol) {
+            let delBtn: HTMLButtonElement | null = null;
+            tr.onmouseenter = () => {
+              if (data.rows.length <= 1) return;
+              delBtn = document.createElement("button");
+              delBtn.className = "sci-nb-table-delete-btn";
+              delBtn.innerHTML = "✕";
+              delBtn.title = "Delete row";
+              delBtn.onclick = (e) => {
+                e.stopPropagation();
+                data.rows.splice(ri, 1);
+                sync();
+                render();
+              };
+              td.appendChild(delBtn);
+            };
+            tr.onmouseleave = () => {
+              if (delBtn) { delBtn.remove(); delBtn = null; }
+            };
+          }
+
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      container.appendChild(table);
+
+      // Hint
+      const hint = document.createElement("div");
+      hint.className = "sci-nb-cell-hint";
+      hint.innerHTML = `<kbd>Tab</kbd> next cell &middot; <kbd>Esc</kbd> exit`;
+      container.appendChild(hint);
+    };
+
+    render();
+
+    // Auto-focus first input or container
+    requestAnimationFrame(() => {
+      const firstInput = container.querySelector("input");
+      if (firstInput) firstInput.focus();
+      else container.focus({ preventScroll: true });
+    });
+
+    frag.appendChild(container);
+    return frag;
+  }
+
   // ── Preview (view mode — uses sci-nb-preview class like React) ──
 
   private buildPreview(cell: Cell): HTMLElement {
@@ -511,7 +1081,10 @@ export class DOMCellBuilder {
     const placeholder = PLACEHOLDERS[cell.type] || "Click to edit...";
 
     const preview = document.createElement("div");
-    preview.className = `sci-nb-preview ${isEmpty ? "sci-nb-preview--empty" : ""}`;
+    const classes = ["sci-nb-preview"];
+    if (isEmpty) classes.push("sci-nb-preview--empty");
+    if (cell.type === "embed") classes.push("sci-nb-preview--embed");
+    preview.className = classes.join(" ");
 
     if (isEmpty) {
       preview.innerHTML = `<span class="sci-nb-placeholder">${placeholder}</span>`;
@@ -578,10 +1151,11 @@ export class DOMCellBuilder {
       const INSERT_TYPES = [
         { type: "markdown", label: "Markdown", icon: "M" },
         { type: "code", label: "Code", icon: "</>" },
-        { type: "latex", label: "LaTeX", icon: "∑" },
-        { type: "image", label: "Imagen", icon: "🖼" },
+        { type: "latex", label: "Formula", icon: "∑" },
+        { type: "table", label: "Table", icon: "▦" },
+        { type: "image", label: "Image", icon: "🖼" },
+        { type: "mermaid", label: "Diagram", icon: "◇" },
         { type: "embed", label: "Embed", icon: "⧉" },
-        { type: "raw", label: "Raw", icon: "T" },
       ];
 
       for (const ct of INSERT_TYPES) {

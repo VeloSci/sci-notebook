@@ -141,6 +141,8 @@ export class RenderPipeline {
         html = this.renderImage(cell.source, cell.metadata);
       } else if (cell.type === "embed") {
         html = this.renderEmbed(cell.source, cell.metadata);
+      } else if (cell.type === "table") {
+        html = this.renderTable(cell.source);
       } else {
         // Unknown type: render as markdown fallback
         html = this.parser.render(tokens);
@@ -189,26 +191,44 @@ export class RenderPipeline {
     if (!trimmed) {
       return '<div class="sci-nb-mermaid-preview"><span class="sci-nb-placeholder">Empty diagram</span></div>';
     }
-    // Try Mermaid if available globally
+    // Mermaid v10+ render() is async — we cannot call it synchronously in the pipeline.
+    // Instead, output a pending placeholder that adapters will hydrate asynchronously.
     if (typeof globalThis !== "undefined" && (globalThis as any).mermaid) {
+      return `<div class="sci-nb-mermaid-preview" data-mermaid-pending="true"><pre class="mermaid">${this.escapeHtml(trimmed)}</pre></div>`;
+    }
+    // No mermaid library — styled code block fallback
+    return `<div class="sci-nb-mermaid-preview"><pre class="sci-nb-code"><code class="language-mermaid">${this.escapeHtml(trimmed)}</code></pre></div>`;
+  }
+
+  /**
+   * Hydrate all pending mermaid diagrams in a container.
+   * Call this after rendering cells into the DOM.
+   * Works with mermaid v10+ async render().
+   */
+  async hydrateMermaid(container: HTMLElement | Document = document): Promise<void> {
+    const mermaid = typeof globalThis !== "undefined" ? (globalThis as any).mermaid : null;
+    if (!mermaid || typeof mermaid.render !== "function") return;
+
+    const pending = container.querySelectorAll<HTMLElement>('[data-mermaid-pending="true"]');
+    for (const el of Array.from(pending)) {
+      const pre = el.querySelector("pre.mermaid");
+      if (!pre) continue;
+      const source = pre.textContent?.trim();
+      if (!source) continue;
+
+      const id = `sci-mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       try {
-        const mermaid = (globalThis as any).mermaid;
-        // mermaid.render is sync in v10+ and returns { svg }
-        // We use a unique id to avoid collisions
-        const id = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-        // For SSR/sync fallback, try renderSync or parse
-        if (typeof mermaid.renderSync === "function") {
-          const { svg } = mermaid.renderSync(id, trimmed);
-          return `<div class="sci-nb-mermaid-preview">${svg}</div>`;
-        }
-        // Fallback: return a placeholder that will be hydrated client-side
-        return `<div class="sci-nb-mermaid-preview" data-mermaid-pending="true"><pre class="mermaid">${this.escapeHtml(trimmed)}</pre></div>`;
+        const result = await mermaid.render(id, source);
+        el.innerHTML = result.svg;
+        el.removeAttribute("data-mermaid-pending");
       } catch (e: any) {
-        return `<div class="sci-nb-mermaid-error">Mermaid error: ${this.escapeHtml(e.message || String(e))}</div>`;
+        el.innerHTML = `<div class="sci-nb-mermaid-error">Mermaid error: ${e.message || String(e)}</div>`;
+        el.removeAttribute("data-mermaid-pending");
+        // Clean up temp element mermaid creates on error
+        const errEl = document.getElementById(`d${id}`);
+        if (errEl) errEl.remove();
       }
     }
-    // Fallback: styled code block
-    return `<div class="sci-nb-mermaid-preview"><pre class="sci-nb-code"><code class="language-mermaid">${this.escapeHtml(trimmed)}</code></pre></div>`;
   }
 
   private renderImage(source: string, metadata: Record<string, unknown> = {}): string {
@@ -224,7 +244,7 @@ export class RenderPipeline {
 
     const alignStyle = `text-align:${align}`;
     const widthStyle = `max-width:${width};width:auto;max-height:400px`;
-    
+
     let html = `<div class="sci-nb-image-view" style="${alignStyle}">`;
     html += `<img src="${this.escapeAttr(src)}" alt="${this.escapeAttr(alt)}" style="${widthStyle}" loading="lazy" />`;
     if (caption) {
@@ -248,6 +268,28 @@ export class RenderPipeline {
     return `<div class="sci-nb-embed-view" style="height:${height}">
       <iframe src="${this.escapeAttr(url)}"${titleAttr} sandbox="${this.escapeAttr(sandbox)}" style="width:100%;height:100%;border:none;border-radius:6px" loading="lazy" allowfullscreen></iframe>
     </div>`;
+  }
+
+  private renderTable(source: string): string {
+    const lines = source.trim().split("\n").filter(l => l.trim());
+    if (lines.length < 2) {
+      return '<div class="sci-nb-table-empty"><span class="sci-nb-placeholder">Empty table</span></div>';
+    }
+
+    const parseLine = (line: string): string[] =>
+      line.split("|").map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
+
+    const headers = parseLine(lines[0]);
+    const rows = lines.slice(2).filter(l => l.includes("|") && !l.includes("---")).map(parseLine);
+
+    if (headers.length === 0) return "<p>Empty table</p>";
+
+    const ths = headers.map(h => `<th>${this.escapeHtml(h)}</th>`).join("");
+    const trs = rows.map(row =>
+      `<tr>${row.map(c => `<td>${this.escapeHtml(c)}</td>`).join("")}</tr>`
+    ).join("");
+
+    return `<table class="sci-nb-rendered-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
   }
 
   /**
