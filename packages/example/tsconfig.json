@@ -13,7 +13,8 @@
     "paths": {
       "@velo-sci/notebook-core": ["../core/src"],
       "@velo-sci/notebook-renderer": ["../renderer/src"],
-      "@velo-sci/notebook-react": ["../react/src"]
+      "@velo-sci/notebook-react": ["../react/src"],
+      "@example/shared": ["../../examples/shared"]
     }
   },
   "include": ["src"]
