@@ -6,7 +6,7 @@ import {
   CellType,
   SciNotebookPlugin,
 } from "@velo-sci/notebook-core";
-import { RenderPipeline } from "@velo-sci/notebook-renderer";
+import { RenderPipeline, DOMCellBuilder } from "@velo-sci/notebook-renderer";
 import { DOMCellRenderer } from "./dom-cell-renderer";
 import { DragDropManager } from "./drag-drop-manager";
 import { KeyboardHandler } from "./keyboard-handler";
@@ -58,15 +58,19 @@ export class SciNotebookVanilla {
   private container: HTMLElement;
   private cellsContainer!: HTMLElement;
   private domRenderer: DOMCellRenderer;
+  private builder: DOMCellBuilder;
   private dragDrop: DragDropManager | null = null;
   private keyboard: KeyboardHandler | null = null;
   private pipeline: RenderPipeline;
   private options: SciNotebookVanillaOptions;
   private unsubscribers: Array<() => void> = [];
   private destroyed = false;
+  private showTOC: boolean;
+  private focusedCellId: string | null = null;
 
   constructor(options: SciNotebookVanillaOptions) {
     this.options = options;
+    this.showTOC = !!options.showTOC;
 
     // Resolve target element
     if (typeof options.target === "string") {
@@ -89,6 +93,11 @@ export class SciNotebookVanilla {
 
     this.pipeline = new RenderPipeline();
     this.domRenderer = new DOMCellRenderer(this.pipeline);
+    this.builder = new DOMCellBuilder({
+      engine: this.engine,
+      pipeline: this.pipeline,
+      readOnly: options.readOnly,
+    });
 
     this.render();
     this.bindEvents();
@@ -152,9 +161,24 @@ export class SciNotebookVanilla {
     this.container.dataset.theme = this.options.theme || "light";
     this.container.tabIndex = 0;
 
-    // Toolbar
+    // Toolbar (using shared builder)
     if (this.options.showToolbar !== false) {
-      this.container.appendChild(this.createToolbar());
+      this.container.appendChild(this.builder.buildToolbar({
+        onToggleFind: () => {},
+        onToggleTOC: () => {
+          this.showTOC = !this.showTOC;
+          const tocBtn = this.container.querySelector<HTMLElement>('[data-toolbar="toc"]');
+          if (tocBtn) tocBtn.classList.toggle("sci-nb-toolbar-btn--active", this.showTOC);
+          const toc = this.container.querySelector<HTMLElement>(".sci-nb-toc");
+          if (this.showTOC && !toc) {
+            const layout = this.container.querySelector<HTMLElement>(".sci-nb-layout");
+            if (layout) layout.insertBefore(this.builder.buildTOC(this.focusedCellId), layout.firstChild);
+          } else if (!this.showTOC && toc) {
+            toc.remove();
+          }
+        },
+        showTOC: this.showTOC,
+      }));
     }
 
     // Layout wrapper
@@ -163,9 +187,9 @@ export class SciNotebookVanilla {
     layout.style.display = "flex";
     layout.style.gap = "16px";
 
-    // TOC sidebar
-    if (this.options.showTOC) {
-      layout.appendChild(this.createTOCSidebar());
+    // TOC sidebar (using shared builder)
+    if (this.showTOC) {
+      layout.appendChild(this.builder.buildTOC(this.focusedCellId));
     }
 
     // Cells container
@@ -178,222 +202,211 @@ export class SciNotebookVanilla {
 
     this.renderCells();
 
-    // Init drag & keyboard
+    // Init keyboard handler
     if (!this.options.readOnly) {
-      this.dragDrop = new DragDropManager(this.engine, this.cellsContainer);
       this.keyboard = new KeyboardHandler(this.engine, this.container);
     }
   }
 
   private renderCells(): void {
-    this.cellsContainer.innerHTML = "";
     const cells = this.engine.getCells();
-
+    const container = this.cellsContainer;
+    
+    // Handle empty state
     if (cells.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "sci-nb-empty";
-      empty.innerHTML = `<p>Empty notebook. Add a cell to get started.</p>`;
-      empty.appendChild(this.domRenderer.createInsertHandle(0));
-      this.cellsContainer.appendChild(empty);
+      container.innerHTML = "";
+      container.appendChild(this.builder.buildEmpty());
       return;
     }
 
-    // Insert handle before first cell
-    this.cellsContainer.appendChild(this.domRenderer.createInsertHandle(0));
+    // Identify current active element to try to restore focus later if needed
+    const activeEl = document.activeElement as HTMLElement;
+    const activeCellId = activeEl?.closest('[data-cell-id]')?.getAttribute('data-cell-id');
+    const isEditing = activeEl?.classList.contains('sci-nb-editor');
+    const cursorStart = (activeEl as HTMLTextAreaElement)?.selectionStart;
+    const cursorEnd = (activeEl as HTMLTextAreaElement)?.selectionEnd;
+
+    // Get existing children map for reuse
+    const existingNodes = Array.from(container.children) as HTMLElement[];
+    const cellMap = new Map<string, HTMLElement>();
+    const handleMap = new Map<string, HTMLElement>(); // Keyed by preceding cell ID or "start"
+
+    existingNodes.forEach(node => {
+      if (node.classList.contains("sci-nb-cell")) {
+        const id = node.getAttribute("data-cell-id");
+        if (id) cellMap.set(id, node);
+      } else if (node.classList.contains("sci-nb-insert-handle")) {
+        // Handles don't have IDs, but we can try to reuse them if we track position. 
+        // For simplicity in this version, we might recreate handles or check their position.
+        // Let's rely on simple recreation for handles as they are lightweight, 
+        // OR simply reuse them based on iteration order.
+        // Better: let's clear handles and re-insert, but REUSE CELLS. 
+        // Recreating handles is cheap. Recreating cells (editors) is expensive/destructive.
+      }
+    });
+
+    // We will build a new fragment or append directly to ensure order
+    // But modifying the live DOM "in place" is better to preserve state of unchanged nodes.
+
+    // Strategy: Navigate the list of required cells, and ensure DOM matches.
+    
+    // 1. Remove empty state if present
+    const emptyState = container.querySelector(".sci-nb-empty");
+    if (emptyState) emptyState.remove();
+
+    // 2. Ensure start handle exists
+    let currentDomNode = container.firstElementChild as HTMLElement | null;
+    
+    // Check first handle
+    if (!currentDomNode || !currentDomNode.classList.contains("sci-nb-insert-handle")) {
+      const handle = this.builder.buildInsertHandle(0);
+      if (currentDomNode) container.insertBefore(handle, currentDomNode);
+      else container.appendChild(handle);
+      currentDomNode = handle; // Now point to the handle
+    } else {
+      // update handle index if needed (though handle internal logic mostly relies on closures, 
+      // we might need to rebuild it if closures capture stale index. 
+      // The shared builder captures index in callbacks. So YES, we must replace handles to update indices.)
+      const newHandle = this.builder.buildInsertHandle(0);
+      currentDomNode.replaceWith(newHandle);
+      currentDomNode = newHandle;
+    }
+
+    // Advance
+    currentDomNode = currentDomNode.nextElementSibling as HTMLElement | null;
 
     cells.forEach((cell, idx) => {
-      const el = this.domRenderer.createCellElement(cell, idx);
-      this.cellsContainer.appendChild(el);
-      this.cellsContainer.appendChild(this.domRenderer.createInsertHandle(idx + 1));
-    });
-  }
+      // 3. Process Cell
+      let cellNode: HTMLElement;
 
-  private createToolbar(): HTMLElement {
-    const toolbar = document.createElement("div");
-    toolbar.className = "sci-nb-toolbar";
+      // Check if current DOM node matches this cell
+      if (currentDomNode && currentDomNode.getAttribute("data-cell-id") === cell.id) {
+        // MATCH: Update in place if needed
+        cellNode = currentDomNode;
+        
+        // Diffing logic:
+        const oldType = cellNode.getAttribute("data-cell-type");
+        const oldEditing = cellNode.getAttribute("data-editing") === "true";
+        
+        // If critical attributes changed, we MUST replace (e.g. type switch, view/edit toggle)
+        // EXCEPTION: If we are editing and typing, source changes triggering updates shouldn't kill the editor.
+        const shouldReplace = oldType !== cell.type || oldEditing !== !!cell.editing;
+        
+        if (shouldReplace) {
+           const newNode = this.builder.buildCell(cell, idx, cells.length);
+           cellNode.replaceWith(newNode);
+           cellNode = newNode;
+        } else {
+           // Same type, same mode.
+           // If in View mode, re-render content because source might have changed.
+           // If in Edit mode, ONLY update if it's NOT the active focused cell (avoid cursor jumps).
+           if (!cell.editing) {
+             // View mode: naive update is safe
+             const newNode = this.builder.buildCell(cell, idx, cells.length);
+             cellNode.replaceWith(newNode);
+             cellNode = newNode;
+           } else {
+             // Edit mode:
+             if (activeCellId === cell.id && isEditing) {
+               // We are typing in this cell. DO NOT TOUCH IT or you lose focus/selection.
+               // We assume the DOM state matches the Engine state because the Engine state came FROM the DOM event.
+               // Update auxiliary bits like Index if moved
+               const idxLabel = cellNode.querySelector(".sci-nb-cell-index");
+               if (idxLabel) idxLabel.textContent = `[${idx + 1}]`;
+             } else {
+               // Edit mode but not focused (e.g. changed programmatically or by other user), replace safely
+               const newNode = this.builder.buildCell(cell, idx, cells.length);
+               cellNode.replaceWith(newNode);
+               cellNode = newNode;
+             }
+           }
+        }
 
-    const nb = this.engine.getNotebook();
-    toolbar.innerHTML = `
-      <div class="sci-nb-toolbar-group">
-        <span class="sci-nb-toolbar-title">${this.escapeHtml(nb.title)}</span>
-      </div>
-      <div class="sci-nb-toolbar-group">
-        <button class="sci-nb-toolbar-btn" data-toolbar="undo" title="Undo (Ctrl+Z)">Undo</button>
-        <button class="sci-nb-toolbar-btn" data-toolbar="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
-        <span class="sci-nb-toolbar-sep"></span>
-        <button class="sci-nb-toolbar-btn" data-toolbar="edit-all" title="Edit all cells">Edit All</button>
-        <button class="sci-nb-toolbar-btn" data-toolbar="view-all" title="Preview all cells">View All</button>
-      </div>
-    `;
-
-    return toolbar;
-  }
-
-  private createTOCSidebar(): HTMLElement {
-    const sidebar = document.createElement("aside");
-    sidebar.className = "sci-nb-toc";
-    this.updateTOC(sidebar);
-    return sidebar;
-  }
-
-  private updateTOC(sidebar?: HTMLElement): void {
-    const toc = sidebar || this.container.querySelector<HTMLElement>(".sci-nb-toc");
-    if (!toc) return;
-
-    const cells = this.engine.getCells();
-    const headings: Array<{ level: number; text: string; cellId: string }> = [];
-
-    for (const cell of cells) {
-      if (cell.type !== "markdown") continue;
-      const lines = cell.source.split("\n");
-      for (const line of lines) {
-        const match = line.match(/^(#{1,3})\s+(.+)/);
-        if (match) {
-          headings.push({
-            level: match[1].length,
-            text: match[2].trim(),
-            cellId: cell.id,
-          });
+      } else {
+        // MISMATCH: 
+        // Is the cell somewhere else in the DOM? (Moved)
+        const existing = cellMap.get(cell.id);
+        if (existing) {
+          // It exists elsewhere, move it here
+          container.insertBefore(existing, currentDomNode); // moves it from old pos to here
+          cellNode = existing;
+          // Update it just in case
+          const newNode = this.builder.buildCell(cell, idx, cells.length);
+          cellNode.replaceWith(newNode);
+          cellNode = newNode;
+        } else {
+          // New cell
+          cellNode = this.builder.buildCell(cell, idx, cells.length);
+          if (currentDomNode) {
+            container.insertBefore(cellNode, currentDomNode);
+          } else {
+            container.appendChild(cellNode);
+          }
         }
       }
+      
+      // Advance past cell
+      currentDomNode = cellNode.nextElementSibling as HTMLElement | null;
+
+      // 4. Process Next Handle
+      if (!currentDomNode || !currentDomNode.classList.contains("sci-nb-insert-handle")) {
+         const handle = this.builder.buildInsertHandle(idx + 1);
+         if (currentDomNode) container.insertBefore(handle, currentDomNode);
+         else container.appendChild(handle);
+         currentDomNode = handle;
+      } else {
+         // Replace handle to update index closure
+         const handle = this.builder.buildInsertHandle(idx + 1);
+         currentDomNode.replaceWith(handle);
+         currentDomNode = handle;
+      }
+
+      // Advance past handle
+      currentDomNode = currentDomNode.nextElementSibling as HTMLElement | null;
+    });
+
+    // 5. Cleanup remaining nodes (deleted cells)
+    while (currentDomNode) {
+      const next = currentDomNode.nextElementSibling as HTMLElement | null;
+      currentDomNode.remove();
+      currentDomNode = next;
     }
-
-    toc.innerHTML = `<div class="sci-nb-toc-title">Contents</div>`;
-    const list = document.createElement("ul");
-    list.className = "sci-nb-toc-list";
-
-    for (const h of headings) {
-      const li = document.createElement("li");
-      li.className = `sci-nb-toc-item sci-nb-toc-item--h${h.level}`;
-      li.style.paddingLeft = `${(h.level - 1) * 12}px`;
-
-      const link = document.createElement("a");
-      link.textContent = h.text;
-      link.href = "#";
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        const cellEl = this.cellsContainer.querySelector(`[data-cell-id="${h.cellId}"]`);
-        cellEl?.scrollIntoView({ behavior: "smooth", block: "start" });
-        this.engine.focusCell(h.cellId);
-      });
-
-      li.appendChild(link);
-      list.appendChild(li);
+    
+    // Restore focus if we brutally replaced the active node (shouldn't happen with logic above, but safety net)
+    if (activeCellId && isEditing && document.activeElement !== activeEl) {
+        // Try to find the input again
+        const newCell = container.querySelector(`[data-cell-id="${activeCellId}"]`);
+        const input = newCell?.querySelector("textarea");
+        if (input) {
+            input.focus();
+            if (cursorStart != null) input.setSelectionRange(cursorStart, cursorEnd ?? cursorStart);
+        }
     }
+  }
 
-    toc.appendChild(list);
+  private updateTOC(): void {
+    const oldToc = this.container.querySelector<HTMLElement>(".sci-nb-toc");
+    if (!oldToc) return;
+    const newToc = this.builder.buildTOC(this.focusedCellId);
+    oldToc.replaceWith(newToc);
   }
 
   private bindEvents(): void {
     // Re-render on notebook changes
     const unsubUpdate = this.engine.on("notebook:updated", (payload) => {
+      // Optimization: If the update comes from a source change in the focused cell,
+      // we might want to skip full re-render or be very careful.
+      // Our enhanced renderCells handles this check.
       this.renderCells();
-      if (this.options.showTOC) this.updateTOC();
+      if (this.showTOC) this.updateTOC();
       if (this.options.onChange) this.options.onChange(payload.data.notebook);
     });
     this.unsubscribers.push(unsubUpdate);
 
-    // Delegate clicks on cells
-    this.container.addEventListener("click", this.onContainerClick.bind(this));
-
-    // Delegate clicks on insert handles
-    this.container.addEventListener("click", this.onInsertClick.bind(this));
-
-    // Delegate toolbar clicks
-    this.container.addEventListener("click", this.onToolbarClick.bind(this));
-  }
-
-  private onContainerClick(e: MouseEvent): void {
-    const target = e.target as HTMLElement;
-
-    // Cell action buttons
-    const actionBtn = target.closest<HTMLElement>("[data-action]");
-    if (actionBtn) {
-      const cellEl = actionBtn.closest<HTMLElement>("[data-cell-id]");
-      if (!cellEl) return;
-      const cellId = cellEl.dataset.cellId!;
-      const action = actionBtn.dataset.action;
-
-      switch (action) {
-        case "edit":
-          this.engine.toggleMode(cellId);
-          break;
-        case "delete":
-          this.engine.deleteCell(cellId);
-          break;
-        case "duplicate":
-          this.engine.duplicateCell(cellId);
-          break;
-        case "move-up": {
-          const idx = this.engine.getCells().findIndex(c => c.id === cellId);
-          if (idx > 0) this.engine.moveCell(cellId, idx - 1);
-          break;
-        }
-        case "move-down": {
-          const cells = this.engine.getCells();
-          const idx = cells.findIndex(c => c.id === cellId);
-          if (idx < cells.length - 1) this.engine.moveCell(cellId, idx + 1);
-          break;
-        }
-      }
-      return;
-    }
-
-    // Click on cell content → focus + edit
-    const cellEl = target.closest<HTMLElement>("[data-cell-id]");
-    if (cellEl && !this.options.readOnly) {
-      const cellId = cellEl.dataset.cellId!;
-      this.engine.focusCell(cellId);
-
-      // If clicking on content area, enter edit mode
-      if (target.closest(".sci-nb-cell-content")) {
-        this.engine.setEditMode(cellId);
-      }
-    }
-  }
-
-  private onInsertClick(e: MouseEvent): void {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>(".sci-nb-insert-btn");
-    if (!btn) return;
-    if (this.options.readOnly) return;
-
-    const handle = btn.closest<HTMLElement>("[data-insert-index]");
-    if (!handle) return;
-
-    const index = parseInt(handle.dataset.insertIndex || "0", 10);
-    const cell = this.engine.insertCell(index, "markdown", "");
-    this.engine.setEditMode(cell.id);
-    this.engine.focusCell(cell.id);
-  }
-
-  private onToolbarClick(e: MouseEvent): void {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-toolbar]");
-    if (!btn) return;
-
-    switch (btn.dataset.toolbar) {
-      case "undo": this.engine.undo(); break;
-      case "redo": this.engine.redo(); break;
-      case "edit-all": this.engine.setAllEditMode(); break;
-      case "view-all": this.engine.setAllViewMode(); break;
-    }
-  }
-
-  // Handle editor changes via event delegation
-  private onEditorInput(e: Event): void {
-    const textarea = e.target as HTMLTextAreaElement;
-    if (!textarea.classList.contains("sci-nb-cell-editor")) return;
-
-    const cellEl = textarea.closest<HTMLElement>("[data-cell-id]");
-    if (!cellEl) return;
-
-    this.engine.updateCellSource(cellEl.dataset.cellId!, textarea.value);
-  }
-
-  private escapeHtml(str: string): string {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+    const focusUnsub = this.engine.on("cell:focused", (payload: any) => {
+      this.focusedCellId = payload.data.cellId;
+      if (this.showTOC) this.updateTOC();
+    });
+    this.unsubscribers.push(focusUnsub);
   }
 }
