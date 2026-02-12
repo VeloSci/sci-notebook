@@ -6,8 +6,8 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "vitest",
-    "docs:dev": "concurrently \"vitepress dev docs\" \"pnpm --filter @velo-sci/notebook-example dev\"",
-    "examples:dev": "concurrently \"pnpm --filter @velo-sci/notebook-example dev\" \"pnpm --filter example-vue-full dev\" \"pnpm --filter example-svelte-full dev\" \"pnpm --filter example-vanilla-full dev\" \"pnpm --filter example-landing dev\"",
+    "docs:dev": "vitepress dev docs",
+    "examples:dev": "pnpm --filter @velo-sci/notebook-example dev",
     "docs:dev:simple": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
@@ -40,7 +40,13 @@
     "typescript": "^5.0.0",
     "vitepress": "^1.6.4",
     "vitest": "^1.0.0",
-    "vue": "^3.5.28"
+    "vue": "^3.5.28",
+    "@velo-sci/notebook-core": "workspace:*",
+    "@velo-sci/notebook-renderer": "workspace:*",
+    "@velo-sci/notebook-react": "workspace:*",
+    "@velo-sci/notebook-vue": "workspace:*",
+    "@velo-sci/notebook-svelte": "workspace:*",
+    "@velo-sci/notebook-vanilla": "workspace:*"
   },
   "packageManager": "pnpm@10.29.2"
 }

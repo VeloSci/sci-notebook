@@ -24,8 +24,20 @@ export const SAMPLE_NOTEBOOK: Notebook = {
     },
     {
       id: "c4",
+      type: "markdown",
+      source: "### Visual Table Editor\n\nClick the table below to open the **interactive editor**. You can add/remove rows and columns, and edit content without touching Markdown code.",
+      metadata: {},
+    },
+    {
+      id: "c4b",
       type: "table",
-      source: "| Shortcut | Action |\n| --- | --- |\n| Click | Edit cell |\n| Escape | Exit edit mode |\n| Shift+Enter | Next cell |\n| Ctrl+B | Bold |\n| Ctrl+I | Italic |\n| Ctrl+F | Find & Replace |\n| / | Slash commands |\n| Drag handle | Reorder cells |\n| Ctrl+Z | Undo |\n| Ctrl+Shift+Z | Redo |",
+      source: "| Feature | Description | Support |\n| --- | --- | --- |\n| Visual Editing | Edit content in a grid | ✅ |\n| Structure | Add/Remove rows & cols | ✅ |\n| Markdown Sync | Automatic code generation | ✅ |\n| Cross-framework | Vanilla, React, Vue, Svelte | ✅ |",
+      metadata: {},
+    },
+    {
+      id: "c4c",
+      type: "table",
+      source: "| Shortcut | Action |\n| --- | --- |\n| Click | Edit cell |\n| Escape | Exit edit mode |\n| Shift+Enter | Next cell |\n| / | Slash commands |\n| Drag handle | Reorder cells |\n| Ctrl+Z | Undo |",
       metadata: {},
     },
     {
