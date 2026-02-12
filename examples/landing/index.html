@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sci-Notebook — Framework Demos</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .hero-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      color: #228be6;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: #666;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-decoration: none;
+      color: inherit;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .card--react { border-color: #61dafb; }
+    .card--react:hover { background: linear-gradient(135deg, #fff 60%, #e8f8ff); }
+    .card--react .card-badge { background: #e0f7fa; color: #0097a7; }
+
+    .card--vue { border-color: #42b883; }
+    .card--vue:hover { background: linear-gradient(135deg, #fff 60%, #e8f5e9); }
+    .card--vue .card-badge { background: #e8f5e9; color: #2e7d32; }
+
+    .card--svelte { border-color: #ff3e00; }
+    .card--svelte:hover { background: linear-gradient(135deg, #fff 60%, #fff3e0); }
+    .card--svelte .card-badge { background: #fff3e0; color: #e65100; }
+
+    .card--vanilla { border-color: #f5c518; }
+    .card--vanilla:hover { background: linear-gradient(135deg, #fff 60%, #fffde7); }
+    .card--vanilla .card-badge { background: #fce4ec; color: #c62828; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .card--react .card-icon { background: #e0f7fa; color: #0097a7; }
+    .card--vue .card-icon { background: #e8f5e9; color: #2e7d32; }
+    .card--svelte .card-icon { background: #fff3e0; color: #e65100; }
+    .card--vanilla .card-icon { background: #fffde7; color: #f57f17; }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .card-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: #228be6;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: auto;
+    }
+
+    .footer {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .footer a {
+      color: #228be6;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 28px; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <svg class="hero-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5">
+      <rect x="10" y="6" width="44" height="52" rx="6" />
+      <line x1="18" y1="18" x2="46" y2="18" />
+      <line x1="18" y1="28" x2="40" y2="28" />
+      <line x1="18" y1="38" x2="34" y2="38" />
+      <line x1="18" y1="48" x2="28" y2="48" />
+    </svg>
+    <h1>Sci-Notebook Demos</h1>
+    <p>
+      The same scientific notebook — built with 4 different frameworks.
+      Each demo is visually identical and fully functional.
+    </p>
+  </div>
+
+  <div class="cards">
+    <a class="card card--react" href="http://localhost:5174/sci-notebook/example/">
+      <div class="card-header">
+        <div class="card-icon">⚛</div>
+        <span class="card-title">React</span>
+      </div>
+      <span class="card-badge">@velo-sci/notebook-react</span>
+      <p class="card-desc">
+        Full-featured demo using React 18+ with hooks, JSX components,
+        and the <code>SciNotebook</code> component.
+      </p>
+      <span class="card-link">Open React Demo →</span>
+    </a>
+
+    <a class="card card--vue" href="http://localhost:5176/sci-notebook/example-vue/">
+      <div class="card-header">
+        <div class="card-icon">V</div>
+        <span class="card-title">Vue 3</span>
+      </div>
+      <span class="card-badge">@velo-sci/notebook-vue</span>
+      <p class="card-desc">
+        Full-featured demo using Vue 3 with Composition API, render functions,
+        and the <code>SciNotebook</code> component.
+      </p>
+      <span class="card-link">Open Vue Demo →</span>
+    </a>
+
+    <a class="card card--svelte" href="http://localhost:5177/sci-notebook/example-svelte/">
+      <div class="card-header">
+        <div class="card-icon">S</div>
+        <span class="card-title">Svelte</span>
+      </div>
+      <span class="card-badge">@velo-sci/notebook-svelte</span>
+      <p class="card-desc">
+        Full-featured demo using the Svelte adapter with imperative mounting,
+        stores, and the <code>SciNotebookSvelte</code> class.
+      </p>
+      <span class="card-link">Open Svelte Demo →</span>
+    </a>
+
+    <a class="card card--vanilla" href="http://localhost:5178/sci-notebook/example-vanilla/">
+      <div class="card-header">
+        <div class="card-icon">JS</div>
+        <span class="card-title">Vanilla JS</span>
+      </div>
+      <span class="card-badge">@velo-sci/notebook-vanilla</span>
+      <p class="card-desc">
+        Full-featured demo using pure Vanilla JS with DOM manipulation
+        and the <code>SciNotebookVanilla</code> class. Zero framework dependencies.
+      </p>
+      <span class="card-link">Open Vanilla Demo →</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    <p>sci-notebook v0.6.2 · All adapters share the same <code>@velo-sci/notebook-core</code> engine</p>
+  </div>
+</body>
+</html>
