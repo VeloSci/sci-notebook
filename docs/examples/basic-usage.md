@@ -53,7 +53,7 @@ const SAMPLE_NOTEBOOK: Notebook = {
     {
       id: "c4",
       type: "image",
-      source: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Euler%27s_formula.svg/400px-Euler%27s_formula.svg.png",
+      source: "https://upload.wikimedia.org/wikipedia/commons/4/41/Rising_circular.gif",
       metadata: {
         alt: "Euler's formula",
         caption: "Graphical representation of Euler's formula",
@@ -69,7 +69,7 @@ const SAMPLE_NOTEBOOK: Notebook = {
       metadata: {
         title: "3Blue1Brown - Neural Networks",
         height: "400px",
-        sandbox: "allow-scripts allow-same-origin allow-popups",
+        sandbox: "allow-scripts allow-same-origin allow-popups allow-presentation",
       },
     },
     // ── Raw ──
@@ -112,12 +112,17 @@ export default function App() {
 | Action | How |
 |--------|-----|
 | **Edit cell** | Click on the cell |
+| **PDF export** | ✅ NEW |
+| **Presentation mode** | ✅ NEW |
 | **Exit edit mode** | `Escape` |
 | **Next cell** | `Shift+Enter` |
 | **Bold / Italic** | `Ctrl+B` / `Ctrl+I` |
 | **Indent** | `Tab` / `Shift+Tab` |
 | **Undo / Redo** | `Ctrl+Z` / `Ctrl+Shift+Z` |
 | **Insert cell** | Hover between cells → click `+` |
+| **PDF** | Print-to-PDF via browser (or headless browser) |
+
+All export buttons are in the header toolbar.
 | **Floating toolbar** | Select text in a Markdown cell |
 
 ## Cell Types

@@ -13,7 +13,8 @@ export const SAMPLE_NOTEBOOK: Notebook = {
     {
       id: "c2",
       type: "markdown",
-      source: "## Features Overview\n\n| Feature | Status |\n|---------|--------|\n| Markdown (CommonMark) | ✅ |\n| Code cells (30+ languages) | ✅ |\n| LaTeX (visual editor, 100+ blocks) | ✅ |\n| Interactive tables | ✅ |\n| Mermaid diagrams | ✅ |\n| Image cells (drag & drop, resize) | ✅ |\n| Embed cells (YouTube, Desmos, CodePen) | ✅ |\n| Light / Dark themes | ✅ |\n| Slash commands | ✅ |\n| Drag & drop reorder | ✅ |\n| Find & Replace | ✅ |\n| TOC sidebar | ✅ |\n| Template engine | ✅ |\n| Export (HTML, MD, IPYNB, JSON) | ✅ |\n| **PDF / DOCX export** | ✅ NEW |\n| **Presentation mode** | ✅ NEW |\n| **Version history (git-like diff)** | ✅ NEW |\n| **Cloud sync** | ✅ NEW |\n| **Mobile / touch support** | ✅ NEW |\n| **Vue 3+ adapter** | ✅ NEW |\n| **Svelte 5+ adapter** | ✅ NEW |\n| **Vanilla JS adapter** | ✅ NEW |",
+      source: "## Features Overview\n\n| Feature | Status |\n|---------|--------|\n| Markdown (CommonMark) | ✅ |\n| Code cells (30+ languages) | ✅ |\n| LaTeX (visual editor, 100+ blocks) | ✅ |\n| Interactive tables | ✅ |\n| Mermaid diagrams | ✅ |\
+| Image cells (drag & drop, resize) | ✅ |\n| Embed cells (YouTube, Desmos, CodePen) | ✅ |\n| Light / Dark themes | ✅ |\n| Slash commands | ✅ |\n| Drag & drop reorder | ✅ |\n| Find & Replace | ✅ |\n| TOC sidebar | ✅ |\n| Template engine | ✅ |\n| Export (HTML, MD, IPYNB, JSON) | ✅ |\n| **PDF export** | ✅ NEW |\n| **Presentation mode** | ✅ NEW |\n| **Version history (git-like diff)** | ✅ NEW |\n| **Cloud sync** | ✅ NEW |\n| **Mobile / touch support** | ✅ NEW |\n| **Vue 3+ adapter** | ✅ NEW |\n| **Svelte 5+ adapter** | ✅ NEW |\n| **Vanilla JS adapter** | ✅ NEW |",
       metadata: {},
     },
     {
@@ -61,14 +62,14 @@ export const SAMPLE_NOTEBOOK: Notebook = {
     {
       id: "c8",
       type: "image",
-      source: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Euler%27s_formula.svg/400px-Euler%27s_formula.svg.png",
+      source: "https://upload.wikimedia.org/wikipedia/commons/4/41/Rising_circular.gif",
       metadata: { alt: "Euler's formula", caption: "Graphical representation of Euler's formula", width: "50%", align: "center" },
     },
     {
       id: "c9",
       type: "embed",
       source: "https://www.youtube.com/embed/aircAruvnKk",
-      metadata: { title: "3Blue1Brown - Neural Networks", height: "400px", sandbox: "allow-scripts allow-same-origin allow-popups" },
+      metadata: { title: "3Blue1Brown - Neural Networks", height: "400px", sandbox: "allow-scripts allow-same-origin allow-popups allow-presentation" },
     },
     {
       id: "c10",
@@ -91,7 +92,7 @@ export const SAMPLE_NOTEBOOK: Notebook = {
     {
       id: "c13",
       type: "markdown",
-      source: "## Export Options ✨\n\nExport your notebook in multiple formats:\n\n| Format | Description |\n|--------|-------------|\n| **JSON** | Native notebook format |\n| **HTML** | Standalone HTML with embedded styles |\n| **Markdown** | Plain Markdown text |\n| **IPYNB** | Jupyter Notebook format |\n| **PDF** | Print-to-PDF via browser (or headless browser) |\n| **DOCX** | Office Open XML for Word/LibreOffice |\n\nAll export buttons are in the header toolbar.",
+      source: "## Export Options ✨\n\nExport your notebook in multiple formats:\n\n| Format | Description |\n|--------|-------------|\n| **JSON** | Native notebook format |\n| **HTML** | Standalone HTML with embedded styles |\n| **Markdown** | Plain Markdown text |\n| **IPYNB** | Jupyter Notebook format |\n| **PDF** | Print-to-PDF via browser (or headless browser) |\n\nAll export buttons are in the header toolbar.",
       metadata: {},
     },
     {
