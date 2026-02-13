@@ -257,7 +257,7 @@ export class RenderPipeline {
   private renderEmbed(source: string, metadata: Record<string, unknown> = {}): string {
     const url = source || "";
     const height = (metadata.height as string) || "400px";
-    const sandbox = (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups";
+    const sandbox = (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups allow-presentation";
     const title = (metadata.title as string) || "";
 
     if (!url) {

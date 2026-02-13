@@ -28,7 +28,7 @@ function parseEmbedSource(source: string, metadata: Record<string, unknown>): Em
   return {
     url: source || "",
     height: (metadata.height as string) || "400px",
-    sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups",
+    sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups allow-presentation",
     title: (metadata.title as string) || "",
   };
 }
@@ -137,7 +137,7 @@ export const EmbedCell: React.FC<EmbedCellProps> = ({ cellId, source, metadata, 
           <div className="sci-nb-embed-field sci-nb-embed-field--small">
             <label>Sandbox</label>
             <select value={data.sandbox} onChange={(e) => save({ sandbox: e.target.value })}>
-              <option value="allow-scripts allow-same-origin allow-popups">Standard</option>
+              <option value="allow-scripts allow-same-origin allow-popups allow-presentation">Standard</option>
               <option value="allow-scripts">Scripts only</option>
               <option value="">Restricted</option>
             </select>

@@ -806,7 +806,7 @@ export class DOMCellBuilder {
     return {
       url: source || "",
       height: (metadata.height as string) || "400px",
-      sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups",
+      sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups allow-presentation",
       title: (metadata.title as string) || "",
     };
   }

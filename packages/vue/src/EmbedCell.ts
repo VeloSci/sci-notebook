@@ -21,7 +21,7 @@ function parseEmbedSource(source: string, metadata: Record<string, unknown>): Em
   return {
     url: source || "",
     height: (metadata.height as string) || "400px",
-    sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups",
+    sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups allow-presentation",
     title: (metadata.title as string) || "",
   };
 }
@@ -138,7 +138,7 @@ export const EmbedCell = defineComponent({
               value: data.value.sandbox,
               onChange: (e: Event) => save({ sandbox: (e.target as HTMLSelectElement).value }),
             }, [
-              h("option", { value: "allow-scripts allow-same-origin allow-popups" }, "Standard"),
+              h("option", { value: "allow-scripts allow-same-origin allow-popups allow-presentation" }, "Standard"),
               h("option", { value: "allow-scripts" }, "Scripts only"),
               h("option", { value: "" }, "Restricted"),
             ]),

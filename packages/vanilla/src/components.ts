@@ -491,7 +491,7 @@ interface EmbedData { url: string; height: string; sandbox: string; title: strin
 function parseEmbedSource(source: string, metadata: Record<string, unknown>): EmbedData {
   return {
     url: source || "", height: (metadata.height as string) || "400px",
-    sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups",
+    sandbox: (metadata.sandbox as string) || "allow-scripts allow-same-origin allow-popups allow-presentation",
     title: (metadata.title as string) || "",
   };
 }
