@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-plugin-cloud-sync",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "Cloud sync plugin for sci-notebook with configurable backend",
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-vanilla",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "Vanilla JS adapter for sci-notebook — zero-dependency DOM rendering",
   "publishConfig": {
     "access": "public"

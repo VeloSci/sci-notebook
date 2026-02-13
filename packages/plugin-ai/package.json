@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-plugin-ai",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "AI agent integration plugin for sci-notebook",
   "publishConfig": {
     "access": "public"
