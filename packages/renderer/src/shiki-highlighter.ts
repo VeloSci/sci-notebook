@@ -113,6 +113,32 @@ export async function highlightCode(
 }
 
 /**
+ * Highlight code to tokens (text + color) for custom rendering (e.g. PDF).
+ */
+export async function highlightToTokens(
+  code: string,
+  language: string,
+  theme?: "light" | "dark"
+) {
+  const h = await initShikiHighlighter();
+  const lang = normalizeLanguage(language);
+  const loadedLangs = h.getLoadedLanguages();
+
+  if (!loadedLangs.includes(lang as any)) {
+    try {
+      await h.loadLanguage(lang as BundledLanguage);
+    } catch {
+      // ignore
+    }
+  }
+
+  return h.codeToTokens(code, {
+    lang: lang as any,
+    theme: theme === "dark" ? "github-dark" : "github-light",
+  });
+}
+
+/**
  * Create a RenderPipeline postprocessor that replaces code blocks
  * with Shiki-highlighted versions (sync — uses cached highlighter).
  */
