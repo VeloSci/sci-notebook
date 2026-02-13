@@ -221,10 +221,6 @@ onBeforeUnmount(() => {
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12.5h8M7 1.5v8M7 9.5l-3-3M7 9.5l3-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           {{ exporting === 'pdf' ? 'Exporting...' : 'PDF' }}
         </button>
-        <button class="export-btn" :disabled="!!exporting" @click="handleExport('docx')">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12.5h8M7 1.5v8M7 9.5l-3-3M7 9.5l3-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          {{ exporting === 'docx' ? 'Exporting...' : 'DOCX' }}
-        </button>
       </div>
       <div class="framework-tabs">
         <button 
