@@ -115,8 +115,8 @@ body::before {
   background-attachment: fixed;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.4;
-  animation: bgFloat 20s ease-in-out infinite alternate;
+  opacity: 0.6;
+  animation: bgFloat 30s ease-in-out infinite alternate;
 }
 
 @keyframes bgFloat {
