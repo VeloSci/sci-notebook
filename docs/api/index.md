@@ -4,20 +4,33 @@ Welcome to the SciNotebook API documentation. The library is divided into severa
 
 ## Quick Start
 
-```typescript
-import { createNotebook } from '@velo-sci/notebook-core';
+### React
+```tsx
 import { SciNotebook } from '@velo-sci/notebook-react';
 import '@velo-sci/notebook-core/styles/index.css';
 
-// Option A: Pass a Notebook object
 <SciNotebook notebook={myNotebook} theme="dark" onChange={console.log} />
+```
 
-// Option B: Zero-config with markdown string
-<SciNotebook initialContent="# Hello World" />
+### Vue
+```ts
+import { SciNotebook } from '@velo-sci/notebook-vue';
+import '@velo-sci/notebook-core/styles/index.css';
 
-// Option C: Pre-built engine for full control
-const engine = createNotebook({ notebook: myData, config: { plugins: [] } });
-<SciNotebook engine={engine} />
+// In your template
+<SciNotebook :notebook="myNotebook" theme="dark" @change="handleChange" />
+```
+
+### Vanilla JS
+```ts
+import { SciNotebookVanilla } from '@velo-sci/notebook-vanilla';
+import '@velo-sci/notebook-core/styles/index.css';
+
+const notebook = new SciNotebookVanilla({
+  target: document.getElementById('app'),
+  notebook: myData,
+  theme: 'dark'
+});
 ```
 
 ## Packages
@@ -29,10 +42,19 @@ Factory functions (`createNotebook`, `loadNotebook`, `saveNotebook`), data model
 The extensible `RenderPipeline` that transforms Markdown and custom cell types into HTML, with LRU caching, Shiki syntax highlighting, and lazy KaTeX loading.
 
 ### [React API](/api/react)
-High-level React components (`SciNotebook`, `Cell`, `MathEditor`, `ImageCell`, `EmbedCell`, `TableCell`, `MermaidCell`, etc.) and hooks (`useSciNotebook`, `useNotebook`, `useCell`, `useFocusedCell`, `useNotebookEvent`).
+High-level React components (`SciNotebook`, `Cell`, etc.) and hooks (`useSciNotebook`, `useNotebook`).
+
+### [Vue API](/api/vue)
+Vue 3 components and composables for seamless integration.
+
+### [Svelte API](/api/svelte)
+Modern Svelte 5+ adapter using runes and optimized rendering.
+
+### [Vanilla API](/api/vanilla)
+Pure JavaScript adapter for any framework or no framework at all.
 
 ### [Plugin System](/api/plugins)
-The `SciNotebookPlugin` interface and `PluginContext` for extending the engine with custom cell types, rendering hooks, and event listeners.
+The `SciNotebookPlugin` interface and `PluginContext` for extending the engine.
 
 ---
 

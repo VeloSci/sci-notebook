@@ -39,9 +39,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/overview' },
       { text: 'API', link: '/api/' },
-      { text: 'Examples', link: '/examples/basic-usage' },
-      { text: 'Full Demo', link: '/example/', target: '_blank' },
-      { text: 'Roadmap', link: '/roadmap' }
+      { text: 'Examples', link: '/examples/basic-usage' }
     ],
     logo: '/logo.svg',
     sidebar: {
@@ -90,6 +88,9 @@ export default defineConfig({
             { text: 'Core API', link: '/api/core' },
             { text: 'Renderer API', link: '/api/renderer' },
             { text: 'React API', link: '/api/react' },
+            { text: 'Vue API', link: '/api/vue' },
+            { text: 'Svelte API', link: '/api/svelte' },
+            { text: 'Vanilla API', link: '/api/vanilla' },
             { text: 'Plugin System', link: '/api/plugins' },
           ]
         }
