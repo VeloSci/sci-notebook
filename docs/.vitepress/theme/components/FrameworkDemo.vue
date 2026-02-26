@@ -116,6 +116,7 @@ async function mountFramework(framework) {
     currentRoot = null
   }
   container.value.innerHTML = ''
+  container.value.className = 'framework-demo-container'
   currentInstance = null
 
   const theme = isDark.value ? 'dark' : 'light'
@@ -339,7 +340,6 @@ onBeforeUnmount(() => {
 
 .framework-demo-container {
   min-height: 500px;
-  padding: 1rem;
 }
 
 :deep(.sci-nb) {

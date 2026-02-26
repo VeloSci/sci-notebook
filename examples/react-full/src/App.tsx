@@ -37,8 +37,12 @@ export function App() {
   const [notebook, setNotebook] = useState(initialNotebook);
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Scientific Notebook Demo</h1>
+    <div className="app" data-app-theme="light">
+      <header className="app-header">
+        <h1>
+          Scientific Notebook <span className="app-framework-badge">React</span>
+        </h1>
+      </header>
       <SciNotebook
         notebook={notebook as any}
         onChange={(nb) => setNotebook(nb as any)}
