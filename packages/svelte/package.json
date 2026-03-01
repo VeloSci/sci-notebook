@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-svelte",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Svelte 5+ adapter for sci-notebook",
   "publishConfig": {
     "access": "public"
