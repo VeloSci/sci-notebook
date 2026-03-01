@@ -12,6 +12,7 @@ export type CellType =
   | "table"
   | "image"
   | "component"
+  | "notebook"
   | string;
 
 export interface Notebook {

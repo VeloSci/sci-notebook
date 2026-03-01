@@ -50,4 +50,9 @@ export const CELL_ICONS: Record<string, string> = {
     <path d="M4 7V4h16v3M9 20h6" />
     <path class="line" d="M12 4v16" />
   </svg>`,
+
+  notebook: `<svg class="sci-icon sci-icon-notebook" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    <path class="line" d="M8 7h8M8 11h8" />
+  </svg>`,
 };
