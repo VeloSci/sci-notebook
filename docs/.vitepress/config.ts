@@ -72,13 +72,13 @@ export default defineConfig({
             { text: 'Performance', link: '/guide/performance' },
           ]
         },
-        {
+        /* {
           text: 'Ecosystem',
           items: [
             { text: 'AI Integration', link: '/guide/ai-integration' },
             { text: 'Cloud Sync', link: '/guide/cloud-sync' },
           ]
-        }
+        } */
       ],
       '/api/': [
         {

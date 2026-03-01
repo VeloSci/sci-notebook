@@ -10,10 +10,22 @@ const props = defineProps({
   title: {
     type: String,
     default: 'Framework Integration'
+  },
+  framework: {
+    type: String,
+    default: ''
+  },
+  hideTabs: {
+    type: Boolean,
+    default: false
+  },
+  hideHeader: {
+    type: Boolean,
+    default: false
   }
 })
 
-const currentFramework = ref('react')
+const currentFramework = ref(props.framework || 'react')
 const container = ref(null)
 const { isDark } = useData()
 const exporting = ref('')
@@ -215,7 +227,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="framework-demo-wrapper">
-    <div class="framework-demo-header">
+    <div v-if="!hideHeader" class="framework-demo-header">
       <div class="demo-title">{{ title }}</div>
       <div class="demo-actions">
         <button class="export-btn" :disabled="!!exporting" @click="handleExport('pdf')">
@@ -223,7 +235,7 @@ onBeforeUnmount(() => {
           {{ exporting === 'pdf' ? 'Exporting...' : 'PDF' }}
         </button>
       </div>
-      <div class="framework-tabs">
+      <div v-if="!hideTabs" class="framework-tabs">
         <button 
           v-for="fw in FRAMEWORKS" 
           :key="fw.id"

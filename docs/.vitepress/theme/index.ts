@@ -6,6 +6,8 @@ import NotebookDemo from './components/NotebookDemo.vue'
 import InteractiveDoc from './components/InteractiveDoc.vue'
 import FrameworkDemo from './components/FrameworkDemo.vue'
 
+import ApiNotebook from './components/ApiNotebook.vue'
+
 export default {
   extends: DefaultTheme,
   Layout: () => {
@@ -17,5 +19,6 @@ export default {
     app.component('NotebookDemo', NotebookDemo)
     app.component('InteractiveDoc', InteractiveDoc)
     app.component('FrameworkDemo', FrameworkDemo)
+    app.component('ApiNotebook', ApiNotebook)
   }
 }
