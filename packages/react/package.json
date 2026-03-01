@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-react",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "React adapter for sci-notebook",
   "publishConfig": {
     "access": "public"
@@ -20,12 +20,12 @@
   "dependencies": {
     "@velo-sci/notebook-core": "workspace:*",
     "@velo-sci/notebook-renderer": "workspace:*",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

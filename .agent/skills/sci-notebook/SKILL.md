@@ -44,7 +44,7 @@ function Editor() {
 
 - **Zero-Server Editor**: The state and history live in the browser. You pass an `onChange` prop to save it. 
 - **The Core Engine**: `notebook-core` stores the immutable `Cell` data and controls the `HistoryManager` and Event Bus.
-- **7-Cell Types**: Supported cell `types` are: `markdown`, `code`, `latex`, `table`, `image`, `embed`, and `raw`.
+- **8-Cell Types**: Supported cell `types` are: `markdown`, `code`, `latex`, `table`, `image`, `embed`, `raw`, and `notebook`.
 - **The Renderer**: `notebook-renderer` optimizes conversion from raw strings to markdown/HTML using LRU caching.
 - **UI Integrations**: Native wrappers map the abstract `Cell` objects to React/Vue/Svelte components.
 
@@ -61,6 +61,7 @@ function Editor() {
 - **Rich Math Editing**: Visual GUI math block builder capable of editing integrations, matrices, bounds, and limits via KaTeX.
 - **Drag & Drop Images**: Drop an image, and the library provides a local URL structure, captions, and width adjustments.
 - **Embeds**: Includes iframes for YouTube, CodePen, Desmos, and GeoGebra directly inside notebook lists.
+- **Nested Notebooks**: Supports nesting a fully-functional embedded notebook up to 1 level deep inside a main notebook (`notebook` cell type). Includes explicit cross-notebook drag & drop support and `readOnly` configurations natively.
 - **Ghost AI**: Supports `@velo-sci/notebook-plugin-ai` for inline LLM completions directly in typing blocks.
 - **Context Toolbars**: Floating format bars appear elegantly when cell text is highlighted.
 

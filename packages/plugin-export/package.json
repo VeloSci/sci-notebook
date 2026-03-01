@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-plugin-export",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "PDF export plugin for sci-notebook",
   "publishConfig": {
     "access": "public"
