@@ -7,7 +7,6 @@
     "build": "pnpm -r build",
     "test": "vitest",
     "docs:dev": "vitepress dev docs",
-    "examples:dev": "pnpm --filter @velo-sci/notebook-example dev",
     "docs:dev:simple": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",

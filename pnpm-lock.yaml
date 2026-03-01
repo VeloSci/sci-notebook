@@ -96,130 +96,6 @@ importers:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
 
-  examples/landing:
-    devDependencies:
-      vite:
-        specifier: ^5.4.0
-        version: 5.4.21(@types/node@25.2.2)
-
-  examples/react-full:
-    dependencies:
-      '@velo-sci/notebook-core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@velo-sci/notebook-plugin-ai':
-        specifier: workspace:*
-        version: link:../../packages/plugin-ai
-      '@velo-sci/notebook-plugin-latex':
-        specifier: workspace:*
-        version: link:../../packages/plugin-latex
-      '@velo-sci/notebook-react':
-        specifier: workspace:*
-        version: link:../../packages/react
-      '@velo-sci/notebook-renderer':
-        specifier: workspace:*
-        version: link:../../packages/renderer
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0.0
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@types/react':
-        specifier: ^18.0.0
-        version: 18.3.28
-      '@types/react-dom':
-        specifier: ^18.0.0
-        version: 18.3.7(@types/react@18.3.28)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-      vite:
-        specifier: ^5.0.0
-        version: 5.4.21(@types/node@25.2.2)
-
-  examples/svelte-full:
-    dependencies:
-      '@velo-sci/notebook-core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@velo-sci/notebook-renderer':
-        specifier: workspace:*
-        version: link:../../packages/renderer
-      '@velo-sci/notebook-svelte':
-        specifier: workspace:*
-        version: link:../../packages/svelte
-      katex:
-        specifier: ^0.16.0
-        version: 0.16.28
-      mermaid:
-        specifier: ^11.0.0
-        version: 11.12.2
-    devDependencies:
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^5.4.0
-        version: 5.4.21(@types/node@25.2.2)
-
-  examples/vanilla-full:
-    dependencies:
-      '@velo-sci/notebook-core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@velo-sci/notebook-renderer':
-        specifier: workspace:*
-        version: link:../../packages/renderer
-      '@velo-sci/notebook-vanilla':
-        specifier: workspace:*
-        version: link:../../packages/vanilla
-      katex:
-        specifier: ^0.16.0
-        version: 0.16.28
-      mermaid:
-        specifier: ^11.0.0
-        version: 11.12.2
-    devDependencies:
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^5.4.0
-        version: 5.4.21(@types/node@25.2.2)
-
-  examples/vue-full:
-    dependencies:
-      '@velo-sci/notebook-core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@velo-sci/notebook-renderer':
-        specifier: workspace:*
-        version: link:../../packages/renderer
-      '@velo-sci/notebook-vue':
-        specifier: workspace:*
-        version: link:../../packages/vue
-      katex:
-        specifier: ^0.16.0
-        version: 0.16.28
-      mermaid:
-        specifier: ^11.0.0
-        version: 11.12.2
-      vue:
-        specifier: ^3.5.0
-        version: 3.5.28(typescript@5.9.3)
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.0
-        version: 5.2.4(vite@5.4.21(@types/node@25.2.2))(vue@3.5.28(typescript@5.9.3))
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^5.4.0
-        version: 5.4.21(@types/node@25.2.2)
-
   packages/core:
     dependencies:
       nanoid:
@@ -232,61 +108,6 @@ importers:
       vitest:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@25.2.2)(jsdom@25.0.1)
-
-  packages/example:
-    dependencies:
-      '@velo-sci/notebook-core':
-        specifier: workspace:*
-        version: link:../core
-      '@velo-sci/notebook-react':
-        specifier: workspace:*
-        version: link:../react
-      '@velo-sci/notebook-renderer':
-        specifier: workspace:*
-        version: link:../renderer
-      '@velo-sci/notebook-svelte':
-        specifier: workspace:*
-        version: link:../svelte
-      '@velo-sci/notebook-vanilla':
-        specifier: workspace:*
-        version: link:../vanilla
-      '@velo-sci/notebook-vue':
-        specifier: workspace:*
-        version: link:../vue
-      katex:
-        specifier: ^0.16.0
-        version: 0.16.28
-      mermaid:
-        specifier: ^11.0.0
-        version: 11.12.2
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      vue:
-        specifier: ^3.4.0
-        version: 3.5.28(typescript@5.9.3)
-    devDependencies:
-      '@types/react':
-        specifier: ^18.0.0
-        version: 18.3.28
-      '@types/react-dom':
-        specifier: ^18.0.0
-        version: 18.3.7(@types/react@18.3.28)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.0
-        version: 4.7.0(vite@5.4.21(@types/node@25.2.2))
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.0
-        version: 5.2.4(vite@5.4.21(@types/node@25.2.2))(vue@3.5.28(typescript@5.9.3))
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^5.4.0
-        version: 5.4.21(@types/node@25.2.2)
 
   packages/plugin-ai:
     dependencies:
@@ -1077,9 +898,6 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@rolldown/pluginutils@1.0.0-beta.27':
-    resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
-
   '@rolldown/pluginutils@1.0.0-rc.2':
     resolution: {integrity: sha512-izyXV/v+cHiRfozX62W9htOAvwMo4/bXKDrQ+vom1L1qRuexPock/7VZDAhnpHCLNejd3NJ6hiab+tO0D44Rgw==}
 
@@ -1544,12 +1362,6 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
-
-  '@vitejs/plugin-react@4.7.0':
-    resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@vitejs/plugin-react@5.1.3':
     resolution: {integrity: sha512-NVUnA6gQCl8jfoYqKqQU5Clv0aPw14KkZYCsX6T9Lfu9slI0LOU10OTwFHS/WmptsMMpshNd/1tuWsHQ2Uk+cg==}
@@ -2855,10 +2667,6 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-refresh@0.17.0:
-    resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
-    engines: {node: '>=0.10.0'}
-
   react-refresh@0.18.0:
     resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
     engines: {node: '>=0.10.0'}
@@ -3989,8 +3797,6 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@rolldown/pluginutils@1.0.0-beta.27': {}
-
   '@rolldown/pluginutils@1.0.0-rc.2': {}
 
   '@rollup/rollup-android-arm-eabi@4.57.1':
@@ -4440,18 +4246,6 @@ snapshots:
   '@types/web-bluetooth@0.0.21': {}
 
   '@ungap/structured-clone@1.3.0': {}
-
-  '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.2.2))':
-    dependencies:
-      '@babel/core': 7.29.0
-      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
-      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.29.0)
-      '@rolldown/pluginutils': 1.0.0-beta.27
-      '@types/babel__core': 7.20.5
-      react-refresh: 0.17.0
-      vite: 5.4.21(@types/node@25.2.2)
-    transitivePeerDependencies:
-      - supports-color
 
   '@vitejs/plugin-react@5.1.3(vite@5.4.21(@types/node@25.2.2))':
     dependencies:
@@ -5889,8 +5683,6 @@ snapshots:
   react-is@17.0.2: {}
 
   react-is@18.3.1: {}
-
-  react-refresh@0.17.0: {}
 
   react-refresh@0.18.0: {}
 

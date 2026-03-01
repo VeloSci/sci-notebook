@@ -1,7 +1,5 @@
 packages:
   - packages/*
-  - examples/*
-
 onlyBuiltDependencies:
   - core-js
   - esbuild
