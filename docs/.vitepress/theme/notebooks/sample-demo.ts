@@ -61,8 +61,47 @@ export const sampleNotebookData: Notebook = {
         {
             id: "c16",
             type: "markdown",
-            source: "## Cell Types\n\n| Type | Description |\n|------|-------------|\n| **Markdown** | Rich text with formatting, tables, lists, links |\n| **Code** | Syntax-highlighted code blocks (30+ languages) |\n| **LaTeX** | Formulas with visual editor (100+ blocks) |\n| **Table** | Interactive table editor |\n| **Mermaid** | Diagrams (flowchart, sequence, gantt, etc.) |\n| **Image** | Drag & drop, URL, caption, resize handles |\n| **Embed** | YouTube, CodePen, Desmos, GeoGebra, Observable |\n| **Raw** | Unformatted text |",
+            source: "## Cell Types\n\n| Type | Description |\n|------|-------------|\n| **Markdown** | Rich text with formatting, tables, lists, links |\n| **Code** | Syntax-highlighted code blocks (30+ languages) |\n| **LaTeX** | Formulas with visual editor (100+ blocks) |\n| **Table** | Interactive table editor |\
+| **Mermaid** | Diagrams (flowchart, sequence, gantt, etc.) |\n| **Image** | Drag & drop, URL, caption, resize handles |\n| **Embed** | YouTube, CodePen, Desmos, GeoGebra, Observable |\n| **Raw** | Unformatted text |\n| **Notebook** | Nested notebook (Level 1) with editable or read-only mode |",
             metadata: {},
+        },
+        {
+            id: "c17",
+            type: "markdown",
+            source: "## Nested Notebooks\n\nNotebooks can be nested (Level 1) within the main notebook. \nBelow is an **editable** nested notebook, and a **read-only** nested notebook.",
+            metadata: {}
+        },
+        {
+            id: "nb_editable",
+            type: "notebook",
+            source: JSON.stringify({
+                id: "nested_1",
+                title: "My Editable Sub-Notebook",
+                cells: [
+                     { id: "sub_c1", type: "markdown", source: "This is an **editable** nested notebook.", metadata: {} }
+                ],
+                metadata: {},
+                version: 1,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }),
+            metadata: { readOnly: false }
+        },
+        {
+            id: "nb_readonly",
+            type: "notebook",
+            source: JSON.stringify({
+                id: "nested_2",
+                title: "My Read-Only Sub-Notebook",
+                cells: [
+                     { id: "sub_c2", type: "markdown", source: "This is a **read-only** nested notebook. Try to edit it – you can't!", metadata: {} }
+                ],
+                metadata: {},
+                version: 1,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }),
+            metadata: { readOnly: true }
         },
     ],
     metadata: { author: "sci-notebook" },

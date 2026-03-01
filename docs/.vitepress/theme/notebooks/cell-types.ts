@@ -113,6 +113,30 @@ export const cellTypesNotebook = {
       metadata: {},
     },
 
+    // ── Notebook ──────────────────────────────────────────────
+    {
+      id: "ct-notebook-title",
+      type: "markdown",
+      source: "---\n## 📓 Notebook Cell (Nested)\n\nNotebook cells allow you to nest an entirely new Sci-Notebook engine inside a single cell. This nested interface inherently adopts the application's root theme (Dark/Light) and features Cross-Notebook drag-and-drop capabilities.",
+      metadata: {},
+    },
+    {
+      id: "ct-notebook-demo",
+      type: "notebook",
+      source: JSON.stringify({
+          id: "nested_demo",
+          title: "Documentation Nested Notebook",
+          cells: [
+               { id: "nd_c1", type: "markdown", source: "**Try me!** Drag me out to the main notebook, or change my type.", metadata: {} }
+          ],
+          metadata: {},
+          version: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+      }),
+      metadata: { readOnly: false },
+    },
+
     // ── API ───────────────────────────────────────────────────
     {
       id: "ct-api",

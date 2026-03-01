@@ -38,6 +38,13 @@ Try sci-notebook directly in your browser. The example includes all 8 cell types
 - Or enter any **URL** for an iframe
 - Configure: title, height, sandbox level
 
+### Nested Notebooks
+- Create a **Notebook** cell (`📓`) to group content within another notebook.
+- Set properties to make the inner notebook **editable** or **read-only**.
+- Nesting is explicitly supported up to 1 level deep (Level 0 main notebook, Level 1 nested).
+- **Theme Inheritance**: Nested notebooks automatically inherit your dark or light theme seamlessly.
+- **Cross-Notebook Drag & Drop**: You can drag cells out of a nested notebook into the main notebook, or drag cells from the main notebook into the nested one!
+
 ### Cell Management
 - **Hover between cells** → `+` button to insert a new cell
 - **Side buttons**: move up/down, duplicate, delete
