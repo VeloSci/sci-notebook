@@ -3,6 +3,7 @@ export * from "./event-bus";
 export * from "./history";
 export * from "./keybindings";
 export * from "./selection";
+export * from "./icons";
 export * from "./utils";
 export * from "./editor-engine";
 export * from "./template-engine";

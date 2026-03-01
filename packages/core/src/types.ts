@@ -11,6 +11,7 @@ export type CellType =
   | "embed"
   | "table"
   | "image"
+  | "component"
   | string;
 
 export interface Notebook {
