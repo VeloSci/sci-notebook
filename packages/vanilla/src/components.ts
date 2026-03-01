@@ -194,7 +194,7 @@ export class SlashCommandMenu {
     this.el.appendChild(header);
     this.filtered.forEach((cmd, i) => {
       const btn = mkEl("button", `sci-nb-slash-item${i === this.selectedIndex ? " sci-nb-slash-item--active" : ""}`);
-      btn.innerHTML = `<span class="sci-nb-slash-icon">${escapeHtml(cmd.icon)}</span><div class="sci-nb-slash-text"><span class="sci-nb-slash-label">${escapeHtml(cmd.label)}</span><span class="sci-nb-slash-desc">${escapeHtml(cmd.description)}</span></div>`;
+      btn.innerHTML = `<span class="sci-nb-slash-icon">${cmd.icon}</span><div class="sci-nb-slash-text"><span class="sci-nb-slash-label">${escapeHtml(cmd.label)}</span><span class="sci-nb-slash-desc">${escapeHtml(cmd.description)}</span></div>`;
       btn.onmouseenter = () => { this.selectedIndex = i; this.render(); };
       btn.onclick = () => this.onSelect(cmd.type);
       this.el.appendChild(btn);

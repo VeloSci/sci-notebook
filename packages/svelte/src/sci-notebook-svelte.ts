@@ -8,6 +8,7 @@ import {
 } from "@velo-sci/notebook-core";
 import { RenderPipeline, DOMCellBuilder } from "@velo-sci/notebook-renderer";
 import { createNotebookStore, type NotebookStore } from "./stores";
+import { mount, unmount } from "svelte";
 
 export interface SciNotebookSvelteOptions {
   /** Target DOM element or CSS selector */
@@ -28,6 +29,8 @@ export interface SciNotebookSvelteOptions {
   showToolbar?: boolean;
   /** Show TOC sidebar */
   showTOC?: boolean;
+  /** Framework components registry */
+  components?: Record<string, any>;
 }
 
 /**
@@ -100,10 +103,47 @@ export class SciNotebookSvelte {
     }
 
     this.pipeline = new RenderPipeline();
+    const componentInstances = new WeakMap<HTMLElement, ReturnType<typeof mount>>();
+
     this.builder = new DOMCellBuilder({
       engine: this.engine,
       pipeline: this.pipeline,
       readOnly: options.readOnly,
+      renderComponent: (container: HTMLElement, cell: Cell) => {
+        let data: any = null;
+        if (!cell.source.trim()) {
+          container.innerHTML = `<div class="sci-nb-component-empty" style="padding:1rem;color:var(--sci-text-muted);font-style:italic">No component specified. Expected: {"name": "Component", "props": {}}</div>`;
+          return;
+        }
+
+        try {
+          data = JSON.parse(cell.source);
+        } catch (e: any) {
+          container.innerHTML = `<div class="sci-nb-component-error" style="color:red;padding:1rem;border:1px solid red;border-radius:8px">Invalid JSON: ${e.message}</div>`;
+          return;
+        }
+
+        const compName = data.name;
+        if (!compName) {
+          container.innerHTML = `<div class="sci-nb-component-empty" style="padding:1rem;color:var(--sci-text-muted);font-style:italic">JSON must include a "name" property.</div>`;
+          return;
+        }
+
+        const Component = this.options.components?.[compName];
+        if (!Component) {
+          container.innerHTML = `<div class="sci-nb-component-not-found" style="padding:1rem;color:var(--sci-text-muted)">Component <strong>${compName}</strong> not found in the <code>components</code> registry.</div>`;
+          return;
+        }
+
+        if (componentInstances.has(container)) {
+          try { unmount(componentInstances.get(container)!); } catch {}
+          componentInstances.delete(container);
+        }
+
+        container.innerHTML = "";
+        const instance = mount(Component, { target: container, props: data.props || {} });
+        componentInstances.set(container, instance);
+      },
     });
     this.store = createNotebookStore(this.engine);
 
