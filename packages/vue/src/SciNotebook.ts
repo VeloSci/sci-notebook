@@ -23,6 +23,7 @@ export interface SciNotebookProps {
   showTOC?: boolean;
   engineRef?: { value: EditorEngine | null };
   onReady?: (engine: EditorEngine) => void;
+  components?: Record<string, any>;
 }
 
 export const SciNotebook = defineComponent({
@@ -38,6 +39,7 @@ export const SciNotebook = defineComponent({
     showToolbar: { type: Boolean, default: true },
     showTOC: { type: Boolean, default: false },
     engineRef: { type: Object as PropType<{ value: EditorEngine | null }>, default: undefined },
+    components: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
   },
   setup(props, { expose }) {
     const engineInstance = props.engine || createNotebook({
@@ -152,6 +154,7 @@ export const SciNotebook = defineComponent({
                 pipeline,
                 index: idx,
                 totalCells: cellList.length,
+                components: props.components,
                 key: cell.id,
               }),
               h(InsertHandle, { index: idx + 1, key: `insert-${idx + 1}` }),

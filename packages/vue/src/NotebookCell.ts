@@ -1,20 +1,22 @@
 import { defineComponent, h, ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import type { PropType } from "vue";
-import type { Cell, CellType } from "@velo-sci/notebook-core";
+import { type Cell, type CellType, CELL_ICONS } from "@velo-sci/notebook-core";
 import { RenderPipeline, MATH_CATEGORIES, type MathBlock } from "@velo-sci/notebook-renderer";
 import { useNotebookEngine } from "./composables";
 import { ImageCell, renderImagePreview } from "./ImageCell";
 import { EmbedCell, renderEmbedPreview } from "./EmbedCell";
 import { TableCell, renderTablePreview } from "./TableCell";
 import { MermaidPreview } from "./MermaidCell";
+import { ComponentCell } from "./ComponentCell";
 
 const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
-  { value: "markdown", label: "Markdown", icon: "M" },
-  { value: "code", label: "Code", icon: "</>" },
-  { value: "raw", label: "Raw", icon: "T" },
-  { value: "latex", label: "LaTeX", icon: "∑" },
-  { value: "image", label: "Image", icon: "🖼" },
-  { value: "embed", label: "Embed", icon: "⧉" },
+  { value: "markdown", label: "Markdown", icon: CELL_ICONS.markdown },
+  { value: "code", label: "Code", icon: CELL_ICONS.code },
+  { value: "raw", label: "Raw", icon: CELL_ICONS.raw },
+  { value: "latex", label: "LaTeX", icon: CELL_ICONS.latex },
+  { value: "image", label: "Image", icon: CELL_ICONS.image },
+  { value: "embed", label: "Embed", icon: CELL_ICONS.embed },
+  { value: "component", label: "Component", icon: CELL_ICONS.component },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -24,6 +26,7 @@ const PLACEHOLDERS: Record<string, string> = {
   latex: "Write LaTeX here... e.g. \\int_0^1 x^2 dx",
   image: "Click to add image",
   embed: "Click to add embedded content",
+  component: 'Enter component JSON config... { "name": "Chart", "props": {} }',
 };
 
 // ── Vue Math Editor (mirrors React's MathEditor) ──
@@ -197,6 +200,7 @@ export const NotebookCell = defineComponent({
     pipeline: { type: Object as PropType<RenderPipeline>, required: true },
     index: { type: Number, required: true },
     totalCells: { type: Number, required: true },
+    components: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
   },
   setup(props) {
     const engine = useNotebookEngine();
@@ -295,20 +299,21 @@ export const NotebookCell = defineComponent({
       ]);
 
       // Type badge
-      const typeIcon = CELL_TYPES.find(ct => ct.value === cellType)?.icon || cellType.slice(0, 2).toUpperCase();
+      const activeTypeDef = CELL_TYPES.find(ct => ct.value === cellType);
       const badgeWrap = h("div", { class: "sci-nb-cell-badge-wrap" }, [
         h("button", {
           class: "sci-nb-cell-badge",
           title: "Change cell type",
+          innerHTML: activeTypeDef ? activeTypeDef.icon : cellType.slice(0, 2).toUpperCase(),
           onClick: (e: MouseEvent) => { e.stopPropagation(); showTypeMenu.value = !showTypeMenu.value; },
-        }, typeIcon),
+        }),
         ...(showTypeMenu.value ? [
           h("div", { class: "sci-nb-type-menu" },
             CELL_TYPES.map(ct =>
               h("button", {
                 class: `sci-nb-type-option ${cellType === ct.value ? "sci-nb-type-option--active" : ""}`,
                 onClick: (e: MouseEvent) => { e.stopPropagation(); engine.setCellType(props.cellId, ct.value); showTypeMenu.value = false; },
-              }, [h("span", { class: "sci-nb-type-option-icon" }, ct.icon), ct.label])
+              }, [h("span", { class: "sci-nb-type-option-icon", innerHTML: ct.icon }), ct.label])
             )
           ),
         ] : []),
@@ -393,6 +398,19 @@ export const NotebookCell = defineComponent({
           );
         } else if (cellType === "mermaid") {
           contentChildren.push(h(MermaidPreview, { source: cell.value!.source, onClick: enterEdit }));
+        } else if (cellType === "component") {
+          contentChildren.push(
+            h("div", {
+              class: "sci-nb-preview sci-nb-preview--component",
+              onClick: enterEdit,
+            }, [
+              h(ComponentCell, {
+                cellId: props.cellId,
+                source: cell.value!.source,
+                components: props.components,
+              })
+            ])
+          );
         } else {
           contentChildren.push(
             h("div", {
