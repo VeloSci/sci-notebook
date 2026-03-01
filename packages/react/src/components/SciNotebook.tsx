@@ -36,6 +36,8 @@ export interface SciNotebookProps {
   onReady?: (engine: EditorEngine) => void;
   /** Show TOC sidebar */
   showTOC?: boolean;
+  /** Component registry for rendering custom framework components */
+  components?: Record<string, React.ElementType>;
 }
 
 export const SciNotebook: React.FC<SciNotebookProps> = ({
@@ -53,6 +55,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
   engineRef,
   onReady,
   showTOC: showTOCProp = false,
+  components = {},
 }) => {
   const engine = useMemo(() => {
     if (providedEngine) return providedEngine;
@@ -218,6 +221,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
                 pipeline={pipeline}
                 index={idx}
                 totalCells={cells.length}
+                components={components}
               />
               {/* Insert handle between cells and after last */}
               <InsertHandle index={idx + 1} />

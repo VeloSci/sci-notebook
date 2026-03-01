@@ -1,19 +1,77 @@
 import React, { useState, useRef, useEffect } from "react";
-import { CellType } from "@velo-sci/notebook-core";
+import { CellType, CELL_ICONS } from "@velo-sci/notebook-core";
 import { useSciNotebook } from "../hooks";
 
 interface InsertHandleProps {
   index: number;
 }
 
-const INSERT_TYPES: { type: CellType; label: string; icon: string }[] = [
-  { type: "markdown", label: "Markdown", icon: "M" },
-  { type: "code", label: "Code", icon: "</>" },
-  { type: "latex", label: "LaTeX", icon: "∑" },
-  { type: "image", label: "Imagen", icon: "🖼" },
-  { type: "embed", label: "Embed", icon: "⧉" },
-  { type: "table", label: "Tabla", icon: "▦" },
-  { type: "raw", label: "Raw", icon: "T" },
+// Convert core SVG strings into React DOM safely without dangerouslySetInnerHTML
+function svgStringToReactNode(svgStr: string): React.ReactNode {
+  if (typeof document === "undefined") {
+    // SSR fallback
+    return null;
+  }
+  
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgStr, "image/svg+xml");
+  const svgNode = doc.querySelector("svg");
+  
+  if (!svgNode) return null;
+
+  // Recursively map a DOM node to a React element
+  const domToReact = (node: Element, key: number): React.ReactNode => {
+    const tagName = node.tagName.toLowerCase();
+    
+    if (tagName === "style") {
+      return React.createElement("style", { key, dangerouslySetInnerHTML: { __html: node.textContent || "" } });
+    }
+
+    // Convert DOM attributes to React camelCase equivalents
+    const props: Record<string, any> = { key };
+    for (let i = 0; i < node.attributes.length; i++) {
+      const attr = node.attributes[i];
+      let name = attr.name;
+      
+      // Handle known React SVG attributes that need camelCase conversion
+      const camelCaseMap: Record<string, string> = {
+        "class": "className",
+        "stroke-width": "strokeWidth",
+        "stroke-linecap": "strokeLinecap",
+        "stroke-linejoin": "strokeLinejoin",
+        "stroke-dasharray": "strokeDasharray",
+        "stroke-dashoffset": "strokeDashoffset",
+        "viewbox": "viewBox",
+        "fill-rule": "fillRule",
+        "clip-rule": "clipRule",
+      };
+      
+      if (camelCaseMap[name.toLowerCase()]) {
+        name = camelCaseMap[name.toLowerCase()];
+      }
+      
+      props[name] = attr.value;
+    }
+
+    const children = Array.from(node.children).map((child, childIdx) => 
+      domToReact(child, childIdx)
+    );
+
+    return React.createElement(tagName, props, children.length > 0 ? children : undefined);
+  };
+
+  return domToReact(svgNode, 0);
+}
+
+const INSERT_TYPES: { type: CellType; label: string; icon: React.ReactNode }[] = [
+  { type: "markdown", label: "Markdown", icon: svgStringToReactNode(CELL_ICONS.markdown) },
+  { type: "code", label: "Code", icon: svgStringToReactNode(CELL_ICONS.code) },
+  { type: "latex", label: "LaTeX", icon: svgStringToReactNode(CELL_ICONS.latex) },
+  { type: "image", label: "Imagen", icon: svgStringToReactNode(CELL_ICONS.image) },
+  { type: "embed", label: "Embed", icon: svgStringToReactNode(CELL_ICONS.embed) },
+  { type: "table", label: "Tabla", icon: svgStringToReactNode(CELL_ICONS.table) },
+  { type: "component", label: "Component", icon: svgStringToReactNode(CELL_ICONS.component) },
+  { type: "raw", label: "Raw", icon: svgStringToReactNode(CELL_ICONS.raw) },
 ];
 
 export const InsertHandle: React.FC<InsertHandleProps> = ({ index }) => {
