@@ -753,3 +753,33 @@ body::after {
   background: none;
   -webkit-text-fill-color: initial;
 }
+
+/* Full width page overrides to remove aside and expand content */
+.full-width-page .VPDoc .aside {
+  display: none !important;
+}
+
+.full-width-page .VPDoc .container {
+  max-width: 100% !important;
+}
+
+.full-width-page .VPDoc .content {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.full-width-page .VPDoc .content-container {
+  max-width: 100% !important;
+}
+
+.full-width-page .vp-doc {
+  max-width: 100% !important;
+}
+
+/* Override max-width for content container across all pages to leave full space for the notebook */
+.VPDoc.has-aside .content-container {
+  max-width: none !important;
+}
+.VPDoc .content-container {
+  max-width: none !important;
+}
