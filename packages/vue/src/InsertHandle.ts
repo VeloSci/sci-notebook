@@ -1,15 +1,16 @@
 import { defineComponent, h, ref, onMounted, onUnmounted } from "vue";
-import type { CellType } from "@velo-sci/notebook-core";
+import { type CellType, CELL_ICONS } from "@velo-sci/notebook-core";
 import { useNotebookEngine } from "./composables";
 
 const INSERT_TYPES: { type: CellType; label: string; icon: string }[] = [
-  { type: "markdown", label: "Markdown", icon: "M" },
-  { type: "code", label: "Code", icon: "</>" },
-  { type: "latex", label: "LaTeX", icon: "∑" },
-  { type: "image", label: "Imagen", icon: "🖼" },
-  { type: "embed", label: "Embed", icon: "⧉" },
-  { type: "table", label: "Tabla", icon: "▦" },
-  { type: "raw", label: "Raw", icon: "T" },
+  { type: "markdown", label: "Markdown", icon: CELL_ICONS.markdown },
+  { type: "code", label: "Code", icon: CELL_ICONS.code },
+  { type: "latex", label: "LaTeX", icon: CELL_ICONS.latex },
+  { type: "image", label: "Imagen", icon: CELL_ICONS.image },
+  { type: "embed", label: "Embed", icon: CELL_ICONS.embed },
+  { type: "table", label: "Tabla", icon: CELL_ICONS.table },
+  { type: "component", label: "Component", icon: CELL_ICONS.component },
+  { type: "raw", label: "Raw", icon: CELL_ICONS.raw },
 ];
 
 export const InsertHandle = defineComponent({
@@ -57,10 +58,10 @@ export const InsertHandle = defineComponent({
               h("button", {
                 class: "sci-nb-insert-option",
                 key: ct.type,
-                onClick: (e: MouseEvent) => { e.stopPropagation(); handleInsert(ct.type); },
+                onClick: () => handleInsert(ct.type),
               }, [
-                h("span", { class: "sci-nb-insert-option-icon" }, ct.icon),
-                h("span", {}, ct.label),
+                h("span", { class: "sci-nb-insert-option-icon", innerHTML: ct.icon }),
+                h("span", null, ct.label),
               ])
             )
           ),

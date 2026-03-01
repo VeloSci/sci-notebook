@@ -8,8 +8,8 @@
  * React keeps its JSX approach but uses the same class names.
  * All other adapters call these functions to build DOM elements.
  */
-
 import type { Cell, CellType, EditorEngine } from "@velo-sci/notebook-core";
+import { CELL_ICONS } from "@velo-sci/notebook-core";
 import { RenderPipeline } from "./pipeline";
 import { MATH_CATEGORIES, type MathBlock } from "./math-categories";
 
@@ -35,26 +35,16 @@ interface EmbedData {
 
 // ── Constants ──────────────────────────────────────────────────────
 
-const CELL_TYPE_ICONS: Record<string, string> = {
-  markdown: "M",
-  code: "</>",
-  raw: "T",
-  latex: "∑",
-  image: "🖼",
-  embed: "⧉",
-  table: "▦",
-  mermaid: "◇",
-};
-
-const CELL_TYPES: { value: string; label: string; icon: string }[] = [
-  { value: "markdown", label: "Markdown", icon: "M" },
-  { value: "code", label: "Code", icon: "</>" },
-  { value: "latex", label: "LaTeX", icon: "∑" },
-  { value: "table", label: "Table", icon: "▦" },
-  { value: "image", label: "Image", icon: "🖼" },
-  { value: "mermaid", label: "Diagram", icon: "◇" },
-  { value: "embed", label: "Embed", icon: "⧉" },
-  { value: "raw", label: "Raw", icon: "T" },
+const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
+  { value: "markdown", label: "Markdown", icon: CELL_ICONS.markdown },
+  { value: "code", label: "Code", icon: CELL_ICONS.code },
+  { value: "latex", label: "LaTeX", icon: CELL_ICONS.latex },
+  { value: "table", label: "Table", icon: CELL_ICONS.table },
+  { value: "image", label: "Image", icon: CELL_ICONS.image },
+  { value: "mermaid", label: "Diagram", icon: CELL_ICONS.mermaid },
+  { value: "embed", label: "Embed", icon: CELL_ICONS.embed },
+  { value: "component", label: "Component", icon: CELL_ICONS.component },
+  { value: "raw", label: "Raw", icon: CELL_ICONS.raw },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -65,6 +55,7 @@ const PLACEHOLDERS: Record<string, string> = {
   image: "Click to add image",
   embed: "Click to add embedded content",
   table: "| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |",
+  component: 'Enter component JSON config... { "name": "Chart", "props": {} }',
 };
 
 // ── SVG Icons (same as React) ──────────────────────────────────────
@@ -93,6 +84,7 @@ export interface DOMCellBuilderOptions {
   engine: EditorEngine;
   pipeline: RenderPipeline;
   readOnly?: boolean;
+  renderComponent?: (container: HTMLElement, cell: Cell) => void;
 }
 
 /**
@@ -103,11 +95,13 @@ export class DOMCellBuilder {
   private engine: EditorEngine;
   private pipeline: RenderPipeline;
   private readOnly: boolean;
+  private renderComponentHook?: (container: HTMLElement, cell: Cell) => void;
 
   constructor(opts: DOMCellBuilderOptions) {
     this.engine = opts.engine;
     this.pipeline = opts.pipeline;
     this.readOnly = opts.readOnly ?? false;
+    this.renderComponentHook = opts.renderComponent;
   }
 
   // ── Full cell element ──
@@ -171,6 +165,17 @@ export class DOMCellBuilder {
     return gutter;
   }
 
+  // ── Helpers ──
+  
+  private parseSvg(svgStr: string): SVGSVGElement | null {
+    if (!svgStr.includes('xmlns=')) {
+      svgStr = svgStr.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+    }
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgStr, "image/svg+xml");
+    return doc.querySelector("svg");
+  }
+
   // ── Type badge ──
 
   private buildBadge(cell: Cell): HTMLElement {
@@ -180,7 +185,12 @@ export class DOMCellBuilder {
     const badge = document.createElement("button");
     badge.className = "sci-nb-cell-badge";
     badge.title = "Change cell type";
-    badge.textContent = CELL_TYPE_ICONS[cell.type] || cell.type.slice(0, 2).toUpperCase();
+    if (CELL_ICONS[cell.type]) {
+      const svg = this.parseSvg(CELL_ICONS[cell.type]);
+      if (svg) badge.appendChild(svg);
+    } else {
+      badge.textContent = cell.type.slice(0, 2).toUpperCase();
+    }
 
     badge.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -192,7 +202,17 @@ export class DOMCellBuilder {
       for (const ct of CELL_TYPES) {
         const opt = document.createElement("button");
         opt.className = `sci-nb-type-option ${cell.type === ct.value ? "sci-nb-type-option--active" : ""}`;
-        opt.innerHTML = `<span class="sci-nb-type-option-icon">${ct.icon}</span>${ct.label}`;
+        
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "sci-nb-type-option-icon";
+        const svg = this.parseSvg(ct.icon);
+        if (svg) iconSpan.appendChild(svg);
+        
+        const textNode = document.createTextNode(ct.label);
+        
+        opt.appendChild(iconSpan);
+        opt.appendChild(textNode);
+
         opt.addEventListener("click", (ev) => {
           ev.stopPropagation();
           this.engine.setCellType(cell.id, ct.value as CellType);
@@ -1084,10 +1104,17 @@ export class DOMCellBuilder {
     const classes = ["sci-nb-preview"];
     if (isEmpty) classes.push("sci-nb-preview--empty");
     if (cell.type === "embed") classes.push("sci-nb-preview--embed");
+    if (cell.type === "component") classes.push("sci-nb-preview--component");
     preview.className = classes.join(" ");
 
     if (isEmpty) {
       preview.innerHTML = `<span class="sci-nb-placeholder">${placeholder}</span>`;
+    } else if (cell.type === "component") {
+      if (this.renderComponentHook) {
+        this.renderComponentHook(preview, cell);
+      } else {
+        preview.innerHTML = `<div class="sci-nb-component-not-found" style="padding: 1rem; color: var(--sci-text-muted);">Component rendering not supported by adapter</div>`;
+      }
     } else {
       preview.innerHTML = rendered.html;
     }
@@ -1142,30 +1169,34 @@ export class DOMCellBuilder {
 
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const existingMenu = handle.querySelector(".sci-nb-insert-menu");
+      const existingMenu = handle.querySelector(".sci-nb-insert-menu-wrap");
       if (existingMenu) { existingMenu.remove(); return; }
+
+      const wrap = document.createElement("div");
+      wrap.className = "sci-nb-insert-menu-wrap sci-nb-insert-menu-wrap--renderer";
 
       const menu = document.createElement("div");
       menu.className = "sci-nb-insert-menu";
 
-      const INSERT_TYPES = [
-        { type: "markdown", label: "Markdown", icon: "M" },
-        { type: "code", label: "Code", icon: "</>" },
-        { type: "latex", label: "Formula", icon: "∑" },
-        { type: "table", label: "Table", icon: "▦" },
-        { type: "image", label: "Image", icon: "🖼" },
-        { type: "mermaid", label: "Diagram", icon: "◇" },
-        { type: "embed", label: "Embed", icon: "⧉" },
-      ];
-
-      for (const ct of INSERT_TYPES) {
+      for (const ct of CELL_TYPES) {
         const opt = document.createElement("button");
         opt.className = "sci-nb-insert-option";
-        opt.innerHTML = `<span class="sci-nb-insert-option-icon">${ct.icon}</span><span>${ct.label}</span>`;
+        
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "sci-nb-insert-option-icon";
+        const svg = this.parseSvg(ct.icon);
+        if (svg) iconSpan.appendChild(svg);
+        
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = ct.label;
+        
+        opt.appendChild(iconSpan);
+        opt.appendChild(labelSpan);
+
         opt.addEventListener("click", (ev) => {
           ev.stopPropagation();
-          menu.remove();
-          const cell = this.engine.insertCell(index, ct.type as CellType);
+          wrap.remove();
+          const cell = this.engine.insertCell(index, ct.value as CellType);
           requestAnimationFrame(() => {
             this.engine.setEditMode(cell.id);
             this.engine.focusCell(cell.id);
@@ -1174,12 +1205,13 @@ export class DOMCellBuilder {
         menu.appendChild(opt);
       }
 
-      handle.appendChild(menu);
+      wrap.appendChild(menu);
+      handle.appendChild(wrap);
 
       // Close on outside click
       const close = (ev: MouseEvent) => {
-        if (!handle.contains(ev.target as Node)) {
-          menu.remove();
+        if (!wrap.contains(ev.target as Node)) {
+          wrap.remove();
           document.removeEventListener("mousedown", close);
         }
       };
@@ -1453,7 +1485,15 @@ export class DOMCellBuilder {
       // 3. If type changed, update badge text
       if (typeChanged) {
         const badge = existing.querySelector(".sci-nb-cell-badge");
-        if (badge) badge.textContent = CELL_TYPE_ICONS[cell.type] || cell.type.slice(0, 2).toUpperCase();
+        if (badge) {
+          badge.innerHTML = "";
+          if (CELL_ICONS[cell.type]) {
+            const svg = this.parseSvg(CELL_ICONS[cell.type]);
+            if (svg) badge.appendChild(svg);
+          } else {
+            badge.textContent = cell.type.slice(0, 2).toUpperCase();
+          }
+        }
       }
     }
   }
