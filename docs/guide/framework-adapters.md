@@ -1,3 +1,10 @@
+---
+layout: doc
+title: Framework Adapters
+outline: false
+pageClass: full-width-page
+---
+
 <script setup>
 import { frameworkAdaptersNotebook } from '../.vitepress/theme/notebooks'
 </script>
