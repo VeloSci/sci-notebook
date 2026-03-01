@@ -1,3 +1,10 @@
+---
+layout: doc
+title: Math Editor
+outline: false
+pageClass: full-width-page
+---
+
 <script setup>
 import { mathEditorNotebook } from '../.vitepress/theme/notebooks/math-editor'
 </script>
