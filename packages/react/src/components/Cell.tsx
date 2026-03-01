@@ -10,6 +10,7 @@ export interface CellProps {
   pipeline: RenderPipeline;
   index: number;
   totalCells: number;
+  components?: Record<string, React.ElementType>;
 }
 
 const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
@@ -19,6 +20,7 @@ const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
   { value: "latex", label: "LaTeX", icon: "∑" },
   { value: "image", label: "Image", icon: "🖼" },
   { value: "embed", label: "Embed", icon: "⧉" },
+  { value: "component", label: "Component", icon: "🧩" },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -28,9 +30,10 @@ const PLACEHOLDERS: Record<string, string> = {
   latex: "Write LaTeX here... e.g. \\int_0^1 x^2 dx",
   image: "Click to add image",
   embed: "Click to add embedded content",
+  component: 'Enter component JSON config... { "name": "Chart", "props": {} }',
 };
 
-export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells }) => {
+export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells, components }) => {
   const cell = useCell(cellId);
   const engine = useSciNotebook();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -188,7 +191,7 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells 
       <div className="sci-nb-cell-content">
         {isEditing
           ? renderEditMode(cell, cellId, engine, textareaRef, handleSourceChange, handleKeyDown, placeholder, exitEdit, slashState, handleSlashSelect, () => setSlashState(null))
-          : renderViewMode(cell, rendered.html, isEmpty, placeholder, enterEdit)}
+          : renderViewMode(cell, rendered.html, isEmpty, placeholder, enterEdit, components)}
         {cell.outputs && cell.outputs.length > 0 && <CellOutputDisplay outputs={cell.outputs} />}
       </div>
 

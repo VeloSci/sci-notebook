@@ -8,6 +8,7 @@ import { SlashCommand } from "./SlashCommand";
 import { TableCell, renderTablePreview } from "./TableCell";
 import { MermaidPreview } from "./MermaidCell";
 import { CodeEditor } from "./CodeEditor";
+import { ComponentCell } from "./ComponentCell";
 
 /** Render the edit-mode content for a cell */
 export function renderEditMode(
@@ -36,9 +37,9 @@ export function renderEditMode(
     return <TableCell cellId={cellId} source={cell.source} metadata={cell.metadata} onExit={exitEdit} />;
   }
 
-  // Code cells: syntax-highlighted editor
-  if (cell.type === "code") {
-    const lang = (cell.metadata.language as string) || "javascript";
+  // Code or Component cells: syntax-highlighted editor
+  if (cell.type === "code" || cell.type === "component") {
+    const lang = cell.type === "component" ? "json" : ((cell.metadata.language as string) || "javascript");
     return (
       <>
         <CodeEditor
@@ -94,6 +95,7 @@ export function renderViewMode(
   isEmpty: boolean,
   placeholder: string,
   enterEdit: () => void,
+  components?: Record<string, React.ElementType>,
 ): React.ReactNode {
   if (cell.type === "image") {
     const html = renderImagePreview(cell.source, cell.metadata);
@@ -120,6 +122,14 @@ export function renderViewMode(
     return <MermaidPreview source={cell.source} onClick={enterEdit} />;
   }
 
+  if (cell.type === "component") {
+    return (
+      <div className="sci-nb-preview sci-nb-preview--component" onClick={enterEdit}>
+        <ComponentCell cellId={cell.id} source={cell.source} components={components} />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`sci-nb-preview ${isEmpty ? "sci-nb-preview--empty" : ""}`}
@@ -132,3 +142,4 @@ export function renderViewMode(
     />
   );
 }
+
