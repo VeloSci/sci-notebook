@@ -1,6 +1,6 @@
 {
   "name": "@velo-sci/notebook-plugin-latex",
-  "version": "0.7.0",
+  "version": "0.8.1",
   "description": "LaTeX plugin for sci-notebook",
   "publishConfig": {
     "access": "public"
