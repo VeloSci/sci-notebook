@@ -31,6 +31,8 @@ export interface SciNotebookSvelteOptions {
   showTOC?: boolean;
   /** Framework components registry */
   components?: Record<string, any>;
+  /** Nesting level */
+  level?: number;
 }
 
 /**
@@ -104,11 +106,42 @@ export class SciNotebookSvelte {
 
     this.pipeline = new RenderPipeline();
     const componentInstances = new WeakMap<HTMLElement, ReturnType<typeof mount>>();
+    const notebookInstances = new WeakMap<HTMLElement, SciNotebookSvelte>();
 
     this.builder = new DOMCellBuilder({
       engine: this.engine,
       pipeline: this.pipeline,
       readOnly: options.readOnly,
+      level: options.level || 0,
+      renderNotebookHook: (container: HTMLElement, cell: Cell, isEditing: boolean) => {
+        let nestedData: Notebook | undefined = undefined;
+        try {
+          if (cell.source) {
+            nestedData = JSON.parse(cell.source);
+          }
+        } catch(e) {}
+
+        if (notebookInstances.has(container)) {
+          try { notebookInstances.get(container)!.destroy(); } catch {}
+          notebookInstances.delete(container);
+        }
+
+        container.innerHTML = "";
+        const instance = new SciNotebookSvelte({
+          target: container,
+          notebook: nestedData || { id: `nested-${cell.id}`, title: "Nested Notebook", cells: [], metadata: {}, version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          readOnly: Boolean(cell.metadata?.readOnly ?? this.options.readOnly),
+          showToolbar: false,
+          showTOC: false,
+          theme: "inherit",
+          level: (this.options.level || 0) + 1,
+          components: this.options.components,
+          onChange: (updated) => {
+            this.engine.updateCellSource(cell.id, JSON.stringify(updated));
+          }
+        });
+        notebookInstances.set(container, instance);
+      },
       renderComponent: (container: HTMLElement, cell: Cell) => {
         let data: any = null;
         if (!cell.source.trim()) {
@@ -181,6 +214,7 @@ export class SciNotebookSvelte {
     this.container.innerHTML = "";
     this.container.className = "sci-nb sci-nb--svelte";
     this.container.dataset.theme = this.options.theme || "light";
+    this.container.dataset.level = String(this.options.level || 0);
     this.container.tabIndex = 0;
     this.showTOC = !!this.options.showTOC;
 
@@ -258,5 +292,16 @@ export class SciNotebookSvelte {
       if (this.showTOC) this.updateTOC();
     });
     this.unsubscribers.push(focusUnsub);
+
+    const onRemove = (e: Event) => {
+      const ce = e as CustomEvent<{ notebookId: string; cellId: string }>;
+      if (ce.detail.notebookId === this.engine.getNotebook().id) {
+        this.engine.deleteCell(ce.detail.cellId);
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("sci-nb-remove-cell", onRemove);
+      this.unsubscribers.push(() => window.removeEventListener("sci-nb-remove-cell", onRemove));
+    }
   }
 }

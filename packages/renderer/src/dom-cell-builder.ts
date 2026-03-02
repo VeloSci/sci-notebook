@@ -45,6 +45,7 @@ const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
   { value: "embed", label: "Embed", icon: CELL_ICONS.embed },
   { value: "component", label: "Component", icon: CELL_ICONS.component },
   { value: "raw", label: "Raw", icon: CELL_ICONS.raw },
+  { value: "notebook", label: "Notebook", icon: CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>' },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -56,6 +57,7 @@ const PLACEHOLDERS: Record<string, string> = {
   embed: "Click to add embedded content",
   table: "| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |",
   component: 'Enter component JSON config... { "name": "Chart", "props": {} }',
+  notebook: "Nested Notebook (click to edit)",
 };
 
 // ── SVG Icons (same as React) ──────────────────────────────────────
@@ -85,6 +87,8 @@ export interface DOMCellBuilderOptions {
   pipeline: RenderPipeline;
   readOnly?: boolean;
   renderComponent?: (container: HTMLElement, cell: Cell) => void;
+  renderNotebookHook?: (container: HTMLElement, cell: Cell, isEditing: boolean) => void;
+  level?: number;
 }
 
 /**
@@ -96,12 +100,16 @@ export class DOMCellBuilder {
   private pipeline: RenderPipeline;
   private readOnly: boolean;
   private renderComponentHook?: (container: HTMLElement, cell: Cell) => void;
+  private renderNotebookHook?: (container: HTMLElement, cell: Cell, isEditing: boolean) => void;
+  private level: number;
 
   constructor(opts: DOMCellBuilderOptions) {
     this.engine = opts.engine;
     this.pipeline = opts.pipeline;
     this.readOnly = opts.readOnly ?? false;
     this.renderComponentHook = opts.renderComponent;
+    this.renderNotebookHook = opts.renderNotebookHook;
+    this.level = opts.level ?? 0;
   }
 
   // ── Full cell element ──
@@ -199,7 +207,7 @@ export class DOMCellBuilder {
 
       const menu = document.createElement("div");
       menu.className = "sci-nb-type-menu";
-      for (const ct of CELL_TYPES) {
+      for (const ct of CELL_TYPES.filter(c => this.level === 0 || c.value !== "notebook")) {
         const opt = document.createElement("button");
         opt.className = `sci-nb-type-option ${cell.type === ct.value ? "sci-nb-type-option--active" : ""}`;
         
@@ -260,6 +268,9 @@ export class DOMCellBuilder {
     }
     if (cell.type === "embed") {
       return this.buildEmbedEditor(cell);
+    }
+    if (cell.type === "notebook") {
+      return this.buildNotebookInner(cell, true) as DocumentFragment;
     }
 
     const frag = document.createDocumentFragment();
@@ -1096,6 +1107,10 @@ export class DOMCellBuilder {
   // ── Preview (view mode — uses sci-nb-preview class like React) ──
 
   private buildPreview(cell: Cell): HTMLElement {
+    if (cell.type === "notebook") {
+      return this.buildNotebookInner(cell, false) as HTMLElement;
+    }
+
     const rendered = this.pipeline.render(cell);
     const isEmpty = !cell.source.trim();
     const placeholder = PLACEHOLDERS[cell.type] || "Click to edit...";
@@ -1153,6 +1168,79 @@ export class DOMCellBuilder {
     return actions;
   }
 
+  // ── Notebook Inner Wrapper ──
+
+  private buildNotebookInner(cell: Cell, isEditing: boolean): DocumentFragment | HTMLElement {
+    const isFragment = isEditing ? document.createDocumentFragment() : null;
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = "sci-nb-nested";
+    wrapper.style.cssText = "border: 1px solid var(--sci-nb-border, #e5e7eb); border-radius: 6px; padding: 1px; background: var(--sci-nb-bg, #fafafa); margin-top: 8px; margin-bottom: 8px; display: flex; flex-direction: column; cursor: default;";
+
+    if (isEditing && !this.readOnly) {
+      const topBar = document.createElement("div");
+      topBar.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--sci-nb-border, #e5e7eb); background: var(--sci-nb-bg-toolbar, #f1f5f9); border-top-left-radius: 5px; border-top-right-radius: 5px; font-size: 12px; font-weight: 600; color: var(--sci-nb-text, #333);";
+      topBar.innerHTML = `<div>Nested Notebook (Level 1)</div>`;
+      
+      const controls = document.createElement("div");
+      controls.style.cssText = "display: flex; gap: 12px; align-items: center;";
+      
+      const lbl = document.createElement("label");
+      lbl.style.cssText = "display: flex; align-items: center; gap: 4px; cursor: pointer;";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = !!cell.metadata?.readOnly;
+      chk.addEventListener("change", () => {
+        this.engine.updateCellMetadata(cell.id, { readOnly: chk.checked });
+      });
+      lbl.appendChild(chk);
+      lbl.appendChild(document.createTextNode("Read-Only for users"));
+      controls.appendChild(lbl);
+      
+      const btn = document.createElement("button");
+      btn.style.cssText = "background: transparent; border: none; cursor: pointer; color: var(--sci-nb-text-dim, #64748b); padding: 0;";
+      btn.title = "Exit Edit Mode";
+      btn.textContent = "Done";
+      btn.addEventListener("click", () => this.engine.setViewMode(cell.id));
+      controls.appendChild(btn);
+
+      topBar.appendChild(controls);
+      wrapper.appendChild(topBar);
+    } else if (!isEditing) {
+       wrapper.addEventListener("click", (e) => {
+         e.stopPropagation();
+         this.engine.focusCell(cell.id);
+         this.engine.setEditMode(cell.id);
+       });
+    }
+
+    const inner = document.createElement("div");
+    inner.style.padding = "8px";
+    
+    if (this.renderNotebookHook) {
+      if (!isEditing && !cell.source.trim()) {
+        inner.innerHTML = `<span class="sci-nb-placeholder">Nested Notebook (click to edit)</span>`;
+      } else {
+        this.renderNotebookHook(inner, cell, isEditing);
+      }
+    } else {
+      inner.innerText = "No renderNotebookHook provided.";
+    }
+
+    if (isEditing) {
+      // In edit mode we disable preview clicks turning it into edit mode
+      inner.addEventListener("click", (e) => e.stopPropagation());
+    }
+
+    wrapper.appendChild(inner);
+    
+    if (isFragment) {
+      isFragment.appendChild(wrapper);
+      return isFragment;
+    }
+    return wrapper;
+  }
+
   // ── Insert handle (matches React's InsertHandle exactly) ──
 
   buildInsertHandle(index: number): HTMLElement {
@@ -1178,7 +1266,7 @@ export class DOMCellBuilder {
       const menu = document.createElement("div");
       menu.className = "sci-nb-insert-menu";
 
-      for (const ct of CELL_TYPES) {
+      for (const ct of CELL_TYPES.filter(c => this.level === 0 || c.value !== "notebook")) {
         const opt = document.createElement("button");
         opt.className = "sci-nb-insert-option";
         
@@ -1511,7 +1599,16 @@ export class DOMCellBuilder {
 
   private bindDragDrop(el: HTMLElement, cellId: string, index: number) {
     el.addEventListener("dragstart", (e) => {
+      e.stopPropagation();
       e.dataTransfer!.setData("text/plain", cellId);
+      const cell = this.engine.getCell(cellId);
+      if (cell) {
+        e.dataTransfer!.setData("application/sci-notebook-cell", JSON.stringify({
+          srcNotebookId: this.engine.getNotebook().id,
+          cellId: cellId,
+          cell: cell
+        }));
+      }
       e.dataTransfer!.effectAllowed = "move";
       el.classList.add("sci-nb-cell--dragging");
     });
@@ -1520,6 +1617,7 @@ export class DOMCellBuilder {
     });
     el.addEventListener("dragover", (e) => {
       e.preventDefault();
+      e.stopPropagation();
       e.dataTransfer!.dropEffect = "move";
       const rect = el.getBoundingClientRect();
       const isTop = e.clientY < rect.top + rect.height / 2;
@@ -1531,11 +1629,32 @@ export class DOMCellBuilder {
     });
     el.addEventListener("drop", (e) => {
       e.preventDefault();
-      const draggedId = e.dataTransfer!.getData("text/plain");
+      e.stopPropagation();
       el.classList.remove("sci-nb-cell--drag-over-top", "sci-nb-cell--drag-over-bottom");
+      
+      const rect = el.getBoundingClientRect();
+      const targetIdx = e.clientY < rect.top + rect.height / 2 ? index : index + 1;
+      
+      try {
+        const payloadStr = e.dataTransfer!.getData("application/sci-notebook-cell");
+        if (payloadStr) {
+          const payload = JSON.parse(payloadStr);
+          if (payload.srcNotebookId === this.engine.getNotebook().id) {
+            if (payload.cellId !== cellId) this.engine.moveCell(payload.cellId, targetIdx);
+          } else {
+            const newCell = this.engine.insertCell(targetIdx, payload.cell.type, payload.cell.source);
+            this.engine.updateCellMetadata(newCell.id, payload.cell.metadata);
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("sci-nb-remove-cell", { detail: { notebookId: payload.srcNotebookId, cellId: payload.cellId } }));
+            }
+          }
+          return;
+        }
+      } catch (err) {}
+
+      const draggedId = e.dataTransfer!.getData("text/plain");
       if (draggedId && draggedId !== cellId) {
-        const rect = el.getBoundingClientRect();
-        this.engine.moveCell(draggedId, e.clientY < rect.top + rect.height / 2 ? index : index + 1);
+        this.engine.moveCell(draggedId, targetIdx);
       }
     });
   }
