@@ -1,24 +1,51 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { CellType } from "@velo-sci/notebook-core";
+import { CellType, CELL_ICONS } from "@velo-sci/notebook-core";
+
+
+// Helper to convert SVG strings safely (mirrored from Cell.tsx)
+function svgStringToReactNode(svgStr: string): React.ReactNode {
+  if (typeof document === "undefined") return null;
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgStr, "image/svg+xml");
+  const svgNode = doc.querySelector("svg");
+  if (!svgNode) return null;
+  const domToReact = (node: Element, key: number): React.ReactNode => {
+    const tagName = node.tagName.toLowerCase();
+    if (tagName === "style") return React.createElement("style", { key, dangerouslySetInnerHTML: { __html: node.textContent || "" } });
+    const props: Record<string, any> = { key };
+    for (let i = 0; i < node.attributes.length; i++) {
+      const attr = node.attributes[i];
+      let name = attr.name;
+      const camelCaseMap: Record<string, string> = { "class": "className", "stroke-width": "strokeWidth", "stroke-linecap": "strokeLinecap", "stroke-linejoin": "strokeLinejoin", "stroke-dasharray": "strokeDasharray", "stroke-dashoffset": "strokeDashoffset", "viewbox": "viewBox", "fill-rule": "fillRule", "clip-rule": "clipRule" };
+      if (camelCaseMap[name.toLowerCase()]) name = camelCaseMap[name.toLowerCase()];
+      props[name] = attr.value;
+    }
+    const children = Array.from(node.children).map((child, childIdx) => domToReact(child, childIdx));
+    return React.createElement(tagName, props, children.length > 0 ? children : undefined);
+  };
+  return domToReact(svgNode, 0);
+}
 
 export interface SlashCommandItem {
   type: CellType;
   label: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   keywords: string[];
 }
 
 const DEFAULT_COMMANDS: SlashCommandItem[] = [
-  { type: "markdown", label: "Text", description: "Markdown formatted text block", icon: "M", keywords: ["text", "markdown", "paragraph"] },
-  { type: "code", label: "Code", description: "Code block with syntax highlighting", icon: "</>", keywords: ["code", "script", "program"] },
-  { type: "latex", label: "Formula", description: "Visual LaTeX formula editor", icon: "∑", keywords: ["latex", "math", "formula", "equation"] },
-  { type: "image", label: "Image", description: "Image with drag & drop, URL, caption", icon: "🖼", keywords: ["image", "picture", "photo", "img"] },
-  { type: "embed", label: "Embed", description: "YouTube, CodePen, Desmos, iframe", icon: "⧉", keywords: ["embed", "iframe", "youtube", "video", "codepen"] },
-  { type: "table", label: "Table", description: "Editable table with rows and columns", icon: "▦", keywords: ["table", "grid", "spreadsheet"] },
-  { type: "mermaid", label: "Diagram", description: "Mermaid diagram (flowchart, sequence, etc.)", icon: "◇", keywords: ["mermaid", "diagram", "flowchart", "chart"] },
-  { type: "raw", label: "Raw", description: "Plain unformatted text", icon: "T", keywords: ["raw", "plain", "text"] },
+  { type: "markdown", label: "Markdown", description: "Markdown text block", icon: svgStringToReactNode(CELL_ICONS.markdown), keywords: ["text", "markdown", "paragraph"] },
+  { type: "code", label: "Code", description: "Code block", icon: svgStringToReactNode(CELL_ICONS.code), keywords: ["code", "script", "program"] },
+  { type: "latex", label: "LaTeX", description: "LaTeX formula", icon: svgStringToReactNode(CELL_ICONS.latex), keywords: ["latex", "math", "formula", "equation"] },
+  { type: "image", label: "Image", description: "Image block", icon: svgStringToReactNode(CELL_ICONS.image), keywords: ["image", "picture", "photo", "img"] },
+  { type: "embed", label: "Embed", description: "External content", icon: svgStringToReactNode(CELL_ICONS.embed), keywords: ["embed", "iframe", "youtube", "video", "codepen"] },
+  { type: "table", label: "Table", description: "Table block", icon: svgStringToReactNode(CELL_ICONS.table), keywords: ["table", "grid", "spreadsheet"] },
+  { type: "mermaid", label: "Diagram", description: "Mermaid diagram", icon: svgStringToReactNode(CELL_ICONS.mermaid), keywords: ["mermaid", "diagram", "flowchart", "chart"] },
+  { type: "raw", label: "Raw", description: "Unformatted text", icon: svgStringToReactNode(CELL_ICONS.raw), keywords: ["raw", "plain", "text"] },
+  { type: "notebook", label: "Notebook", description: "Nested notebook", icon: svgStringToReactNode(CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>'), keywords: ["notebook", "nested", "sub"] },
 ];
+
 
 interface SlashCommandProps {
   /** Position relative to the textarea */
@@ -31,6 +58,8 @@ interface SlashCommandProps {
   onClose: () => void;
   /** Custom commands (optional, extends defaults) */
   extraCommands?: SlashCommandItem[];
+  /** Depth level of the current notebook */
+  level?: number;
 }
 
 export const SlashCommand: React.FC<SlashCommandProps> = ({
@@ -39,10 +68,15 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
   onSelect,
   onClose,
   extraCommands,
+  level = 0,
 }) => {
-  const allCommands = extraCommands
+  let allCommands = extraCommands
     ? [...DEFAULT_COMMANDS, ...extraCommands]
     : DEFAULT_COMMANDS;
+
+  if (level > 0) {
+    allCommands = allCommands.filter(c => c.type !== "notebook");
+  }
 
   const filtered = query
     ? allCommands.filter(cmd => {

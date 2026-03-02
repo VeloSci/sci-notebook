@@ -4,6 +4,7 @@ import { useSciNotebook } from "../hooks";
 
 interface InsertHandleProps {
   index: number;
+  level?: number;
 }
 
 // Convert core SVG strings into React DOM safely without dangerouslySetInnerHTML
@@ -72,9 +73,10 @@ const INSERT_TYPES: { type: CellType; label: string; icon: React.ReactNode }[] =
   { type: "table", label: "Tabla", icon: svgStringToReactNode(CELL_ICONS.table) },
   { type: "component", label: "Component", icon: svgStringToReactNode(CELL_ICONS.component) },
   { type: "raw", label: "Raw", icon: svgStringToReactNode(CELL_ICONS.raw) },
+  { type: "notebook", label: "Notebook", icon: svgStringToReactNode(CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>') },
 ];
 
-export const InsertHandle: React.FC<InsertHandleProps> = ({ index }) => {
+export const InsertHandle: React.FC<InsertHandleProps> = ({ index, level = 0 }) => {
   const engine = useSciNotebook();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -119,7 +121,7 @@ export const InsertHandle: React.FC<InsertHandleProps> = ({ index }) => {
       </div>
       {open && (
         <div className="sci-nb-insert-menu">
-          {INSERT_TYPES.map(ct => (
+          {INSERT_TYPES.filter(ct => level === 0 || ct.type !== "notebook").map(ct => (
             <button
               key={ct.type}
               className="sci-nb-insert-option"

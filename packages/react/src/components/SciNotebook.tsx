@@ -38,7 +38,12 @@ export interface SciNotebookProps {
   showTOC?: boolean;
   /** Component registry for rendering custom framework components */
   components?: Record<string, React.ElementType>;
+  /** Depth level of this notebook (0 = root, 1 = nested) */
+  level?: number;
+  /** Callback to exit this notebook (e.g. from nested to parent) */
+  onExit?: () => void;
 }
+
 
 export const SciNotebook: React.FC<SciNotebookProps> = ({
   notebook: initialNotebook,
@@ -56,7 +61,10 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
   onReady,
   showTOC: showTOCProp = false,
   components = {},
+  level = 0,
+  onExit,
 }) => {
+
   const engine = useMemo(() => {
     if (providedEngine) return providedEngine;
 
@@ -117,6 +125,16 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
     });
   }, [engine]);
 
+  useEffect(() => {
+    const handler = (e: CustomEvent<{ notebookId: string; cellId: string }>) => {
+      if (e.detail.notebookId === engine.getNotebook().id) {
+        engine.deleteCell(e.detail.cellId);
+      }
+    };
+    window.addEventListener("sci-nb-remove-cell", handler as EventListener);
+    return () => window.removeEventListener("sci-nb-remove-cell", handler as EventListener);
+  }, [engine]);
+
   const handleGlobalKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (readOnly) return;
     // Ctrl+F: open find bar
@@ -125,8 +143,25 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
       setShowFind(v => !v);
       return;
     }
+
+    if (e.key === "Escape") {
+      const editingCell = engine.getCells().find(c => c.editing);
+      if (editingCell) {
+        // First escape: exit cell edit mode
+        engine.setViewMode(editingCell.id);
+        e.preventDefault();
+        return;
+      } else if (level > 0 && onExit) {
+        // Second escape (if no cell editing): exit the notebook itself
+        onExit();
+        e.preventDefault();
+        return;
+      }
+    }
+
     engine.handleKeyDown(e.nativeEvent);
-  }, [engine, readOnly]);
+  }, [engine, readOnly, level, onExit]);
+
 
   return (
     <NotebookContext.Provider value={engine}>
@@ -184,7 +219,7 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
               >Find</button>
               <button
                 className={`sci-nb-toolbar-btn ${showTOC ? "sci-nb-toolbar-btn--active" : ""}`}
-                onClick={() => setShowTOC(v => !v)}
+                onClick={() => setShowTOC((v: boolean) => !v)}
                 title="Table of Contents"
               >TOC</button>
             </div>
@@ -207,12 +242,12 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
                 </svg>
               </div>
               <p>Empty notebook. Add a cell to get started.</p>
-              <InsertHandle index={0} />
+              <InsertHandle index={0} level={level} />
             </div>
           )}
 
           {/* Insert handle before first cell */}
-          {cells.length > 0 && <InsertHandle index={0} />}
+          {cells.length > 0 && <InsertHandle index={0} level={level} />}
 
           {cells.map((cell, idx) => (
             <React.Fragment key={cell.id}>
@@ -222,9 +257,10 @@ export const SciNotebook: React.FC<SciNotebookProps> = ({
                 index={idx}
                 totalCells={cells.length}
                 components={components}
+                level={level}
               />
               {/* Insert handle between cells and after last */}
-              <InsertHandle index={idx + 1} />
+              <InsertHandle index={idx + 1} level={level} />
             </React.Fragment>
           ))}
         </div>
