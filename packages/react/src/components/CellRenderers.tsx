@@ -9,6 +9,7 @@ import { TableCell, renderTablePreview } from "./TableCell";
 import { MermaidPreview } from "./MermaidCell";
 import { CodeEditor } from "./CodeEditor";
 import { ComponentCell } from "./ComponentCell";
+import { NotebookCell } from "./NotebookCell";
 
 /** Render the edit-mode content for a cell */
 export function renderEditMode(
@@ -23,6 +24,7 @@ export function renderEditMode(
   slashState: { query: string; pos: { top: number; left: number } } | null,
   onSlashSelect: (type: CellType) => void,
   onSlashClose: () => void,
+  level?: number
 ): React.ReactNode {
   if (cell.type === "latex") {
     return <MathEditor cellId={cellId} source={cell.source} onExit={exitEdit} />;
@@ -35,6 +37,18 @@ export function renderEditMode(
   }
   if (cell.type === "table") {
     return <TableCell cellId={cellId} source={cell.source} metadata={cell.metadata} onExit={exitEdit} />;
+  }
+  if (cell.type === "notebook") {
+    return (
+      <NotebookCell 
+        cellId={cellId} 
+        source={cell.source} 
+        metadata={cell.metadata} 
+        engine={engine} 
+        onExit={exitEdit} 
+        readOnly={false} 
+      />
+    );
   }
 
   // Code or Component cells: syntax-highlighted editor
@@ -79,6 +93,7 @@ export function renderEditMode(
           query={slashState.query}
           onSelect={onSlashSelect}
           onClose={onSlashClose}
+          level={level}
         />
       )}
       <div className="sci-nb-cell-hint">
@@ -126,6 +141,14 @@ export function renderViewMode(
     return (
       <div className="sci-nb-preview sci-nb-preview--component" onClick={enterEdit}>
         <ComponentCell cellId={cell.id} source={cell.source} components={components} />
+      </div>
+    );
+  }
+
+  if (cell.type === "notebook") {
+    return (
+      <div className="sci-nb-preview sci-nb-preview--notebook" onClick={enterEdit}>
+        <NotebookCell cellId={cell.id} source={cell.source} metadata={cell.metadata} readOnly={true} />
       </div>
     );
   }

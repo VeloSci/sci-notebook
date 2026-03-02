@@ -1,9 +1,36 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState } from "react";
-import { Cell as ICell, CellType } from "@velo-sci/notebook-core";
+import { Cell as ICell, CellType, CELL_ICONS } from "@velo-sci/notebook-core";
 import { RenderPipeline } from "@velo-sci/notebook-renderer";
 import { useSciNotebook, useCell } from "../hooks";
 import { renderEditMode, renderViewMode } from "./CellRenderers";
 import { CellOutputDisplay } from "./CellOutput";
+
+// Helper to convert SVG strings safely
+function svgStringToReactNode(svgStr: string): React.ReactNode {
+  if (typeof document === "undefined") return null;
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgStr, "image/svg+xml");
+  const svgNode = doc.querySelector("svg");
+  if (!svgNode) return null;
+
+  const domToReact = (node: Element, key: number): React.ReactNode => {
+    const tagName = node.tagName.toLowerCase();
+    if (tagName === "style") {
+      return React.createElement("style", { key, dangerouslySetInnerHTML: { __html: node.textContent || "" } });
+    }
+    const props: Record<string, any> = { key };
+    for (let i = 0; i < node.attributes.length; i++) {
+      const attr = node.attributes[i];
+      let name = attr.name;
+      const camelCaseMap: Record<string, string> = { "class": "className", "stroke-width": "strokeWidth", "stroke-linecap": "strokeLinecap", "stroke-linejoin": "strokeLinejoin", "stroke-dasharray": "strokeDasharray", "stroke-dashoffset": "strokeDashoffset", "viewbox": "viewBox", "fill-rule": "fillRule", "clip-rule": "clipRule" };
+      if (camelCaseMap[name.toLowerCase()]) name = camelCaseMap[name.toLowerCase()];
+      props[name] = attr.value;
+    }
+    const children = Array.from(node.children).map((child, childIdx) => domToReact(child, childIdx));
+    return React.createElement(tagName, props, children.length > 0 ? children : undefined);
+  };
+  return domToReact(svgNode, 0);
+}
 
 export interface CellProps {
   cellId: string;
@@ -13,14 +40,15 @@ export interface CellProps {
   components?: Record<string, React.ElementType>;
 }
 
-const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
-  { value: "markdown", label: "Markdown", icon: "M" },
-  { value: "code", label: "Code", icon: "</>" },
-  { value: "raw", label: "Raw", icon: "T" },
-  { value: "latex", label: "LaTeX", icon: "∑" },
-  { value: "image", label: "Image", icon: "🖼" },
-  { value: "embed", label: "Embed", icon: "⧉" },
-  { value: "component", label: "Component", icon: "🧩" },
+const CELL_TYPES: { value: CellType; label: string; icon: React.ReactNode }[] = [
+  { value: "markdown", label: "Markdown", icon: svgStringToReactNode(CELL_ICONS.markdown) },
+  { value: "code", label: "Code", icon: svgStringToReactNode(CELL_ICONS.code) },
+  { value: "raw", label: "Raw", icon: svgStringToReactNode(CELL_ICONS.raw) },
+  { value: "latex", label: "LaTeX", icon: svgStringToReactNode(CELL_ICONS.latex) },
+  { value: "image", label: "Image", icon: svgStringToReactNode(CELL_ICONS.image) },
+  { value: "embed", label: "Embed", icon: svgStringToReactNode(CELL_ICONS.embed) },
+  { value: "component", label: "Component", icon: svgStringToReactNode(CELL_ICONS.component) },
+  { value: "notebook", label: "Notebook", icon: svgStringToReactNode(CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>') },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -31,9 +59,10 @@ const PLACEHOLDERS: Record<string, string> = {
   image: "Click to add image",
   embed: "Click to add embedded content",
   component: 'Enter component JSON config... { "name": "Chart", "props": {} }',
+  notebook: "Nested Notebook (click to edit)",
 };
 
-export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells, components }) => {
+export const Cell: React.FC<CellProps & { level?: number }> = ({ cellId, pipeline, index, totalCells, components, level = 0 }) => {
   const cell = useCell(cellId);
   const engine = useSciNotebook();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -43,6 +72,7 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells,
   const [slashState, setSlashState] = useState<{ query: string; pos: { top: number; left: number } } | null>(null);
   const [dragOver, setDragOver] = useState<"top" | "bottom" | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragHandleHovered, setDragHandleHovered] = useState(false);
 
   const rendered = useMemo(() => {
     if (!cell) return { html: "", cellId: "", renderTime: 0, cached: false };
@@ -116,8 +146,9 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells,
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (slashState && ["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) return;
-    if (slashState && e.key === "Escape") { e.preventDefault(); setSlashState(null); return; }
-    if (e.key === "Escape") { e.preventDefault(); exitEdit(); }
+    if (slashState && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); setSlashState(null); return; }
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); exitEdit(); }
+
     else if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault(); exitEdit();
       const cells = engine.getCells(); const idx = cells.findIndex(c => c.id === cellId);
@@ -148,12 +179,54 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells,
         hovered ? "sci-nb-cell--hover" : "", isDragging ? "sci-nb-cell--dragging" : "",
         dragOver === "top" ? "sci-nb-cell--drag-over-top" : "", dragOver === "bottom" ? "sci-nb-cell--drag-over-bottom" : "",
       ].filter(Boolean).join(" ")}
-      draggable={!isEditing}
-      onDragStart={(e) => { e.dataTransfer.setData("text/plain", cellId); e.dataTransfer.effectAllowed = "move"; setIsDragging(true); }}
-      onDragEnd={() => { setIsDragging(false); setDragOver(null); }}
-      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; const rect = (e.currentTarget as HTMLElement).getBoundingClientRect(); setDragOver(e.clientY < rect.top + rect.height / 2 ? "top" : "bottom"); }}
-      onDragLeave={() => setDragOver(null)}
-      onDrop={(e) => { e.preventDefault(); const did = e.dataTransfer.getData("text/plain"); setDragOver(null); if (did && did !== cellId) engine.moveCell(did, dragOver === "top" ? index : index + 1); }}
+      draggable={!isEditing || dragHandleHovered || isDragging}
+      onDragStart={(e) => { 
+        e.stopPropagation();
+        e.dataTransfer.setData("text/plain", cellId); 
+        e.dataTransfer.setData("application/sci-notebook-cell", JSON.stringify({ 
+          srcNotebookId: engine.getNotebook().id, 
+          cellId: cellId, 
+          cell: cell 
+        }));
+        e.dataTransfer.effectAllowed = "move"; 
+        setIsDragging(true); 
+      }}
+      onDragEnd={(e) => { e.stopPropagation(); setIsDragging(false); setDragOver(null); setDragHandleHovered(false); }}
+      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "move"; const rect = (e.currentTarget as HTMLElement).getBoundingClientRect(); setDragOver(e.clientY < rect.top + rect.height / 2 ? "top" : "bottom"); }}
+      onDragLeave={(e) => { e.stopPropagation(); setDragOver(null); }}
+      onDrop={(e) => { 
+        e.preventDefault(); 
+        e.stopPropagation();
+        setDragOver(null); 
+        
+        try {
+          const payloadStr = e.dataTransfer.getData("application/sci-notebook-cell");
+          const targetIdx = dragOver === "top" ? index : index + 1;
+          
+          if (payloadStr) {
+            const payload = JSON.parse(payloadStr);
+            if (payload.srcNotebookId === engine.getNotebook().id) {
+              if (payload.cellId !== cellId) {
+                engine.moveCell(payload.cellId, targetIdx);
+              }
+            } else {
+              // Cross-notebook drop
+              const newCell = engine.insertCell(targetIdx, payload.cell.type, payload.cell.source);
+              engine.updateCellMetadata(newCell.id, payload.cell.metadata);
+              window.dispatchEvent(new CustomEvent("sci-nb-remove-cell", { 
+                detail: { notebookId: payload.srcNotebookId, cellId: payload.cellId } 
+              }));
+            }
+            return;
+          }
+        } catch (err) {}
+
+        // Fallback for same-notebook dragging if json parsing fails
+        const did = e.dataTransfer.getData("text/plain"); 
+        if (did && did !== cellId) {
+          engine.moveCell(did, dragOver === "top" ? index : index + 1); 
+        }
+      }}
       data-testid={`cell-${cell.id}`} data-editing={String(isEditing)} data-cell-type={cell.type}
       role="region" aria-label={`${cell.type} cell ${index + 1} of ${totalCells}${isEditing ? ", editing" : ""}`}
       aria-selected={isEditing} tabIndex={0}
@@ -161,7 +234,12 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells,
       onClick={() => engine.focusCell(cellId)}
     >
       <div className="sci-nb-cell-gutter">
-        <div className="sci-nb-cell-handle" title="Drag to reorder">
+        <div 
+          className="sci-nb-cell-handle" 
+          title="Drag to reorder"
+          onMouseEnter={() => setDragHandleHovered(true)}
+          onMouseLeave={() => setDragHandleHovered(false)}
+        >
           <svg width="12" height="20" viewBox="0 0 12 20" fill="currentColor">
             <circle cx="3" cy="4" r="1.5" /><circle cx="9" cy="4" r="1.5" />
             <circle cx="3" cy="10" r="1.5" /><circle cx="9" cy="10" r="1.5" />
@@ -178,7 +256,7 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells,
         </button>
         {showTypeMenu && (
           <div className="sci-nb-type-menu">
-            {CELL_TYPES.map(ct => (
+            {CELL_TYPES.filter(ct => level === 0 || ct.value !== "notebook").map(ct => (
               <button key={ct.value} className={`sci-nb-type-option ${cell.type === ct.value ? "sci-nb-type-option--active" : ""}`}
                 onClick={(e) => { e.stopPropagation(); engine.setCellType(cellId, ct.value); setShowTypeMenu(false); }}>
                 <span className="sci-nb-type-option-icon">{ct.icon}</span>{ct.label}
@@ -190,7 +268,7 @@ export const Cell: React.FC<CellProps> = ({ cellId, pipeline, index, totalCells,
 
       <div className="sci-nb-cell-content">
         {isEditing
-          ? renderEditMode(cell, cellId, engine, textareaRef, handleSourceChange, handleKeyDown, placeholder, exitEdit, slashState, handleSlashSelect, () => setSlashState(null))
+          ? renderEditMode(cell, cellId, engine, textareaRef, handleSourceChange, handleKeyDown, placeholder, exitEdit, slashState, handleSlashSelect, () => setSlashState(null), level)
           : renderViewMode(cell, rendered.html, isEmpty, placeholder, enterEdit, components)}
         {cell.outputs && cell.outputs.length > 0 && <CellOutputDisplay outputs={cell.outputs} />}
       </div>
