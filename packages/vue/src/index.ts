@@ -1,6 +1,6 @@
 export { SciNotebook } from "./SciNotebook";
-export type { SciNotebookProps } from "./SciNotebook";
 export { NotebookCell } from "./NotebookCell";
+export { NestedNotebook } from "./NestedNotebook";
 export { InsertHandle } from "./InsertHandle";
 export { FloatingToolbar } from "./FloatingToolbar";
 export { MathEditor, MATH_CATEGORIES } from "./MathEditor";

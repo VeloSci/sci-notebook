@@ -1,5 +1,6 @@
 import { defineComponent, h, ref, onMounted, onUnmounted, watch, type PropType } from "vue";
 import type { CellType } from "@velo-sci/notebook-core";
+import { CELL_ICONS } from "@velo-sci/notebook-core";
 
 export interface SlashCommandItem {
   type: CellType;
@@ -10,15 +11,17 @@ export interface SlashCommandItem {
 }
 
 const DEFAULT_COMMANDS: SlashCommandItem[] = [
-  { type: "markdown", label: "Text", description: "Markdown formatted text block", icon: "M", keywords: ["text", "markdown", "paragraph"] },
-  { type: "code", label: "Code", description: "Code block with syntax highlighting", icon: "</>", keywords: ["code", "script", "program"] },
-  { type: "latex", label: "Formula", description: "Visual LaTeX formula editor", icon: "∑", keywords: ["latex", "math", "formula", "equation"] },
-  { type: "image", label: "Image", description: "Image with drag & drop, URL, caption", icon: "🖼", keywords: ["image", "picture", "photo", "img"] },
-  { type: "embed", label: "Embed", description: "YouTube, CodePen, Desmos, iframe", icon: "⧉", keywords: ["embed", "iframe", "youtube", "video", "codepen"] },
-  { type: "table", label: "Table", description: "Editable table with rows and columns", icon: "▦", keywords: ["table", "grid", "spreadsheet"] },
-  { type: "mermaid", label: "Diagram", description: "Mermaid diagram (flowchart, sequence, etc.)", icon: "◇", keywords: ["mermaid", "diagram", "flowchart", "chart"] },
-  { type: "raw", label: "Raw", description: "Plain unformatted text", icon: "T", keywords: ["raw", "plain", "text"] },
+  { type: "markdown", label: "Markdown", description: "Markdown text block", icon: CELL_ICONS.markdown, keywords: ["text", "markdown", "paragraph"] },
+  { type: "code", label: "Code", description: "Code block", icon: CELL_ICONS.code, keywords: ["code", "script", "program"] },
+  { type: "latex", label: "LaTeX", description: "LaTeX formula", icon: CELL_ICONS.latex, keywords: ["latex", "math", "formula", "equation"] },
+  { type: "image", label: "Image", description: "Image block", icon: CELL_ICONS.image, keywords: ["image", "picture", "photo", "img"] },
+  { type: "embed", label: "Embed", description: "External content", icon: CELL_ICONS.embed, keywords: ["embed", "iframe", "youtube", "video", "codepen"] },
+  { type: "table", label: "Table", description: "Table block", icon: CELL_ICONS.table, keywords: ["table", "grid", "spreadsheet"] },
+  { type: "mermaid", label: "Diagram", description: "Mermaid diagram", icon: CELL_ICONS.mermaid, keywords: ["mermaid", "diagram", "flowchart", "chart"] },
+  { type: "raw", label: "Raw", description: "Unformatted text", icon: CELL_ICONS.raw, keywords: ["raw", "plain", "text"] },
+  { type: "notebook", label: "Notebook", description: "Nested notebook", icon: CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>', keywords: ["notebook", "nested", "level"] },
 ];
+
 
 export const SlashCommand = defineComponent({
   name: "SlashCommand",
@@ -28,6 +31,7 @@ export const SlashCommand = defineComponent({
     onSelect: { type: Function as PropType<(type: CellType) => void>, required: true },
     onClose: { type: Function as PropType<() => void>, required: true },
     extraCommands: { type: Array as PropType<SlashCommandItem[]>, default: undefined },
+    level: { type: Number, default: 0 },
   },
   setup(props) {
     const selectedIndex = ref(0);
@@ -35,9 +39,10 @@ export const SlashCommand = defineComponent({
 
     const getFiltered = () => {
       const all = props.extraCommands ? [...DEFAULT_COMMANDS, ...props.extraCommands] : DEFAULT_COMMANDS;
-      if (!props.query) return all;
+      const available = all.filter(c => props.level === 0 || c.type !== "notebook");
+      if (!props.query) return available;
       const q = props.query.toLowerCase();
-      return all.filter(cmd =>
+      return available.filter(cmd =>
         cmd.label.toLowerCase().includes(q) ||
         cmd.type.toLowerCase().includes(q) ||
         cmd.keywords.some(k => k.includes(q))
@@ -109,7 +114,8 @@ export const SlashCommand = defineComponent({
             onMouseenter: () => { selectedIndex.value = i; },
             onClick: () => props.onSelect!(cmd.type),
           }, [
-            h("span", { class: "sci-nb-slash-icon" }, cmd.icon),
+            h("span", { class: "sci-nb-slash-icon", innerHTML: cmd.icon }),
+
             h("div", { class: "sci-nb-slash-text" }, [
               h("span", { class: "sci-nb-slash-label" }, cmd.label),
               h("span", { class: "sci-nb-slash-desc" }, cmd.description),
