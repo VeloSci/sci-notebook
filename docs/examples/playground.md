@@ -1,3 +1,10 @@
+---
+layout: doc
+title: Interactive Playground
+outline: false
+pageClass: full-width-page
+---
+
 <script setup>
 import { sampleNotebookData } from '../.vitepress/theme/notebooks'
 </script>

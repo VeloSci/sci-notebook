@@ -1,3 +1,11 @@
+---
+layout: doc
+title: Plugin Integration Example
+outline: false
+pageClass: full-width-page
+---
+
+
 # Plugin Integration Example
 
 This example demonstrates how to create and register a custom plugin to extend the notebook's functionality.

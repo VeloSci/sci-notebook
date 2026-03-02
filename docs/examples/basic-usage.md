@@ -1,3 +1,10 @@
+---
+layout: doc
+title: Basic Usage
+outline: false
+pageClass: full-width-page
+---
+
 # Full Example — All Cell Types
 
 This example shows how to create a notebook with all 8 built-in cell types, light/dark theme, and JSON export/import.
