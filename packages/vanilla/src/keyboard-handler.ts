@@ -7,13 +7,19 @@ export class KeyboardHandler {
   private engine: EditorEngine;
   private container: HTMLElement;
   private boundHandler: (e: KeyboardEvent) => void;
+  private onExit?: () => void;
+  private level: number;
 
-  constructor(engine: EditorEngine, container: HTMLElement) {
+  constructor(engine: EditorEngine, container: HTMLElement, options: { onExit?: () => void, level?: number } = {}) {
     this.engine = engine;
     this.container = container;
+    this.onExit = options.onExit;
+    this.level = options.level || 0;
     this.boundHandler = this.onKeyDown.bind(this);
     this.container.addEventListener("keydown", this.boundHandler);
   }
+
+
 
   private onKeyDown(e: KeyboardEvent): void {
     const handled = this.engine.handleKeyDown(e);
@@ -26,12 +32,18 @@ export class KeyboardHandler {
       const focused = this.engine.getFocusedCellId();
       if (focused && this.engine.getMode(focused) === "edit") {
         e.preventDefault();
+        e.stopPropagation();
         this.engine.setViewMode(focused);
         const el = this.container.querySelector<HTMLElement>(`[data-cell-id="${focused}"]`);
         el?.focus();
+      } else if (this.level > 0 && this.onExit) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.onExit();
       }
       return;
     }
+
 
     // Enter: enter edit mode
     if (e.key === "Enter" && !mod && !e.shiftKey) {

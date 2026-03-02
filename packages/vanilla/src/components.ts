@@ -5,6 +5,7 @@
  */
 
 import type { EditorEngine, CellType, Cell, CellOutput as ICellOutput } from "@velo-sci/notebook-core";
+import { CELL_ICONS } from "@velo-sci/notebook-core";
 import { MATH_CATEGORIES, type MathBlock } from "./math-categories";
 
 // ── Helpers ──
@@ -146,6 +147,7 @@ export const DEFAULT_COMMANDS: SlashCommandItem[] = [
   { type: "table", label: "Table", description: "Editable table with rows and columns", icon: "▦", keywords: ["table", "grid", "spreadsheet"] },
   { type: "mermaid", label: "Diagram", description: "Mermaid diagram (flowchart, sequence, etc.)", icon: "◇", keywords: ["mermaid", "diagram", "flowchart", "chart"] },
   { type: "raw", label: "Raw", description: "Plain unformatted text", icon: "T", keywords: ["raw", "plain", "text"] },
+  { type: "notebook", label: "Notebook", description: "Nested notebook (max depth 1)", icon: CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>', keywords: ["notebook", "nested", "group"] },
 ];
 
 export class SlashCommandMenu {
@@ -160,6 +162,7 @@ export class SlashCommandMenu {
     private onSelect: (type: CellType) => void,
     private onClose: () => void,
     private extraCommands?: SlashCommandItem[],
+    private level: number = 0,
   ) {
     this.el = document.createElement("div");
     this.el.className = "sci-nb-slash-menu";
@@ -174,12 +177,13 @@ export class SlashCommandMenu {
     this.query = query;
     this.selectedIndex = 0;
     const all = this.extraCommands ? [...DEFAULT_COMMANDS, ...this.extraCommands] : DEFAULT_COMMANDS;
+    const allowed = all.filter(c => this.level === 0 || c.type !== "notebook");
     this.filtered = query
-      ? all.filter(cmd => {
+      ? allowed.filter(cmd => {
           const q = query.toLowerCase();
           return cmd.label.toLowerCase().includes(q) || cmd.type.toLowerCase().includes(q) || cmd.keywords.some(k => k.includes(q));
         })
-      : all;
+      : allowed;
     this.render();
   }
 
