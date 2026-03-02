@@ -8,6 +8,7 @@ import { EmbedCell, renderEmbedPreview } from "./EmbedCell";
 import { TableCell, renderTablePreview } from "./TableCell";
 import { MermaidPreview } from "./MermaidCell";
 import { ComponentCell } from "./ComponentCell";
+import { NestedNotebook } from "./NestedNotebook";
 
 const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
   { value: "markdown", label: "Markdown", icon: CELL_ICONS.markdown },
@@ -17,6 +18,7 @@ const CELL_TYPES: { value: CellType; label: string; icon: string }[] = [
   { value: "image", label: "Image", icon: CELL_ICONS.image },
   { value: "embed", label: "Embed", icon: CELL_ICONS.embed },
   { value: "component", label: "Component", icon: CELL_ICONS.component },
+  { value: "notebook", label: "Notebook", icon: CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>' },
 ];
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -27,6 +29,7 @@ const PLACEHOLDERS: Record<string, string> = {
   image: "Click to add image",
   embed: "Click to add embedded content",
   component: 'Enter component JSON config... { "name": "Chart", "props": {} }',
+  notebook: "Nested Notebook (click to edit)",
 };
 
 // ── Vue Math Editor (mirrors React's MathEditor) ──
@@ -104,6 +107,7 @@ const VueMathEditor = defineComponent({
       else if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); e.stopPropagation(); exitAndNext(); }
       else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopPropagation(); props.onExit!(); }
     };
+
 
     onMounted(() => {
       nextTick(() => { containerRef.value?.focus(); });
@@ -201,6 +205,7 @@ export const NotebookCell = defineComponent({
     index: { type: Number, required: true },
     totalCells: { type: Number, required: true },
     components: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
+    level: { type: Number, default: 0 },
   },
   setup(props) {
     const engine = useNotebookEngine();
@@ -252,8 +257,10 @@ export const NotebookCell = defineComponent({
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
+        e.stopPropagation();
         exitEdit();
       } else if (e.key === "Enter" && e.shiftKey) {
+
         e.preventDefault();
         exitEdit();
         const cells = engine.getCells();
@@ -309,7 +316,7 @@ export const NotebookCell = defineComponent({
         }),
         ...(showTypeMenu.value ? [
           h("div", { class: "sci-nb-type-menu" },
-            CELL_TYPES.map(ct =>
+            CELL_TYPES.filter(ct => props.level === 0 || ct.value !== "notebook").map(ct =>
               h("button", {
                 class: `sci-nb-type-option ${cellType === ct.value ? "sci-nb-type-option--active" : ""}`,
                 onClick: (e: MouseEvent) => { e.stopPropagation(); engine.setCellType(props.cellId, ct.value); showTypeMenu.value = false; },
@@ -356,6 +363,16 @@ export const NotebookCell = defineComponent({
             metadata: cell.value!.metadata,
             onExit: exitEdit,
           }),
+        );
+      } else if (cellType === "notebook") {
+        contentChildren.push(
+          h(NestedNotebook, {
+            cellId: props.cellId,
+            source: cell.value!.source,
+            metadata: cell.value!.metadata,
+            engine: engine,
+            onExit: isEditing ? exitEdit : undefined,
+          })
         );
       } else if (isEditing) {
         contentChildren.push(
@@ -475,10 +492,38 @@ export const NotebookCell = defineComponent({
           onMouseenter: () => { hovered.value = true; },
           onMouseleave: () => { hovered.value = false; },
           onClick: () => engine.focusCell(props.cellId),
-          onDragstart: (e: DragEvent) => { e.dataTransfer!.setData("text/plain", props.cellId); e.dataTransfer!.effectAllowed = "move"; },
-          onDragover: (e: DragEvent) => { e.preventDefault(); e.dataTransfer!.dropEffect = "move"; },
+          onDragstart: (e: DragEvent) => { 
+            e.stopPropagation();
+            e.dataTransfer!.setData("text/plain", props.cellId); 
+            e.dataTransfer!.setData("application/sci-notebook-cell", JSON.stringify({
+              srcNotebookId: engine.getNotebook().id,
+              cellId: props.cellId,
+              cell: cell.value
+            }));
+            e.dataTransfer!.effectAllowed = "move"; 
+          },
+          onDragover: (e: DragEvent) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer!.dropEffect = "move"; },
           onDrop: (e: DragEvent) => {
             e.preventDefault();
+            e.stopPropagation();
+            
+            try {
+              const payloadStr = e.dataTransfer!.getData("application/sci-notebook-cell");
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              const targetIdx = e.clientY < rect.top + rect.height / 2 ? props.index : props.index + 1;
+              if (payloadStr) {
+                const payload = JSON.parse(payloadStr);
+                if (payload.srcNotebookId === engine.getNotebook().id) {
+                  if (payload.cellId !== props.cellId) engine.moveCell(payload.cellId, targetIdx);
+                } else {
+                  const newCell = engine.insertCell(targetIdx, payload.cell.type, payload.cell.source);
+                  engine.updateCellMetadata(newCell.id, payload.cell.metadata);
+                  window.dispatchEvent(new CustomEvent("sci-nb-remove-cell", { detail: { notebookId: payload.srcNotebookId, cellId: payload.cellId } }));
+                }
+                return;
+              }
+            } catch (err) {}
+
             const did = e.dataTransfer!.getData("text/plain");
             if (did && did !== props.cellId) {
               const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();

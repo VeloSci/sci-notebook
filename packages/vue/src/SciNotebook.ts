@@ -22,9 +22,11 @@ export interface SciNotebookProps {
   showToolbar?: boolean;
   showTOC?: boolean;
   engineRef?: { value: EditorEngine | null };
-  onReady?: (engine: EditorEngine) => void;
   components?: Record<string, any>;
+  level?: number;
+  onExit?: () => void;
 }
+
 
 export const SciNotebook = defineComponent({
   name: "SciNotebook",
@@ -40,7 +42,10 @@ export const SciNotebook = defineComponent({
     showTOC: { type: Boolean, default: false },
     engineRef: { type: Object as PropType<{ value: EditorEngine | null }>, default: undefined },
     components: { type: Object as PropType<Record<string, any>>, default: () => ({}) },
+    level: { type: Number, default: 0 },
+    onExit: { type: Function as PropType<() => void>, default: undefined },
   },
+
   setup(props, { expose }) {
     const engineInstance = props.engine || createNotebook({
       notebook: props.notebook,
@@ -75,6 +80,15 @@ export const SciNotebook = defineComponent({
           focusedCellId.value = payload.data.cellId;
         })
       );
+
+      const removeHandler = (e: Event) => {
+        const ce = e as CustomEvent<{ notebookId: string; cellId: string }>;
+        if (ce.detail.notebookId === engineInstance.getNotebook().id) {
+          engineInstance.deleteCell(ce.detail.cellId);
+        }
+      };
+      window.addEventListener("sci-nb-remove-cell", removeHandler);
+      unsubs.push(() => window.removeEventListener("sci-nb-remove-cell", removeHandler));
     });
 
     onUnmounted(() => {
@@ -141,13 +155,13 @@ export const SciNotebook = defineComponent({
         ? h("div", { class: "sci-nb-empty" }, [
             h("div", { class: "sci-nb-empty-icon", innerHTML: '<svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="6" width="32" height="36" rx="4" /><line x1="14" y1="14" x2="34" y2="14" /><line x1="14" y1="22" x2="28" y2="22" /><line x1="14" y1="30" x2="22" y2="30" /></svg>' }),
             h("p", null, "Empty notebook. Add a cell to get started."),
-            h(InsertHandle, { index: 0 }),
+            h(InsertHandle, { index: 0, level: props.level }),
           ])
         : null;
 
       const cellNodes = cellList.length > 0
         ? [
-            h(InsertHandle, { index: 0, key: "insert-0" }),
+            h(InsertHandle, { index: 0, level: props.level, key: "insert-0" }),
             ...cellList.flatMap((cell, idx) => [
               h(NotebookCell, {
                 cellId: cell.id,
@@ -155,9 +169,10 @@ export const SciNotebook = defineComponent({
                 index: idx,
                 totalCells: cellList.length,
                 components: props.components,
+                level: props.level,
                 key: cell.id,
               }),
-              h(InsertHandle, { index: idx + 1, key: `insert-${idx + 1}` }),
+              h(InsertHandle, { index: idx + 1, level: props.level, key: `insert-${idx + 1}` }),
             ]),
           ]
         : null;
@@ -171,6 +186,7 @@ export const SciNotebook = defineComponent({
         {
           class: "sci-nb",
           "data-theme": props.theme,
+          "data-level": String(props.level || 0),
           tabindex: 0,
           onKeydown: (e: KeyboardEvent) => {
             if (props.readOnly) return;
@@ -179,8 +195,21 @@ export const SciNotebook = defineComponent({
               showFind.value = !showFind.value;
               return;
             }
+            if (e.key === "Escape") {
+              const editingCell = engineInstance.getCells().find(c => c.editing);
+              if (editingCell) {
+                engineInstance.setViewMode(editingCell.id);
+                e.preventDefault();
+                return;
+              } else if (props.level > 0 && props.onExit) {
+                props.onExit();
+                e.preventDefault();
+                return;
+              }
+            }
             engineInstance.handleKeyDown(e);
           },
+
         },
         [
           toolbarNode,

@@ -11,12 +11,14 @@ const INSERT_TYPES: { type: CellType; label: string; icon: string }[] = [
   { type: "table", label: "Tabla", icon: CELL_ICONS.table },
   { type: "component", label: "Component", icon: CELL_ICONS.component },
   { type: "raw", label: "Raw", icon: CELL_ICONS.raw },
+  { type: "notebook", label: "Notebook", icon: CELL_ICONS.notebook || '<svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>' },
 ];
 
 export const InsertHandle = defineComponent({
   name: "InsertHandle",
   props: {
     index: { type: Number, required: true },
+    level: { type: Number, default: 0 },
   },
   setup(props) {
     const engine = useNotebookEngine();
@@ -54,7 +56,7 @@ export const InsertHandle = defineComponent({
         ]),
         ...(open.value ? [
           h("div", { class: "sci-nb-insert-menu" },
-            INSERT_TYPES.map(ct =>
+            INSERT_TYPES.filter(ct => props.level === 0 || ct.type !== "notebook").map(ct =>
               h("button", {
                 class: "sci-nb-insert-option",
                 key: ct.type,
