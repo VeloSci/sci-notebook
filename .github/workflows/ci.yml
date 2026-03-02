@@ -94,15 +94,10 @@ jobs:
       - name: Build Documentation
         run: pnpm docs:build
 
-      - name: Build Example App
-        run: cd packages/example && pnpm build
-
       - name: Prepare Deployment Directory
         run: |
           mkdir -p deploy
           cp -r docs/dist/* deploy/
-          mkdir -p deploy/example
-          cp -r packages/example/dist/* deploy/example/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
