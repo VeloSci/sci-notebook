@@ -1,3 +1,10 @@
+---
+layout: doc
+title: Theming and Styling
+outline: false
+pageClass: full-width-page
+---
+
 # Theming and Styling
 
 SciNotebook comes with a flexible theming system and uses CSS variables for easy customization.

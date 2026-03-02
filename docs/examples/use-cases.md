@@ -1,3 +1,11 @@
+---
+layout: doc
+title: Use Cases
+outline: false
+pageClass: full-width-page
+---
+
+
 <script setup>
 import { sampleNotebookData, cellTypesNotebook } from '../.vitepress/theme/notebooks'
 </script>
